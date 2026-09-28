@@ -7,10 +7,10 @@ const NotFoundPage = lazy(() => import('./routes/not-found'))
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <HomePage />,
+    Component: HomePage,
   },
   {
     path: '*',
-    element: <NotFoundPage />,
+    Component: NotFoundPage,
   },
 ])

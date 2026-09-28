@@ -2,99 +2,159 @@
 @import 'tailwindcss';
 
 :root {
-  /* Brand - Occupify True Blue Palette */
-  --color-primary-50:  #EBF5FF;
-  --color-primary-100: #D1E9FF;
-  --color-primary-200: #B2DDFF;
-  --color-primary-300: #84C5F6;
-  --color-primary-400: #46A3E8;
-  --color-primary-500: #0A66C2;
-  --color-primary-600: #084FA0;
-  --color-primary-700: #063C7A;
-  --color-primary-800: #042D5C;
-  --color-primary-900: #021E3E;
+  /* =========================================================================
+     Occupify Design System: Brand - Occupify True Blue Palette
+     ========================================================================= */
+  --color-primary-50:  #EAF1FA;
+  --color-primary-100: #C7D9EE;
+  --color-primary-200: #94B4DE;
+  --color-primary-300: #6190CE;
+  --color-primary-400: #3675BD;
+  --color-primary-500: #0A66C2; /* Occupify True Blue */
+  --color-primary-600: #084FA0; /* Primary Hover */
+  --color-primary-700: #06407F;
+  --color-primary-800: #04305E;
+  --color-primary-900: #021F3D;
 
-  /* Surfaces - Clean Crisp Modern Slate */
-  --bg-base:     #F8FAFC;
-  --bg-subtle:   #F1F5F9;
-  --bg-elevated: #FFFFFF;
-  --bg-overlay:  rgba(15, 23, 42, 0.60);
+  /* =========================================================================
+     Surfaces & Canvas (Warm Beige signature vs cold enterprise gray)
+     ========================================================================= */
+  --bg-base:     #F4F2EE; /* Canvas warm beige */
+  --bg-subtle:   #FAFAF8; /* Subtle sidebar / light section */
+  --bg-elevated: #FFFFFF; /* Cards, modals, dropdown panels */
+  --bg-overlay:  rgba(0, 0, 0, 0.55); /* Modal scrim backdrop */
 
-  /* Text - High Contrast & Hierarchy */
-  --text-primary:    #0F172A;
-  --text-secondary:  #475569;
-  --text-tertiary:   #94A3B8;
+  /* =========================================================================
+     Text - High Contrast & Hierarchy
+     ========================================================================= */
+  --text-primary:    rgba(0, 0, 0, 0.90);
+  --text-secondary:  rgba(0, 0, 0, 0.60);
+  --text-tertiary:   rgba(0, 0, 0, 0.45);
   --text-link:       #0A66C2;
   --text-on-primary: #FFFFFF;
-  --text-disabled:   #CBD5E1;
+  --text-disabled:   rgba(0, 0, 0, 0.30);
 
-  /* Borders */
-  --border-default: #E2E8F0;
-  --border-subtle:  #F1F5F9;
-  --border-strong:  #CBD5E1;
-  --border-focus:   #0A66C2;
+  /* =========================================================================
+     Borders
+     ========================================================================= */
+  --border-default: rgba(0, 0, 0, 0.08); /* Card separators, dividers */
+  --border-subtle:  rgba(0, 0, 0, 0.04); /* Low-emphasis separators */
+  --border-strong:  rgba(0, 0, 0, 0.15); /* Input borders, modals */
+  --border-focus:   #0A66C2;            /* Focus ring */
 
-  /* Shadows - Modern Multi-layered */
-  --shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
-  --shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
-  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
-  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
-  --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.10), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
-  --shadow-focus: 0 0 0 3px rgba(10, 102, 194, 0.18);
-  --shadow-card: 0 0 0 1px rgba(15, 23, 42, 0.06), 0 1px 3px 0 rgba(15, 23, 42, 0.04);
-  --shadow-card-hover: 0 0 0 1px rgba(10, 102, 194, 0.20), 0 8px 24px -4px rgba(15, 23, 42, 0.09);
+  /* =========================================================================
+     Shadows (Subtle, crisp 1px border substitute)
+     ========================================================================= */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 0 0 1px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.14);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.10);
+  --shadow-focus: 0 0 0 1px #0A66C2;
+  --shadow-card: 0 0 0 1px rgba(0, 0, 0, 0.08);
+  --shadow-card-hover: 0 0 0 1px rgba(10, 102, 194, 0.28), 0 8px 24px -4px rgba(0, 0, 0, 0.09);
 
-  /* Radius Tokens */
+  /* =========================================================================
+     Radius Tokens (8px card signature, 9999px pill buttons)
+     ========================================================================= */
   --radius-none: 0;
-  --radius-xs:   4px;
-  --radius-sm:   6px;
-  --radius-md:   8px;
-  --radius-lg:   12px;
-  --radius-xl:   16px;
-  --radius-full: 9999px;
+  --radius-xs:   2px;
+  --radius-sm:   4px;    /* Inputs, small badges */
+  --radius-md:   8px;    /* Cards (Occupify signature radius) */
+  --radius-lg:   12px;   /* Large panels, modals */
+  --radius-xl:   16px;   /* Floating sheets */
+  --radius-full: 9999px; /* Pill buttons, avatars, chips */
 
-  /* Spacing */
+  /* =========================================================================
+     Spacing Tokens (Base: 4px)
+     ========================================================================= */
   --space-xs:  4px;
   --space-sm:  8px;
   --space-md:  12px;
   --space-lg:  16px;
   --space-xl:  24px;
-  --space-2xl: 32px;
-  --space-3xl: 48px;
+  --space-2xl: 40px;
+  --space-3xl: 56px;
 
-  /* Motion */
+  /* =========================================================================
+     Motion
+     ========================================================================= */
   --duration-fast: 150ms;
-  --duration-base: 220ms;
-  --duration-slow: 350ms;
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-base: 250ms;
+  --duration-slow: 400ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* Semantic Status Colors */
-  --color-success-bg: #F0FDF4;
+  /* =========================================================================
+     Semantic Status Colors
+     ========================================================================= */
+  --color-success-bg:     #E5F6E8;
   --color-success-border: #BBF7D0;
-  --color-success-fg: #15803D;
+  --color-success-fg:     #057642;
 
-  --color-warning-bg: #FFFBEB;
+  --color-warning-bg:     #FFF4D6;
   --color-warning-border: #FDE68A;
-  --color-warning-fg: #B45309;
+  --color-warning-fg:     #915907;
 
-  --color-error-bg:   #FEF2F2;
-  --color-error-border: #FECACA;
-  --color-error-fg:   #B91C1C;
+  --color-error-bg:       #FBE2E2;
+  --color-error-border:   #FECACA;
+  --color-error-fg:       #C03A2B;
 
-  --color-info-bg:    #EFF6FF;
-  --color-info-border: #BFDBFE;
-  --color-info-fg:    #1D4ED8;
+  --color-info-bg:        #EAF1FA;
+  --color-info-border:    #BFDBFE;
+  --color-info-fg:        #0A66C2;
 
-  --color-secondary-500: #D97706;
-  --color-tertiary-500:  #16A34A;
+  --color-secondary-500:  #B07F00; /* LinkedIn Premium Gold */
+  --color-tertiary-500:   #44712E; /* Open To Work Green */
+}
+
+/* Dark Mode Overrides */
+[data-theme="dark"] {
+  --bg-base:          #1B1F23;
+  --bg-subtle:        #242A30;
+  --bg-elevated:      #2C3338;
+  --bg-overlay:       rgba(0, 0, 0, 0.75);
+
+  --text-primary:     rgba(255, 255, 255, 0.90);
+  --text-secondary:   rgba(255, 255, 255, 0.65);
+  --text-tertiary:    rgba(255, 255, 255, 0.45);
+  --text-link:        #70B5F9;
+  --text-disabled:    rgba(255, 255, 255, 0.30);
+
+  --border-default:   rgba(255, 255, 255, 0.10);
+  --border-subtle:    rgba(255, 255, 255, 0.05);
+  --border-strong:    rgba(255, 255, 255, 0.20);
+  --border-focus:     #70B5F9;
+
+  --shadow-sm:        0 0 0 1px rgba(255, 255, 255, 0.10);
+  --shadow-md:        0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-lg:        0 12px 28px rgba(0, 0, 0, 0.50);
+}
+
+/* =========================================================================
+   Tailwind CSS v4 @theme configuration
+   ========================================================================= */
+@theme {
+  --color-occupify-primary: #0A66C2;
+  --color-occupify-primary-hover: #084FA0;
+  --color-occupify-primary-soft: #EAF1FA;
+  --color-occupify-canvas: #F4F2EE;
+  --color-occupify-subtle: #FAFAF8;
+  --color-occupify-elevated: #FFFFFF;
+
+  --font-sans: 'Source Sans 3', 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Plus Jakarta Sans', 'Source Sans 3', sans-serif;
+
+  --radius-signature: 8px;
+  --radius-pill: 9999px;
 }
 
 html, body, #root {
   min-height: 100%;
   margin: 0;
-  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: var(--bg-base);
+  overflow-x: hidden;
+  font-family: var(--font-sans);
+  background-color: var(--bg-base);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -104,11 +164,219 @@ html, body, #root {
   box-sizing: border-box;
 }
 
-/* Typography polish */
+/* Typography styles */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  letter-spacing: -0.02em;
+  font-family: var(--font-heading);
+  letter-spacing: -0.015em;
   color: var(--text-primary);
+  margin-top: 0;
+}
+
+/* Type Scale Utilities */
+.text-display {
+  font-size: 32px;
+  line-height: 1.20;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.text-h1 {
+  font-size: 24px;
+  line-height: 1.25;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.text-h2 {
+  font-size: 20px;
+  line-height: 1.30;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.text-h3 {
+  font-size: 14px;
+  line-height: 1.30;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+
+.text-body-lg {
+  font-size: 16px;
+  line-height: 1.55;
+  font-weight: 400;
+}
+
+.text-body-base {
+  font-size: 14px;
+  line-height: 1.50;
+  font-weight: 400;
+}
+
+.text-body-sm {
+  font-size: 12px;
+  line-height: 1.40;
+  font-weight: 500;
+}
+
+.text-caption {
+  font-size: 11px;
+  line-height: 1.40;
+  font-weight: 600;
+}
+
+/* =========================================================================
+   Standard Occupify Design System Utilities
+   ========================================================================= */
+
+/* Cards */
+.pro-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.pro-card-hover:hover {
+  border-color: rgba(10, 102, 194, 0.28);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-1px);
+}
+
+/* Buttons - Signature Pill Shape (9999px) */
+.pro-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  border-radius: var(--radius-full);
+  padding: 9px 18px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--duration-fast) ease, border-color var(--duration-fast) ease, color var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
+}
+
+.pro-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.pro-btn-primary {
+  background: var(--color-primary-500);
+  color: #FFFFFF;
+}
+
+.pro-btn-primary:hover:not(:disabled) {
+  background: var(--color-primary-600);
+  box-shadow: 0 4px 12px 0 rgba(10, 102, 194, 0.25);
+}
+
+.pro-btn-secondary {
+  background: transparent;
+  color: var(--color-primary-500);
+  border-color: var(--color-primary-500);
+}
+
+.pro-btn-secondary:hover:not(:disabled) {
+  background: var(--color-primary-50);
+}
+
+.pro-btn-outline {
+  background: transparent;
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.pro-btn-outline:hover:not(:disabled) {
+  background: var(--bg-subtle);
+  border-color: var(--text-primary);
+}
+
+.pro-btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: transparent;
+  padding: 8px 14px;
+}
+
+.pro-btn-ghost:hover:not(:disabled) {
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+}
+
+/* Form Inputs */
+.pro-input {
+  width: 100%;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
+  font-family: inherit;
+}
+
+.pro-input:focus {
+  border-color: var(--color-primary-500);
+  box-shadow: var(--shadow-focus);
+}
+
+.pro-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Search input with tinted soft background */
+.pro-input-search {
+  width: 100%;
+  background: var(--color-primary-50);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-primary);
+  outline: none;
+  transition: all var(--duration-fast) ease;
+  font-family: inherit;
+}
+
+.pro-input-search:focus {
+  background: var(--bg-elevated);
+  border-color: var(--color-primary-500);
+  box-shadow: var(--shadow-focus);
+}
+
+/* Select */
+.pro-select {
+  width: 100%;
+  background: var(--bg-elevated) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 256 256'%3E%3Cpath fill='%2364748B' d='M213.66 101.66l-80 80a8 8 0 0 1-11.32 0l-80-80a8 8 0 0 1 11.32-11.32L128 164.69l74.34-74.35a8 8 0 0 1 11.32 11.32Z'/%3E%3C/svg%3E") no-repeat right 12px center;
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 9px 34px 9px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  outline: none;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
+  font-family: inherit;
+}
+
+.pro-select:focus {
+  border-color: var(--color-primary-500);
+  box-shadow: var(--shadow-focus);
 }
 
 /* Custom Scrollbars */
@@ -125,6 +393,46 @@ h1, h2, h3, h4, h5, h6 {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-tertiary);
+}
+
+@keyframes progressShrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+/* Toast Slide Transitions */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(110%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(110%);
+  }
+}
+
+.toast-slide-in {
+  animation: slideInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.toast-slide-out {
+  animation: slideOutRight 0.22s cubic-bezier(0.4, 0, 1, 1) forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
