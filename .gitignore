@@ -11,6 +11,12 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+*.tsbuildinfo
+.eslintcache
+
+# Bundle Analysis & Testing
+stats.html
+coverage
 
 # Environment variables
 .env
@@ -23,8 +29,14 @@ dist-ssr
 !.vscode/extensions.json
 .idea
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.swp
+*.swo
+
+# Package Manager
+.pnpm-store

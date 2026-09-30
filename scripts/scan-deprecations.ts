@@ -13,7 +13,7 @@ interface DeprecatedUsage {
 
 export function scanDeprecations(projectRoot: string): DeprecatedUsage[] {
   const configPath = path.resolve(projectRoot, 'tsconfig.app.json')
-  
+
   if (!fs.existsSync(configPath)) {
     throw new Error(`tsconfig.app.json not found at ${configPath}`)
   }
@@ -23,11 +23,7 @@ export function scanDeprecations(projectRoot: string): DeprecatedUsage[] {
     throw new Error(ts.flattenDiagnosticMessageText(configFile.error.messageText, '\n'))
   }
 
-  const parsedConfig = ts.parseJsonConfigFileContent(
-    configFile.config,
-    ts.sys,
-    projectRoot
-  )
+  const parsedConfig = ts.parseJsonConfigFileContent(configFile.config, ts.sys, projectRoot)
 
   const program = ts.createProgram({
     rootNames: parsedConfig.fileNames,
@@ -94,7 +90,9 @@ export function scanDeprecations(projectRoot: string): DeprecatedUsage[] {
           const declarations = symbol.getDeclarations()
           if (declarations && declarations.length > 0) {
             const declFile = declarations[0].getSourceFile().fileName
-            const nmMatch = declFile.match(/node_modules\/(?:[.]pnpm\/[^/]+\/node_modules\/)?((?:@[^/]+\/)?[^/]+)/)
+            const nmMatch = declFile.match(
+              /node_modules\/(?:[.]pnpm\/[^/]+\/node_modules\/)?((?:@[^/]+\/)?[^/]+)/,
+            )
             if (nmMatch) {
               declarationSource = nmMatch[1]
             } else {
@@ -131,13 +129,19 @@ try {
     console.log('✅ [Deprecation Scanner] PASSED: 0 deprecated symbols found in source code.\n')
     process.exit(0)
   } else {
-    console.error(`\n❌ [Deprecation Scanner] FAILED: Found ${issues.length} deprecated symbol usage(s):\n`)
-    
+    console.error(
+      `\n❌ [Deprecation Scanner] FAILED: Found ${issues.length} deprecated symbol usage(s):\n`,
+    )
+
     issues.forEach((issue, index) => {
       console.error(`  ${index + 1}. ${issue.file}:${issue.line}:${issue.character}`)
-      console.error(`     Symbol:  \x1b[31m${issue.symbolName}\x1b[0m (from package: \x1b[33m${issue.declarationSource}\x1b[0m)`)
+      console.error(
+        `     Symbol:  \x1b[31m${issue.symbolName}\x1b[0m (from package: \x1b[33m${issue.declarationSource}\x1b[0m)`,
+      )
       console.error(`     Notice:  ${issue.jsDocComment}`)
-      console.error(`     Action:  Search official docs for "${issue.declarationSource}" and replace with active API.\n`)
+      console.error(
+        `     Action:  Search official docs for "${issue.declarationSource}" and replace with active API.\n`,
+      )
     })
 
     console.error('👉 Please replace all deprecated symbols before proceeding.\n')
