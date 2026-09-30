@@ -22,6 +22,6 @@ Fixes / Closes #(issue_number)
 - [ ] Manual testing across responsive viewports
 
 # 📋 Contributor Checklist
-- [ ] My code adheres to the project's [ARCHITECTURE.md](file:///home/phandinhminh/Downloads/Occupify/occupify-web/ARCHITECTURE.md) standards.
+- [ ] My code adheres to the project's [ARCHITECTURE.md](../ARCHITECTURE.md) standards.
 - [ ] I have not imported internal feature files across boundaries (used `index.ts` public APIs).
 - [ ] Self-review conducted; no debug `console.log` or unused comments left behind.
