@@ -5,42 +5,42 @@
   /* =========================================================================
      Occupify Design System: Brand - Occupify True Blue Palette
      ========================================================================= */
-  --color-primary-50:  #EAF1FA;
-  --color-primary-100: #C7D9EE;
-  --color-primary-200: #94B4DE;
-  --color-primary-300: #6190CE;
-  --color-primary-400: #3675BD;
-  --color-primary-500: #0A66C2; /* Occupify True Blue */
-  --color-primary-600: #084FA0; /* Primary Hover */
-  --color-primary-700: #06407F;
-  --color-primary-800: #04305E;
-  --color-primary-900: #021F3D;
+  --color-primary-50: #eaf1fa;
+  --color-primary-100: #c7d9ee;
+  --color-primary-200: #94b4de;
+  --color-primary-300: #6190ce;
+  --color-primary-400: #3675bd;
+  --color-primary-500: #0a66c2; /* Occupify True Blue */
+  --color-primary-600: #084fa0; /* Primary Hover */
+  --color-primary-700: #06407f;
+  --color-primary-800: #04305e;
+  --color-primary-900: #021f3d;
 
   /* =========================================================================
      Surfaces & Canvas (Warm Beige signature vs cold enterprise gray)
      ========================================================================= */
-  --bg-base:     #F4F2EE; /* Canvas warm beige */
-  --bg-subtle:   #FAFAF8; /* Subtle sidebar / light section */
-  --bg-elevated: #FFFFFF; /* Cards, modals, dropdown panels */
-  --bg-overlay:  rgba(0, 0, 0, 0.55); /* Modal scrim backdrop */
+  --bg-base: #f4f2ee; /* Canvas warm beige */
+  --bg-subtle: #fafaf8; /* Subtle sidebar / light section */
+  --bg-elevated: #ffffff; /* Cards, modals, dropdown panels */
+  --bg-overlay: rgba(0, 0, 0, 0.55); /* Modal scrim backdrop */
 
   /* =========================================================================
      Text - High Contrast & Hierarchy
      ========================================================================= */
-  --text-primary:    rgba(0, 0, 0, 0.90);
-  --text-secondary:  rgba(0, 0, 0, 0.60);
-  --text-tertiary:   rgba(0, 0, 0, 0.45);
-  --text-link:       #0A66C2;
-  --text-on-primary: #FFFFFF;
-  --text-disabled:   rgba(0, 0, 0, 0.30);
+  --text-primary: rgba(0, 0, 0, 0.9);
+  --text-secondary: rgba(0, 0, 0, 0.6);
+  --text-tertiary: rgba(0, 0, 0, 0.45);
+  --text-link: #0a66c2;
+  --text-on-primary: #ffffff;
+  --text-disabled: rgba(0, 0, 0, 0.3);
 
   /* =========================================================================
      Borders
      ========================================================================= */
   --border-default: rgba(0, 0, 0, 0.08); /* Card separators, dividers */
-  --border-subtle:  rgba(0, 0, 0, 0.04); /* Low-emphasis separators */
-  --border-strong:  rgba(0, 0, 0, 0.15); /* Input borders, modals */
-  --border-focus:   #0A66C2;            /* Focus ring */
+  --border-subtle: rgba(0, 0, 0, 0.04); /* Low-emphasis separators */
+  --border-strong: rgba(0, 0, 0, 0.15); /* Input borders, modals */
+  --border-focus: #0a66c2; /* Focus ring */
 
   /* =========================================================================
      Shadows (Subtle, crisp 1px border substitute)
@@ -49,8 +49,8 @@
   --shadow-sm: 0 0 0 1px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.14);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.10);
-  --shadow-focus: 0 0 0 1px #0A66C2;
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  --shadow-focus: 0 0 0 1px #0a66c2;
   --shadow-card: 0 0 0 1px rgba(0, 0, 0, 0.08);
   --shadow-card-hover: 0 0 0 1px rgba(10, 102, 194, 0.28), 0 8px 24px -4px rgba(0, 0, 0, 0.09);
 
@@ -58,21 +58,21 @@
      Radius Tokens (8px card signature, 9999px pill buttons)
      ========================================================================= */
   --radius-none: 0;
-  --radius-xs:   2px;
-  --radius-sm:   4px;    /* Inputs, small badges */
-  --radius-md:   8px;    /* Cards (Occupify signature radius) */
-  --radius-lg:   12px;   /* Large panels, modals */
-  --radius-xl:   16px;   /* Floating sheets */
+  --radius-xs: 2px;
+  --radius-sm: 4px; /* Inputs, small badges */
+  --radius-md: 8px; /* Cards (Occupify signature radius) */
+  --radius-lg: 12px; /* Large panels, modals */
+  --radius-xl: 16px; /* Floating sheets */
   --radius-full: 9999px; /* Pill buttons, avatars, chips */
 
   /* =========================================================================
      Spacing Tokens (Base: 4px)
      ========================================================================= */
-  --space-xs:  4px;
-  --space-sm:  8px;
-  --space-md:  12px;
-  --space-lg:  16px;
-  --space-xl:  24px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
   --space-2xl: 40px;
   --space-3xl: 56px;
 
@@ -88,72 +88,84 @@
   /* =========================================================================
      Semantic Status Colors
      ========================================================================= */
-  --color-success-bg:     #E5F6E8;
-  --color-success-border: #BBF7D0;
-  --color-success-fg:     #057642;
+  --color-success-bg: #e5f6e8;
+  --color-success-border: #bbf7d0;
+  --color-success-fg: #057642;
 
-  --color-warning-bg:     #FFF4D6;
-  --color-warning-border: #FDE68A;
-  --color-warning-fg:     #915907;
+  --color-warning-bg: #fff4d6;
+  --color-warning-border: #fde68a;
+  --color-warning-fg: #915907;
 
-  --color-error-bg:       #FBE2E2;
-  --color-error-border:   #FECACA;
-  --color-error-fg:       #C03A2B;
+  --color-error-bg: #fbe2e2;
+  --color-error-border: #fecaca;
+  --color-error-fg: #c03a2b;
 
-  --color-info-bg:        #EAF1FA;
-  --color-info-border:    #BFDBFE;
-  --color-info-fg:        #0A66C2;
+  --color-info-bg: #eaf1fa;
+  --color-info-border: #bfdbfe;
+  --color-info-fg: #0a66c2;
 
-  --color-secondary-500:  #B07F00; /* LinkedIn Premium Gold */
-  --color-tertiary-500:   #44712E; /* Open To Work Green */
+  --color-secondary-500: #b07f00; /* LinkedIn Premium Gold */
+  --color-tertiary-500: #44712e; /* Open To Work Green */
 }
 
 /* Dark Mode Overrides */
-[data-theme="dark"] {
-  --bg-base:          #1B1F23;
-  --bg-subtle:        #242A30;
-  --bg-elevated:      #2C3338;
-  --bg-overlay:       rgba(0, 0, 0, 0.75);
+[data-theme='dark'] {
+  --bg-base: #1b1f23;
+  --bg-subtle: #242a30;
+  --bg-elevated: #2c3338;
+  --bg-overlay: rgba(0, 0, 0, 0.75);
 
-  --text-primary:     rgba(255, 255, 255, 0.90);
-  --text-secondary:   rgba(255, 255, 255, 0.65);
-  --text-tertiary:    rgba(255, 255, 255, 0.45);
-  --text-link:        #70B5F9;
-  --text-disabled:    rgba(255, 255, 255, 0.30);
+  --text-primary: rgba(255, 255, 255, 0.9);
+  --text-secondary: rgba(255, 255, 255, 0.65);
+  --text-tertiary: rgba(255, 255, 255, 0.45);
+  --text-link: #70b5f9;
+  --text-disabled: rgba(255, 255, 255, 0.3);
 
-  --border-default:   rgba(255, 255, 255, 0.10);
-  --border-subtle:    rgba(255, 255, 255, 0.05);
-  --border-strong:    rgba(255, 255, 255, 0.20);
-  --border-focus:     #70B5F9;
+  --border-default: rgba(255, 255, 255, 0.1);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-strong: rgba(255, 255, 255, 0.2);
+  --border-focus: #70b5f9;
 
-  --shadow-sm:        0 0 0 1px rgba(255, 255, 255, 0.10);
-  --shadow-md:        0 4px 12px rgba(0, 0, 0, 0.35);
-  --shadow-lg:        0 12px 28px rgba(0, 0, 0, 0.50);
+  --shadow-sm: 0 0 0 1px rgba(255, 255, 255, 0.1);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.5);
 }
 
 /* =========================================================================
    Tailwind CSS v4 @theme configuration
    ========================================================================= */
 @theme {
-  --color-occupify-primary: #0A66C2;
-  --color-occupify-primary-hover: #084FA0;
-  --color-occupify-primary-soft: #EAF1FA;
-  --color-occupify-canvas: #F4F2EE;
-  --color-occupify-subtle: #FAFAF8;
-  --color-occupify-elevated: #FFFFFF;
+  --color-occupify-primary: #0a66c2;
+  --color-occupify-primary-hover: #084fa0;
+  --color-occupify-primary-soft: #eaf1fa;
+  --color-occupify-canvas: #f4f2ee;
+  --color-occupify-subtle: #fafaf8;
+  --color-occupify-elevated: #ffffff;
 
-  --font-sans: 'Source Sans 3', 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-heading: 'Plus Jakarta Sans', 'Source Sans 3', sans-serif;
+  --font-sans:
+    'Plus Jakarta Sans', 'Inter', 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, sans-serif;
+  --font-heading: 'Plus Jakarta Sans', sans-serif;
 
   --radius-signature: 8px;
   --radius-pill: 9999px;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   min-height: 100%;
   margin: 0;
   overflow-x: hidden;
-  font-family: var(--font-sans);
+  font-family:
+    'Plus Jakarta Sans',
+    'Inter',
+    'Source Sans 3',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
   background-color: var(--bg-base);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
@@ -165,7 +177,12 @@ html, body, #root {
 }
 
 /* Typography styles */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-heading);
   letter-spacing: -0.015em;
   color: var(--text-primary);
@@ -175,7 +192,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Type Scale Utilities */
 .text-display {
   font-size: 32px;
-  line-height: 1.20;
+  line-height: 1.2;
   font-weight: 700;
   letter-spacing: -0.02em;
 }
@@ -189,14 +206,14 @@ h1, h2, h3, h4, h5, h6 {
 
 .text-h2 {
   font-size: 20px;
-  line-height: 1.30;
+  line-height: 1.3;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
 
 .text-h3 {
   font-size: 14px;
-  line-height: 1.30;
+  line-height: 1.3;
   font-weight: 600;
   letter-spacing: -0.005em;
 }
@@ -209,19 +226,19 @@ h1, h2, h3, h4, h5, h6 {
 
 .text-body-base {
   font-size: 14px;
-  line-height: 1.50;
+  line-height: 1.5;
   font-weight: 400;
 }
 
 .text-body-sm {
   font-size: 12px;
-  line-height: 1.40;
+  line-height: 1.4;
   font-weight: 500;
 }
 
 .text-caption {
   font-size: 11px;
-  line-height: 1.40;
+  line-height: 1.4;
   font-weight: 600;
 }
 
@@ -259,7 +276,11 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid transparent;
   cursor: pointer;
   user-select: none;
-  transition: background var(--duration-fast) ease, border-color var(--duration-fast) ease, color var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
+  transition:
+    background var(--duration-fast) ease,
+    border-color var(--duration-fast) ease,
+    color var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease;
 }
 
 .pro-btn:disabled {
@@ -270,7 +291,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .pro-btn-primary {
   background: var(--color-primary-500);
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .pro-btn-primary:hover:not(:disabled) {
@@ -322,7 +343,9 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.4;
   color: var(--text-primary);
   outline: none;
-  transition: border-color var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
+  transition:
+    border-color var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease;
   font-family: inherit;
 }
 
@@ -359,7 +382,9 @@ h1, h2, h3, h4, h5, h6 {
 /* Select */
 .pro-select {
   width: 100%;
-  background: var(--bg-elevated) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 256 256'%3E%3Cpath fill='%2364748B' d='M213.66 101.66l-80 80a8 8 0 0 1-11.32 0l-80-80a8 8 0 0 1 11.32-11.32L128 164.69l74.34-74.35a8 8 0 0 1 11.32 11.32Z'/%3E%3C/svg%3E") no-repeat right 12px center;
+  background: var(--bg-elevated)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 256 256'%3E%3Cpath fill='%2364748B' d='M213.66 101.66l-80 80a8 8 0 0 1-11.32 0l-80-80a8 8 0 0 1 11.32-11.32L128 164.69l74.34-74.35a8 8 0 0 1 11.32 11.32Z'/%3E%3C/svg%3E")
+    no-repeat right 12px center;
   appearance: none;
   -webkit-appearance: none;
   padding: 9px 34px 9px 12px;
@@ -370,7 +395,9 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-primary);
   outline: none;
   cursor: pointer;
-  transition: border-color var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
+  transition:
+    border-color var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease;
   font-family: inherit;
 }
 
@@ -436,7 +463,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     transition-duration: 1ms !important;
     animation-duration: 1ms !important;
   }
