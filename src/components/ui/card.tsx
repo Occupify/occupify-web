@@ -56,7 +56,10 @@ function CardHeader({ className, action, children, ...props }: CardHeaderProps) 
   useCardContext()
   return (
     <div
-      className={cn('flex items-start justify-between gap-4 mb-3 pb-2 border-b border-[rgba(0,0,0,0.04)]', className)}
+      className={cn(
+        'flex items-start justify-between gap-4 mb-3 pb-2 border-b border-[rgba(0,0,0,0.04)]',
+        className,
+      )}
       {...props}
     >
       <div className="space-y-1 flex-1">{children}</div>

@@ -1,10 +1,5 @@
 import * as React from 'react'
-import {
-  CheckCircleIcon,
-  InfoIcon,
-  WarningCircleIcon,
-  XIcon,
-} from '@phosphor-icons/react'
+import { CheckCircleIcon, InfoIcon, WarningCircleIcon, XIcon } from '@phosphor-icons/react'
 import { cn } from '@/utils'
 import type { ToastItem, ToastType } from '@/stores/toast'
 
@@ -90,9 +85,7 @@ export function Toast({ toast, onDismiss }: ToastProps) {
             {title}
           </h4>
         )}
-        <p className="text-[13px] text-[rgba(0,0,0,0.65)] m-0 leading-snug">
-          {message}
-        </p>
+        <p className="text-[13px] text-[rgba(0,0,0,0.65)] m-0 leading-snug">{message}</p>
 
         {action && (
           <button

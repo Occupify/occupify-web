@@ -56,13 +56,7 @@ export interface ChipProps extends React.ButtonHTMLAttributes<HTMLButtonElement>
   onRemove?: () => void
 }
 
-export function Chip({
-  className,
-  active = false,
-  onRemove,
-  children,
-  ...props
-}: ChipProps) {
+export function Chip({ className, active = false, onRemove, children, ...props }: ChipProps) {
   return (
     <button
       type="button"

@@ -68,8 +68,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
               variantStyles[variant],
               leftIcon && 'pl-9',
               rightElement && 'pr-10',
-              error &&
-                'border-[#C03A2B] focus:border-[#C03A2B] focus:ring-[#C03A2B] bg-[#FFF8F8]',
+              error && 'border-[#C03A2B] focus:border-[#C03A2B] focus:ring-[#C03A2B] bg-[#FFF8F8]',
               className,
             )}
             {...props}

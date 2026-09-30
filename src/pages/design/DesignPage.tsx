@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { Link } from 'react-router-dom'
 import {
   MagnifyingGlassIcon,
   EyeIcon,
@@ -29,7 +30,7 @@ import {
 import { toast } from '@/components/feedback'
 import { env } from '@/config/env'
 
-export default function HomePage() {
+export function DesignPage() {
   // Interactive States for showcase
   const [btnLoading, setBtnLoading] = React.useState(false)
   const [showPassword, setShowPassword] = React.useState(false)
@@ -84,6 +85,11 @@ export default function HomePage() {
             <Badge variant="success" pill>
               Env: {env.appEnv}
             </Badge>
+            <Link to="/">
+              <Button variant="secondary" size="sm">
+                Xem Landing Page
+              </Button>
+            </Link>
             <Button
               variant="primary"
               size="sm"
@@ -115,9 +121,9 @@ export default function HomePage() {
                   Occupify-website-design
                 </code>
                 : Canvas warm beige (<code className="text-[#0A66C2]">#F4F2EE</code>), Brand True
-                Blue (<code className="text-[#0A66C2]">#0A66C2</code>), typography Source Sans 3 &amp;
-                Plus Jakarta Sans, cùng các component Button pill, Input, Card compound, Badge, Avatar,
-                Modal và Alert.
+                Blue (<code className="text-[#0A66C2]">#0A66C2</code>), typography Source Sans 3
+                &amp; Plus Jakarta Sans, cùng các component Button pill, Input, Card compound,
+                Badge, Avatar, Modal và Alert.
               </p>
             </div>
 
@@ -173,7 +179,9 @@ export default function HomePage() {
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-[rgba(0,0,0,0.45)]">
                   H1 (24px / Semibold 600 / -0.015em)
                 </span>
-                <div className="text-h1 mt-1">Nguyễn Minh Khoa &bull; Senior Frontend Architect</div>
+                <div className="text-h1 mt-1">
+                  Nguyễn Minh Khoa &bull; Senior Frontend Architect
+                </div>
               </div>
               <p className="text-[13px] text-[rgba(0,0,0,0.60)]">
                 Dùng cho tên profile, tiêu đề trang quản lý và tiêu đề modal chính.
@@ -406,8 +414,8 @@ export default function HomePage() {
               4. Thành Phần Biểu Mẫu (Form Inputs &amp; Controls)
             </h2>
             <p className="text-[13px] text-[rgba(0,0,0,0.55)]">
-              Input chuẩn 4px radius, focus border True Blue #0A66C2 với ring bóng nhẹ; Search
-              Input nền mềm soft-tint #EAF1FA.
+              Input chuẩn 4px radius, focus border True Blue #0A66C2 với ring bóng nhẹ; Search Input
+              nền mềm soft-tint #EAF1FA.
             </p>
           </div>
 
@@ -595,31 +603,17 @@ export default function HomePage() {
               </div>
 
               <div className="flex flex-col items-center gap-2">
-                <Avatar
-                  size="md"
-                  name="Nguyễn Minh Khoa"
-                  status="online"
-                  openToWork
-                />
+                <Avatar size="md" name="Nguyễn Minh Khoa" status="online" openToWork />
                 <span className="text-[11px] text-[rgba(0,0,0,0.50)]">MD (48px Post)</span>
               </div>
 
               <div className="flex flex-col items-center gap-2">
-                <Avatar
-                  size="lg"
-                  name="Lê Hoàng Nam"
-                  status="online"
-                  openToWork
-                />
+                <Avatar size="lg" name="Lê Hoàng Nam" status="online" openToWork />
                 <span className="text-[11px] text-[rgba(0,0,0,0.50)]">LG (64px Card)</span>
               </div>
 
               <div className="flex flex-col items-center gap-2">
-                <Avatar
-                  size="xl"
-                  name="Occupify Team"
-                  status="online"
-                />
+                <Avatar size="xl" name="Occupify Team" status="online" />
                 <span className="text-[11px] text-[rgba(0,0,0,0.50)]">XL (96px Profile)</span>
               </div>
             </div>
@@ -645,24 +639,18 @@ export default function HomePage() {
               <div className="h-16 bg-gradient-to-r from-[#84C5F6] via-[#0A66C2] to-[#063C7A]" />
               <div className="px-5 pb-5 pt-0">
                 <div className="-mt-8 mb-3 flex items-end justify-between">
-                  <Avatar
-                    size="lg"
-                    name="Nguyễn Minh Khoa"
-                    status="online"
-                    openToWork
-                  />
+                  <Avatar size="lg" name="Nguyễn Minh Khoa" status="online" openToWork />
                   <Badge variant="opentowork">OPEN TO WORK</Badge>
                 </div>
 
                 <div className="space-y-1">
                   <div className="flex items-center gap-1.5">
-                    <h3 className="text-h2 font-heading font-bold text-[18px]">
-                      Nguyễn Minh Khoa
-                    </h3>
+                    <h3 className="text-h2 font-heading font-bold text-[18px]">Nguyễn Minh Khoa</h3>
                     <CheckCircleIcon size={16} weight="fill" className="text-[#0A66C2]" />
                   </div>
                   <p className="text-[13px] text-[rgba(0,0,0,0.60)] leading-normal">
-                    Senior Fullstack Engineer &bull; React, TypeScript &amp; Cloud Native Architecture
+                    Senior Fullstack Engineer &bull; React, TypeScript &amp; Cloud Native
+                    Architecture
                   </p>
                   <div className="flex items-center gap-1 text-[12px] text-[rgba(0,0,0,0.50)] pt-1">
                     <MapPinIcon size={14} weight="bold" />
@@ -691,7 +679,9 @@ export default function HomePage() {
                 }
               >
                 <Card.Title>Xây Dựng Web App Nền Tảng Việc Làm Occupify</Card.Title>
-                <Card.Description>Đăng bởi Công ty Cổ phần Công nghệ FPT &bull; 1 ngày trước</Card.Description>
+                <Card.Description>
+                  Đăng bởi Công ty Cổ phần Công nghệ FPT &bull; 1 ngày trước
+                </Card.Description>
               </Card.Header>
 
               <Card.Body>
@@ -755,8 +745,8 @@ export default function HomePage() {
                 title="Hồ sơ của bạn đã hoàn thành 85%"
                 onClose={() => setShowAlert(false)}
               >
-                Hãy cập nhật thêm kỹ năng chuyên môn và chứng chỉ để tăng 3.5x cơ hội kết nối với nhà
-                tuyển dụng.
+                Hãy cập nhật thêm kỹ năng chuyên môn và chứng chỉ để tăng 3.5x cơ hội kết nối với
+                nhà tuyển dụng.
               </Alert>
 
               <Alert variant="success" title="Cập nhật thành công">
@@ -778,14 +768,15 @@ export default function HomePage() {
             </h2>
             <p className="text-[13px] text-[rgba(0,0,0,0.55)]">
               Thay thế hoàn toàn <code>alert()</code> mặc định thô sơ của trình duyệt bằng Toast
-              Notification hiện đại: chuẩn phong cách Occupify, tự động biến mất, hoạt ảnh trượt mượt mà
-              và quản lý trạng thái tập trung với Zustand.
+              Notification hiện đại: chuẩn phong cách Occupify, tự động biến mất, hoạt ảnh trượt
+              mượt mà và quản lý trạng thái tập trung với Zustand.
             </p>
           </div>
 
           <div className="bg-white rounded-[8px] p-6 border border-[rgba(0,0,0,0.08)] shadow-[0_0_0_1px_rgba(0,0,0,0.08)] space-y-4">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-[rgba(0,0,0,0.45)] block">
-              Thử nghiệm các loại thông báo nổi (Click để xem thông báo xuất hiện ở góc dưới bên phải):
+              Thử nghiệm các loại thông báo nổi (Click để xem thông báo xuất hiện ở góc dưới bên
+              phải):
             </span>
 
             <div className="flex flex-wrap items-center gap-3">
@@ -804,10 +795,9 @@ export default function HomePage() {
               <Button
                 variant="secondary"
                 onClick={() =>
-                  toast.info(
-                    'Bạn có 3 đề xuất việc làm phù hợp mới tại khu vực Hà Nội.',
-                    { title: 'Gợi Ý Mới' },
-                  )
+                  toast.info('Bạn có 3 đề xuất việc làm phù hợp mới tại khu vực Hà Nội.', {
+                    title: 'Gợi Ý Mới',
+                  })
                 }
               >
                 Toast Thông Tin
@@ -868,11 +858,15 @@ export default function HomePage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[rgba(0,0,0,0.55)]">Thời gian thực hiện:</span>
-                  <span className="font-medium text-[rgba(0,0,0,0.85)]">3 tháng (Toàn thời gian)</span>
+                  <span className="font-medium text-[rgba(0,0,0,0.85)]">
+                    3 tháng (Toàn thời gian)
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[rgba(0,0,0,0.55)]">Địa điểm:</span>
-                  <span className="font-medium text-[rgba(0,0,0,0.85)]">Hà Nội / Remote linh hoạt</span>
+                  <span className="font-medium text-[rgba(0,0,0,0.85)]">
+                    Hà Nội / Remote linh hoạt
+                  </span>
                 </div>
               </div>
 
@@ -918,3 +912,5 @@ export default function HomePage() {
     </div>
   )
 }
+
+export default DesignPage

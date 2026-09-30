@@ -71,12 +71,7 @@ export interface ModalContentProps extends React.HTMLAttributes<HTMLDivElement> 
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
 }
 
-function ModalContent({
-  className,
-  maxWidth = 'md',
-  children,
-  ...props
-}: ModalContentProps) {
+function ModalContent({ className, maxWidth = 'md', children, ...props }: ModalContentProps) {
   useModalContext()
 
   const maxWidthStyles = {
@@ -106,12 +101,7 @@ export interface ModalHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   showCloseButton?: boolean
 }
 
-function ModalHeader({
-  className,
-  showCloseButton = true,
-  children,
-  ...props
-}: ModalHeaderProps) {
+function ModalHeader({ className, showCloseButton = true, children, ...props }: ModalHeaderProps) {
   const { onClose } = useModalContext()
   return (
     <div

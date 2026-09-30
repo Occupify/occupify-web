@@ -79,11 +79,7 @@ export function Avatar({
 
       {status && (
         <span
-          className={cn(
-            'absolute rounded-full ring-2 ring-white',
-            badge,
-            statusColors[status],
-          )}
+          className={cn('absolute rounded-full ring-2 ring-white', badge, statusColors[status])}
         />
       )}
     </div>

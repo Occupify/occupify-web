@@ -2,8 +2,7 @@ import * as React from 'react'
 import { CheckIcon } from '@phosphor-icons/react'
 import { cn } from '@/utils'
 
-export interface CheckboxProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> {
+export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> {
   label?: React.ReactNode
   description?: string
 }
@@ -32,7 +31,11 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
               disabled && 'opacity-50 cursor-not-allowed bg-[rgba(0,0,0,0.05)]',
             )}
           >
-            <CheckIcon size={12} weight="bold" className="opacity-0 peer-checked:opacity-100 transition-opacity" />
+            <CheckIcon
+              size={12}
+              weight="bold"
+              className="opacity-0 peer-checked:opacity-100 transition-opacity"
+            />
           </label>
         </div>
 
@@ -50,9 +53,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
               </label>
             )}
             {description && (
-              <span className="text-[12px] text-[rgba(0,0,0,0.55)] mt-0.5">
-                {description}
-              </span>
+              <span className="text-[12px] text-[rgba(0,0,0,0.55)] mt-0.5">{description}</span>
             )}
           </div>
         )}
