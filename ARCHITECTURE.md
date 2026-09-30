@@ -6,17 +6,17 @@ This document provides a comprehensive overview of the architecture, directory s
 
 ## 1. Core Technology Stack
 
-| Layer | Technology | Version | Role & Description |
-| :--- | :--- | :--- | :--- |
-| **Framework & Core** | React | 19.x | Client-side UI rendering library |
-| **Build Tooling** | Vite | 8.x | High-performance bundler with instant HMR and Rolldown runtime |
-| **Language** | TypeScript | 6.x | Strict static typing and compile-time correctness |
-| **Styling** | Tailwind CSS | 4.x (`@tailwindcss/vite`) | Next-generation CSS engine compiled directly via Vite plugin |
-| **Routing** | React Router | 7.x | Declarative client-side routing with route-level code splitting |
-| **Server State** | TanStack Query | 5.x | Asynchronous state management, query caching, and data synchronization |
-| **Global Client State** | Zustand | 5.x | Lightweight, boilerplate-free client state container |
-| **Iconography** | Phosphor Icons | 2.x (`@phosphor-icons/react`) | Comprehensive and consistent icon system |
-| **Linter** | Oxlint | 1.8x | High-performance Rust-based linter |
+| Layer                   | Technology     | Version                       | Role & Description                                                     |
+| :---------------------- | :------------- | :---------------------------- | :--------------------------------------------------------------------- |
+| **Framework & Core**    | React          | 19.x                          | Client-side UI rendering library                                       |
+| **Build Tooling**       | Vite           | 8.x                           | High-performance bundler with instant HMR and Rolldown runtime         |
+| **Language**            | TypeScript     | 6.x                           | Strict static typing and compile-time correctness                      |
+| **Styling**             | Tailwind CSS   | 4.x (`@tailwindcss/vite`)     | Next-generation CSS engine compiled directly via Vite plugin           |
+| **Routing**             | React Router   | 7.x                           | Declarative client-side routing with route-level code splitting        |
+| **Server State**        | TanStack Query | 5.x                           | Asynchronous state management, query caching, and data synchronization |
+| **Global Client State** | Zustand        | 5.x                           | Lightweight, boilerplate-free client state container                   |
+| **Iconography**         | Phosphor Icons | 2.x (`@phosphor-icons/react`) | Comprehensive and consistent icon system                               |
+| **Linter**              | Oxlint         | 1.8x                          | High-performance Rust-based linter                                     |
 
 ---
 
@@ -76,18 +76,21 @@ occupify-web/
 ### 3.1. Root Level
 
 - **`public/`**: Contains static assets served untouched by Vite at the root URL (e.g., `favicon.svg`, `robots.txt`, `sitemap.xml`).
-- **`dist/`** *(generated upon build)*: Contains optimized, minified production assets created by `pnpm run build`. This is the sole artifact deployed to production environments (Nginx, Docker, Vercel, Cloudflare, etc.).
+- **`dist/`** _(generated upon build)_: Contains optimized, minified production assets created by `pnpm run build`. This is the sole artifact deployed to production environments (Nginx, Docker, Vercel, Cloudflare, etc.).
 
 ---
 
 ### 3.2. Inside `src/`
 
 #### 1. `src/app/` (Application Orchestration Layer)
+
 Serves as the high-level coordinator of the application:
+
 - **`router.tsx`**: Defines the application routing structure using `createBrowserRouter` (React Router 7). All routes utilize `React.lazy()` to dynamically code-split and load target page views from `src/pages/`.
 - **`provider.tsx`**: Centralizes all global React providers (`QueryClientProvider`, global `Suspense` fallbacks, future theme or notification contexts).
 
 #### 2. `src/pages/` (Routed Composition Layer)
+
 Represents the routed composition layer (analogous to the `app/` directory if using Next.js App Router, or routed view assemblies in modular React SPAs). Each folder under `src/pages/<page-name>/` represents a distinct URL route destination:
 
 ```text
@@ -106,6 +109,7 @@ src/pages/landing/
   ```
 
 #### 3. `src/features/` (Domain-Driven Business Modules)
+
 The core business domains and capabilities of Occupify (e.g., `auth`, `properties`, `jobs`, `contracts`, `proposals`, `wallet`, `chat`). Each feature module is an autonomous, self-contained business domain:
 
 ```text
@@ -122,49 +126,63 @@ src/features/auth/
 
 ##### Architectural Comparison: Pages vs. Features vs. Shared Components
 
-| Dimension | `src/components/ui/` | `src/features/<feature>/` | `src/pages/<page>/` |
-| :--- | :--- | :--- | :--- |
-| **Role** | Foundational UI primitives (Atoms) | Autonomous business domain capability | Route composition & layout orchestration |
-| **Scope** | Global design system (`Button`, `Modal`, `Input`) | Domain slice (`auth`, `properties`, `jobs`) | Route endpoint (`landing`, `dashboard`, `settings`) |
-| **Domain Logic** | None (Domain-agnostic, styling & a11y only) | High (Data fetching, validation, domain state) | Low (Coordinates features & page layout) |
-| **Reusability** | Ubiquitous across the entire application | Reusable across multiple pages/views | Scoped to one specific URL route |
-| **Exports** | Direct component exports via `index.ts` | Strict public contract via `index.ts` | Page component export via `index.ts` |
+| Dimension        | `src/components/ui/`                              | `src/features/<feature>/`                      | `src/pages/<page>/`                                 |
+| :--------------- | :------------------------------------------------ | :--------------------------------------------- | :-------------------------------------------------- |
+| **Role**         | Foundational UI primitives (Atoms)                | Autonomous business domain capability          | Route composition & layout orchestration            |
+| **Scope**        | Global design system (`Button`, `Modal`, `Input`) | Domain slice (`auth`, `properties`, `jobs`)    | Route endpoint (`landing`, `dashboard`, `settings`) |
+| **Domain Logic** | None (Domain-agnostic, styling & a11y only)       | High (Data fetching, validation, domain state) | Low (Coordinates features & page layout)            |
+| **Reusability**  | Ubiquitous across the entire application          | Reusable across multiple pages/views           | Scoped to one specific URL route                    |
+| **Exports**      | Direct component exports via `index.ts`           | Strict public contract via `index.ts`          | Page component export via `index.ts`                |
 
 #### 4. `src/components/` (Shared UI Primitives)
+
 Contains domain-agnostic UI elements that can be used across any screen or feature:
+
 - **`ui/`**: Base design system components (Button, Input, Dropdown, Modal, Card, Badge, Slider...).
 - **`feedback/`**: Visual feedback indicators (Toast notifications, Loading spinners, Skeletons, Empty states).
 
 #### 5. `src/config/` (Application Configuration)
+
 Centralized configuration values and environment accessors:
+
 - **`env.ts`**: Provides a type-checked `env` object that prevents undefined variable access and encapsulates `import.meta.env`.
 - **`site.ts`**: Contains site metadata, brand identity, navigation menus, and support contacts.
 
 #### 6. `src/hooks/` (Shared Custom Hooks)
+
 Cross-cutting, reusable custom hooks that are domain-agnostic:
+
 - `useDebounce`: Debounces high-frequency user input (search bars).
 - `useMediaQuery`: Evaluates CSS media queries for responsive layouts.
 - `useLocalStorage`: Synchronizes state with browser storage.
 - `useClickOutside`: Detects pointer clicks outside a target container.
 
 #### 7. `src/lib/` (Third-Party Integrations)
+
 Initializes and configures external libraries and clients before exposing them to the application:
+
 - `api-client.ts`: Configured HTTP client (Fetch/Axios) with global auth headers and error interceptors.
 - Formatters, charting libraries, or WebSocket client adapters.
 
 #### 8. `src/stores/` (Global Client State)
+
 Houses client-side state stores powered by **Zustand**:
+
 - Reserved strictly for persistent client UI state (e.g., active user session token, sidebar collapse state, UI preferences).
 - **Server state from APIs must remain inside TanStack Query**, never duplicated into Zustand.
 
 #### 9. `src/types/` (Global Types)
+
 Shared TypeScript interfaces, utility types, and DTO envelopes used across multiple features:
+
 - Standard API response wrappers (`ApiResponse<T>`).
 - Pagination contracts (`PaginatedResponse<T>`).
 - Cross-domain entity enums (`UserRole`, `PaymentStatus`).
 
 #### 10. `src/utils/` (Pure Utilities)
+
 Domain-agnostic pure helper functions without React dependencies:
+
 - Currency formatting (`formatVND`).
 - Relative timestamp formatting.
 - String manipulation and regular expression validators.
@@ -176,6 +194,7 @@ Domain-agnostic pure helper functions without React dependencies:
 To maintain high modularity, prevent tightly-coupled spaghetti code, and enforce clean separation of concerns, all modules must follow five strict boundary rules:
 
 ### Rule 1: The `index.ts` Gatekeeper
+
 External modules may only consume code that is explicitly re-exported by `src/features/<feature-name>/index.ts` or `src/pages/<page-name>/index.ts`. Direct imports into internal subdirectories are strictly prohibited.
 
 ```typescript
@@ -189,11 +208,13 @@ import { loginApi } from '@/features/auth/api/signin'
 ```
 
 ### Rule 2: Colocation Over Centralization
+
 - If a component, hook, or type is used by a single feature, **it must remain inside that feature**.
 - If a presentational section is specific to a single page (e.g. `HeroSection`, `PricingSection` on `landing`), **it must reside in `src/pages/<page>/components/`**.
 - Do not promote code to `src/components/`, `src/hooks/`, or `src/types/` unless it is genuinely shared by two or more independent features or pages.
 
 ### Rule 3: Unidirectional Dependency Flow
+
 Dependencies must always flow downwards from higher-order composition layers to foundational primitives:
 
 ```text
@@ -268,9 +289,12 @@ Environment variables are type-safe and validated at compile time:
 
 ## 7. Development & Build Scripts
 
-| Command | Purpose |
-| :--- | :--- |
-| `pnpm run dev` | Starts Vite local development server with instant HMR |
-| `pnpm run build` | Runs TypeScript compilation (`tsc -b`) and produces production bundle in `dist/` |
-| `pnpm run lint` | Runs Oxlint across source files for syntax and quality checks |
-| `pnpm run preview` | Starts a local web server serving the production `dist/` bundle for verification |
+| Command                      | Purpose                                                                          |
+| :--------------------------- | :------------------------------------------------------------------------------- |
+| `pnpm run dev`               | Starts Vite local development server with instant HMR                            |
+| `pnpm run build`             | Runs TypeScript compilation (`tsc -b`) and produces production bundle in `dist/` |
+| `pnpm run lint`              | Runs Oxlint across source files for syntax and quality checks                    |
+| `pnpm run format:check`      | Verifies code formatting across the repository with Prettier                     |
+| `pnpm run format`            | Auto-formats all source files using Prettier                                     |
+| `pnpm run scan:deprecations` | Scans codebase for `@deprecated` symbols in third-party libraries                |
+| `pnpm run preview`           | Starts a local web server serving the production `dist/` bundle for verification |
