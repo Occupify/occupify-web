@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
-  BriefcaseMetal,
-  Clock,
-  FileText,
-  FolderPlus,
-  MagnifyingGlass,
-  X,
+  BriefcaseMetalIcon,
+  ClockIcon,
+  FileTextIcon,
+  FolderPlusIcon,
+  MagnifyingGlassIcon,
+  XIcon,
 } from '@phosphor-icons/react'
 import { toast } from '@/components/feedback'
 import type { MyProject, PendingProject, ProjectMember } from '../types'
@@ -410,7 +410,7 @@ export function ProjectsManagementPage({
             onClick={() => openCreateContract()}
             className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-4 py-2 text-xs font-bold transition-all !bg-[var(--bg-elevated)] !border-[#10B981] !text-[#057642] hover:!bg-[#ECFDF5]"
           >
-            <FileText size={16} weight="bold" />
+            <FileTextIcon size={16} weight="bold" />
             <span>+ Soạn hợp đồng</span>
           </button>
 
@@ -419,7 +419,7 @@ export function ProjectsManagementPage({
             onClick={openCreateProject}
             className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-5 py-2 text-xs font-bold !text-white shadow-sm transition-all !bg-[var(--color-primary-500)] hover:!bg-[var(--color-primary-600)]"
           >
-            <FolderPlus size={16} weight="bold" />
+            <FolderPlusIcon size={16} weight="bold" />
             <span>+ Tạo dự án mới</span>
           </button>
         </div>
@@ -437,7 +437,7 @@ export function ProjectsManagementPage({
           }`}
         >
           <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)]">
-            <FolderPlus size={24} weight="bold" />
+            <FolderPlusIcon size={24} weight="bold" />
           </div>
           <div>
             <div className="text-2xl font-extrabold leading-tight !text-[var(--text-primary)]">
@@ -460,7 +460,7 @@ export function ProjectsManagementPage({
           }`}
         >
           <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl !bg-[#ECFDF5] !text-[#059669]">
-            <BriefcaseMetal size={24} weight="bold" />
+            <BriefcaseMetalIcon size={24} weight="bold" />
           </div>
           <div>
             <div className="text-2xl font-extrabold leading-tight !text-[var(--text-primary)]">
@@ -483,7 +483,7 @@ export function ProjectsManagementPage({
           }`}
         >
           <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl !bg-[#FFFBEB] !text-[#D97706]">
-            <Clock size={24} weight="bold" />
+            <ClockIcon size={24} weight="bold" />
           </div>
           <div>
             <div className="text-2xl font-extrabold leading-tight !text-[var(--text-primary)]">
@@ -499,7 +499,7 @@ export function ProjectsManagementPage({
 
       {/* Search Bar */}
       <div className="mb-4 flex items-center gap-3 rounded-lg border p-2.5 sm:px-4 !border-[var(--border-default)] !bg-[var(--bg-elevated)] shadow-sm">
-        <MagnifyingGlass
+        <MagnifyingGlassIcon
           size={18}
           weight="bold"
           className="flex-shrink-0 !text-[var(--text-tertiary)]"
@@ -517,7 +517,7 @@ export function ProjectsManagementPage({
             onClick={() => setSearchKeyword('')}
             className="cursor-pointer p-0.5 !text-[var(--text-tertiary)] hover:!text-[var(--text-primary)]"
           >
-            <X size={15} weight="bold" />
+            <XIcon size={15} weight="bold" />
           </button>
         )}
       </div>
@@ -615,7 +615,7 @@ export function ProjectsManagementPage({
                 }}
                 className="flex w-full cursor-pointer items-center gap-2 rounded-md border p-2.5 text-left text-xs font-semibold transition-colors !border-[var(--border-default)] !bg-[var(--bg-subtle)] !text-[var(--text-primary)] hover:!bg-[var(--bg-base)]"
               >
-                <MagnifyingGlass size={16} weight="bold" />
+                <MagnifyingGlassIcon size={16} weight="bold" />
                 <span>Tìm kiếm cơ hội việc làm mới</span>
               </button>
             </div>

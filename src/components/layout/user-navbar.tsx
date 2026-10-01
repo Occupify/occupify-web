@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
-  Bell,
-  Bookmark,
-  BriefcaseMetal,
-  CaretDown,
-  House,
-  SignOut,
-  User,
-  Wallet,
+  BellIcon,
+  BookmarkIcon,
+  BriefcaseMetalIcon,
+  CaretDownIcon,
+  HouseIcon,
+  SignOutIcon,
+  UserIcon,
+  WalletIcon,
 } from '@phosphor-icons/react'
 import { Avatar } from '@/components/ui'
 import { MOCK_NOTIFICATIONS } from '@/features/notifications'
@@ -31,13 +31,13 @@ export function UserNavBar() {
   }, [])
 
   const navItems = [
-    { to: '/not-found', label: 'Trang chủ', Icon: House, end: true },
-    { to: '/workspace', label: 'Quản lý dự án', Icon: BriefcaseMetal, end: false },
-    { to: '/saved', label: 'Mục đã lưu', Icon: Bookmark, end: false },
+    { to: '/not-found', label: 'Trang chủ', Icon: HouseIcon, end: true },
+    { to: '/workspace', label: 'Quản lý dự án', Icon: BriefcaseMetalIcon, end: false },
+    { to: '/saved', label: 'Mục đã lưu', Icon: BookmarkIcon, end: false },
     {
       to: '/notifications',
       label: 'Thông báo',
-      Icon: Bell,
+      Icon: BellIcon,
       badge: unreadCount > 0 ? unreadCount : undefined,
       end: false,
     },
@@ -53,7 +53,7 @@ export function UserNavBar() {
           title="Occupify"
         >
           <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg !text-white shadow-sm !bg-[var(--color-primary-500)]">
-            <BriefcaseMetal size={19} color="#fff" weight="fill" />
+            <BriefcaseMetalIcon size={19} color="#fff" weight="fill" />
           </div>
           <span className="text-[22px] font-extrabold leading-none tracking-tight !text-[var(--color-primary-500)]">
             Occupify
@@ -107,7 +107,7 @@ export function UserNavBar() {
               <Avatar name="Nguyễn Minh Khoa" size="xs" />
               <span className="flex items-center gap-1 text-[13px] font-semibold !text-[var(--text-primary)]">
                 Tôi
-                <CaretDown
+                <CaretDownIcon
                   size={11}
                   weight="bold"
                   className={`!text-[var(--text-tertiary)] transition-transform duration-150 ${
@@ -142,7 +142,7 @@ export function UserNavBar() {
                     }}
                     className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-semibold !text-[var(--text-secondary)] hover:!bg-[var(--bg-subtle)] hover:!text-[var(--text-primary)]"
                   >
-                    <User size={16} />
+                    <UserIcon size={16} />
                     <span>Hồ sơ của tôi</span>
                   </button>
                   <button
@@ -153,7 +153,7 @@ export function UserNavBar() {
                     }}
                     className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-semibold !text-[var(--text-secondary)] hover:!bg-[var(--bg-subtle)] hover:!text-[var(--text-primary)]"
                   >
-                    <Wallet size={16} />
+                    <WalletIcon size={16} />
                     <span>Ví tài khoản</span>
                   </button>
                   <button
@@ -164,7 +164,7 @@ export function UserNavBar() {
                     }}
                     className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-semibold !text-[#C03A2B] hover:!bg-[#FBE2E2]"
                   >
-                    <SignOut size={16} />
+                    <SignOutIcon size={16} />
                     <span>Đăng xuất</span>
                   </button>
                 </div>

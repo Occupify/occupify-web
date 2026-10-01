@@ -1,18 +1,18 @@
 import { useState } from 'react'
 import {
-  ArrowRight,
-  Briefcase,
-  DownloadSimple,
-  FilePdf,
-  FileText,
-  Handshake,
-  LinkSimple,
-  Lock,
-  Paperclip,
-  SealCheck,
-  Star,
-  UserPlus,
-  X,
+  ArrowRightIcon,
+  BriefcaseIcon,
+  DownloadSimpleIcon,
+  FilePdfIcon,
+  FileTextIcon,
+  HandshakeIcon,
+  LinkSimpleIcon,
+  LockIcon,
+  PaperclipIcon,
+  SealCheckIcon,
+  StarIcon,
+  UserPlusIcon,
+  XIcon,
 } from '@phosphor-icons/react'
 import { Avatar } from '@/components/ui'
 import { toast } from '@/components/feedback'
@@ -196,7 +196,7 @@ export function MyProjectDetailPage({
           onClick={onBack}
           className="mb-5 inline-flex cursor-pointer items-center gap-1.5 text-[13px] font-semibold !text-[var(--text-secondary)] transition-colors hover:!text-[var(--color-primary-500)]"
         >
-          <ArrowRight size={14} className="rotate-180" />
+          <ArrowRightIcon size={14} className="rotate-180" />
           <span>Quay lại</span>
         </button>
 
@@ -235,7 +235,7 @@ export function MyProjectDetailPage({
                   title="Cần hủy tất cả hợp đồng với nhân sự trong dự án trước khi có thể hủy dự án này"
                   className="inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[13px] font-semibold !border-[var(--border-default)] !bg-[var(--bg-subtle)] !text-[var(--text-tertiary)]"
                 >
-                  <Lock size={14} />
+                  <LockIcon size={14} />
                   <span>Không thể hủy khi còn nhân sự ({members.length})</span>
                 </div>
               )}
@@ -284,7 +284,7 @@ export function MyProjectDetailPage({
 
                         {!isRecruiting && (
                           <div className="mb-2 inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[11.5px] font-semibold !border-[#DCFCE7] !bg-[#F0FDF4] !text-[#057642]">
-                            <SealCheck size={13} weight="fill" className="text-[#057642]" />
+                            <SealCheckIcon size={13} weight="fill" className="text-[#057642]" />
                             <span>
                               {r.assignedMemberName || members.find((m) => m.role === r.title)?.name
                                 ? `Đã giao: ${
@@ -325,7 +325,7 @@ export function MyProjectDetailPage({
                           onClick={() => onCreateContract?.(r.title)}
                           className="mt-1 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-bold transition-colors !border-[var(--color-primary-500)] !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)] hover:!bg-[var(--color-primary-500)] hover:!text-white"
                         >
-                          <UserPlus size={14} weight="bold" />
+                          <UserPlusIcon size={14} weight="bold" />
                           <span>Mời hợp đồng cho vai trò này</span>
                         </button>
                       )}
@@ -347,7 +347,7 @@ export function MyProjectDetailPage({
                 onClick={() => onCreateContract?.()}
                 className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors !border-[var(--color-primary-500)] !text-[var(--color-primary-500)] hover:!bg-[var(--color-primary-50)]"
               >
-                <UserPlus size={15} />
+                <UserPlusIcon size={15} />
                 <span>Mời thành viên</span>
               </button>
             </div>
@@ -368,7 +368,7 @@ export function MyProjectDetailPage({
                       </span>
                       {m.role && (
                         <span className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-bold !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)]">
-                          <Briefcase size={12} weight="bold" />
+                          <BriefcaseIcon size={12} weight="bold" />
                           {m.role}
                         </span>
                       )}
@@ -582,7 +582,7 @@ export function MyProjectDetailPage({
                           <span className="!text-[var(--text-tertiary)]">•</span>
 
                           <span className="inline-flex items-center gap-1 rounded border px-2 py-0.5 text-[11.5px] font-semibold !border-[#FECACA] !bg-[#FEF2F2] !text-[#DC2626]">
-                            <FilePdf size={13} weight="fill" />
+                            <FilePdfIcon size={13} weight="fill" />
                             <span>
                               {proposal.cvFileName} ({proposal.cvFileSize})
                             </span>
@@ -635,7 +635,7 @@ export function MyProjectDetailPage({
             <div className="flex items-center justify-between border-b p-4.5 sm:px-6 !border-[var(--border-default)] !bg-[var(--bg-subtle)]/40">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-9 w-9 items-center justify-center rounded-full !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)]">
-                  <FileText size={18} weight="bold" />
+                  <FileTextIcon size={18} weight="bold" />
                 </div>
                 <div>
                   <h3 className="text-base font-bold !text-[var(--text-primary)]">
@@ -651,7 +651,7 @@ export function MyProjectDetailPage({
                 onClick={() => setSelectedApplicant(null)}
                 className="cursor-pointer rounded-full p-1 !text-[var(--text-tertiary)] hover:!bg-[var(--bg-subtle)] hover:!text-[var(--text-primary)]"
               >
-                <X size={16} />
+                <XIcon size={16} />
               </button>
             </div>
 
@@ -737,7 +737,7 @@ export function MyProjectDetailPage({
                 <div className="flex items-center justify-between rounded-lg border p-3 !border-[#BAE6FD] !bg-[#F0F9FF]">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg !bg-[#FEE2E2] !text-[#DC2626]">
-                      <FilePdf size={24} weight="fill" />
+                      <FilePdfIcon size={24} weight="fill" />
                     </div>
                     <div>
                       <div className="text-[13.5px] font-bold !text-[var(--text-primary)]">
@@ -753,7 +753,7 @@ export function MyProjectDetailPage({
                     onClick={() => toast.info(`Đang mở file "${selectedApplicant.cvFileName}"...`)}
                     className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-bold transition-colors !border-[var(--color-primary-500)] !bg-white !text-[var(--color-primary-500)] hover:!bg-[var(--color-primary-50)]"
                   >
-                    <DownloadSimple size={14} weight="bold" />
+                    <DownloadSimpleIcon size={14} weight="bold" />
                     <span>Tải / Xem CV</span>
                   </button>
                 </div>
@@ -771,7 +771,7 @@ export function MyProjectDetailPage({
                     rel="noreferrer"
                     className="inline-flex items-center gap-1.5 text-[13px] font-semibold !text-[var(--color-primary-500)] hover:underline"
                   >
-                    <LinkSimple size={15} />
+                    <LinkSimpleIcon size={15} />
                     <span>{selectedApplicant.portfolioUrl}</span>
                   </a>
                 </div>
@@ -804,7 +804,7 @@ export function MyProjectDetailPage({
                     onClick={() => handleAcceptApplicant(selectedApplicant)}
                     className="inline-flex cursor-pointer items-center gap-2 rounded-full px-6 py-2 text-[13.5px] font-bold !text-white shadow-md transition-colors !bg-[var(--color-primary-500)] hover:!bg-[var(--color-primary-600)]"
                   >
-                    <Handshake size={16} weight="bold" />
+                    <HandshakeIcon size={16} weight="bold" />
                     <span>Chấp nhận & Soạn hợp đồng</span>
                   </button>
                 </>
@@ -946,7 +946,7 @@ export function MyProjectDetailPage({
                     Tài liệu hợp đồng đính kèm (File) *
                   </label>
                   <div className="flex min-h-[90px] cursor-pointer flex-col items-center justify-center gap-1.5 rounded border border-dashed p-4 !border-[var(--border-default)] !bg-[var(--bg-subtle)]">
-                    <Paperclip size={20} className="!text-[var(--text-tertiary)]" />
+                    <PaperclipIcon size={20} className="!text-[var(--text-tertiary)]" />
                     <span className="text-xs font-semibold !text-[var(--text-secondary)]">
                       Tải lên file tài liệu đính kèm
                     </span>
@@ -1030,7 +1030,7 @@ export function MyProjectDetailPage({
                     }}
                     className="inline-flex cursor-pointer items-center gap-1.5 rounded px-2.5 py-1 text-xs font-bold no-underline transition-colors hover:opacity-80 !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)]"
                   >
-                    <FileText size={14} />
+                    <FileTextIcon size={14} />
                     <span>DieuKhoan_HopDong.pdf</span>
                   </a>
                 </div>
@@ -1109,7 +1109,7 @@ export function MyProjectDetailPage({
                   onClick={() => setRatingStars(star)}
                   className="cursor-pointer p-1 text-2xl transition-transform hover:scale-110"
                 >
-                  <Star
+                  <StarIcon
                     size={28}
                     weight={star <= ratingStars ? 'fill' : 'regular'}
                     className={

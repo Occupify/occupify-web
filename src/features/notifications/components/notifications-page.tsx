@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Bell, DotsThreeVertical } from '@phosphor-icons/react'
+import { BellIcon, DotsThreeVerticalIcon } from '@phosphor-icons/react'
 import { Avatar } from '@/components/ui'
 import { toast } from '@/components/feedback'
 import { NotifBadge } from './notif-badge'
@@ -96,7 +96,7 @@ export function NotificationsPage() {
                     <div className="relative shrink-0">
                       {notif.actorName === 'Occupify' || notif.actorName === 'Occupify Team' ? (
                         <div className="flex h-12 w-12 items-center justify-center rounded-full !text-white !bg-[var(--color-primary-500)]">
-                          <Bell size={22} weight="fill" />
+                          <BellIcon size={22} weight="fill" />
                         </div>
                       ) : (
                         <Avatar name={notif.actorName || notif.title} size="md" />
@@ -132,7 +132,7 @@ export function NotificationsPage() {
                         onClick={(e) => e.stopPropagation()}
                         className="cursor-pointer rounded-full p-1 !text-[var(--text-tertiary)] hover:!bg-[var(--color-primary-50)] hover:!text-[var(--text-primary)]"
                       >
-                        <DotsThreeVertical size={16} />
+                        <DotsThreeVerticalIcon size={16} />
                       </button>
                     </div>
                   </div>

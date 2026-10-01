@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowRight, Bookmark, MagnifyingGlass, X } from '@phosphor-icons/react'
+import { ArrowRightIcon, BookmarkIcon, MagnifyingGlassIcon, XIcon } from '@phosphor-icons/react'
 import { toast } from '@/components/feedback'
 import { JOB_LISTINGS } from '@/features/mock-data'
 import { JobCard } from './job-card'
@@ -39,7 +39,7 @@ export function SavedItemsPage() {
         {/* Header */}
         <div className="mb-6">
           <div className="mb-2 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)]">
-            <Bookmark size={14} weight="fill" />
+            <BookmarkIcon size={14} weight="fill" />
             <span>Mục đã lưu của bạn</span>
           </div>
           <h1 className="text-2xl font-extrabold tracking-tight !text-[var(--text-primary)]">
@@ -63,7 +63,7 @@ export function SavedItemsPage() {
                 công việc
               </div>
               <div className="flex max-w-[280px] flex-1 items-center gap-2 rounded-full px-3.5 py-1.5 !bg-[var(--bg-base)]">
-                <MagnifyingGlass size={15} className="shrink-0 !text-[var(--text-tertiary)]" />
+                <MagnifyingGlassIcon size={15} className="shrink-0 !text-[var(--text-tertiary)]" />
                 <input
                   type="text"
                   value={searchQuery}
@@ -77,7 +77,7 @@ export function SavedItemsPage() {
                     onClick={() => setSearchQuery('')}
                     className="cursor-pointer !text-[var(--text-tertiary)] hover:!text-[var(--text-secondary)]"
                   >
-                    <X size={14} />
+                    <XIcon size={14} />
                   </button>
                 )}
               </div>
@@ -100,7 +100,7 @@ export function SavedItemsPage() {
           {savedJobs.length === 0 && (
             <div className="rounded-xl border px-6 py-16 text-center shadow-xs !border-[var(--border-default)] !bg-[var(--bg-elevated)]">
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)]">
-                <Bookmark size={30} weight="fill" />
+                <BookmarkIcon size={30} weight="fill" />
               </div>
               <h2 className="mb-2 text-lg font-bold !text-[var(--text-primary)]">
                 Bạn chưa lưu việc làm nào
@@ -114,7 +114,7 @@ export function SavedItemsPage() {
                 className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold !text-white transition-colors !bg-[var(--color-primary-500)] hover:!bg-[var(--color-primary-600)]"
               >
                 <span>Khám phá dự án & cơ hội mới</span>
-                <ArrowRight size={16} />
+                <ArrowRightIcon size={16} />
               </Link>
             </div>
           )}

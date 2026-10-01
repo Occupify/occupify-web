@@ -1,4 +1,4 @@
-import { Eye, SealCheck } from '@phosphor-icons/react'
+import { EyeIcon, SealCheckIcon } from '@phosphor-icons/react'
 import type { PendingProject } from '../types'
 
 interface PendingProjectCardProps {
@@ -37,7 +37,7 @@ export function PendingProjectCard({ pending, onReject, onViewDetail }: PendingP
                 </div>
                 {proj.invitedRole && (
                   <span className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-bold !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)]">
-                    <SealCheck size={12} weight="fill" />
+                    <SealCheckIcon size={12} weight="fill" />
                     <span>Vai trò: {proj.invitedRole}</span>
                   </span>
                 )}
@@ -70,7 +70,7 @@ export function PendingProjectCard({ pending, onReject, onViewDetail }: PendingP
                   onClick={() => onViewDetail?.(proj)}
                   className="inline-flex cursor-pointer items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-bold !text-white shadow-xs transition-colors !bg-[var(--color-primary-500)] hover:!bg-[var(--color-primary-600)]"
                 >
-                  <Eye size={14} weight="bold" />
+                  <EyeIcon size={14} weight="bold" />
                   <span>Xem chi tiết dự án</span>
                 </button>
 

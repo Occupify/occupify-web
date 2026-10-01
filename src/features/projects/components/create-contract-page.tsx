@@ -1,13 +1,13 @@
 import { useRef, useState } from 'react'
 import {
-  ArrowLeft,
-  Briefcase,
-  CheckCircle,
-  FileText,
-  FolderPlus,
-  Paperclip,
-  SealCheck,
-  X,
+  ArrowLeftIcon,
+  BriefcaseIcon,
+  CheckCircleIcon,
+  FileTextIcon,
+  FolderPlusIcon,
+  PaperclipIcon,
+  SealCheckIcon,
+  XIcon,
 } from '@phosphor-icons/react'
 import type { MyProject } from '../types'
 import { CY_PERIODS, MY_PROJECTS_DATA } from '@/features/mock-data'
@@ -130,7 +130,7 @@ export function CreateContractPage({
             onClick={onBack}
             className="mb-3 flex cursor-pointer items-center gap-1.5 text-xs font-semibold !text-white/80 transition-colors hover:!text-white"
           >
-            <ArrowLeft size={14} weight="bold" />
+            <ArrowLeftIcon size={14} weight="bold" />
             <span>Quay lại</span>
           </button>
           <h1 className="text-2xl font-extrabold sm:text-3xl !text-white">Tạo hợp đồng mới</h1>
@@ -146,7 +146,7 @@ export function CreateContractPage({
           {/* Card Header */}
           <div className="flex items-center gap-3 border-b p-5 sm:px-6 !border-[var(--border-subtle)]">
             <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)]">
-              <FileText size={22} weight="bold" />
+              <FileTextIcon size={22} weight="bold" />
             </div>
             <div>
               <h2 className="text-lg font-bold !text-[var(--text-primary)]">Tạo hợp đồng mới</h2>
@@ -166,7 +166,7 @@ export function CreateContractPage({
               {selectedProject && (
                 <div className="mb-3 flex items-center justify-between rounded-lg p-2.5 sm:px-3 !bg-[var(--color-primary-50)]">
                   <div className="flex items-center gap-2 overflow-hidden">
-                    <FolderPlus
+                    <FolderPlusIcon
                       size={18}
                       weight="bold"
                       className="flex-shrink-0 !text-[var(--color-primary-500)]"
@@ -183,7 +183,7 @@ export function CreateContractPage({
                     }}
                     className="cursor-pointer p-1 !text-[var(--text-tertiary)] hover:!text-[#C03A2B]"
                   >
-                    <X size={14} weight="bold" />
+                    <XIcon size={14} weight="bold" />
                   </button>
                 </div>
               )}
@@ -230,7 +230,7 @@ export function CreateContractPage({
                               : '!border-[var(--border-default)] !bg-[var(--bg-elevated)] !text-[var(--text-primary)] hover:!bg-[var(--bg-subtle)]'
                           }`}
                         >
-                          <Briefcase
+                          <BriefcaseIcon
                             size={14}
                             weight={isSelected ? 'fill' : 'regular'}
                             className={
@@ -333,7 +333,7 @@ export function CreateContractPage({
               {/* Role preview */}
               {activeRole && (
                 <div className="mt-3 inline-flex items-center gap-2 rounded-lg p-2.5 sm:px-3 text-xs !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)]">
-                  <SealCheck size={16} weight="fill" />
+                  <SealCheckIcon size={16} weight="fill" />
                   <span className="!text-[var(--text-secondary)]">Vai trò đã chọn:</span>
                   <span className="font-bold">{activeRole}</span>
                 </div>
@@ -446,7 +446,7 @@ export function CreateContractPage({
                 >
                   {termsFileName ? (
                     <>
-                      <FileText
+                      <FileTextIcon
                         size={22}
                         weight="bold"
                         className="!text-[var(--color-primary-500)]"
@@ -460,7 +460,7 @@ export function CreateContractPage({
                     </>
                   ) : (
                     <>
-                      <Paperclip size={22} className="!text-[var(--text-tertiary)]" />
+                      <PaperclipIcon size={22} className="!text-[var(--text-tertiary)]" />
                       <span className="mt-1 text-xs font-semibold !text-[var(--text-secondary)]">
                         Tải lên file hợp đồng đính kèm
                       </span>
@@ -562,7 +562,7 @@ export function CreateContractPage({
                 onClick={() => setShowProjectModal(false)}
                 className="cursor-pointer p-1 !text-[var(--text-tertiary)] hover:!text-[var(--text-primary)]"
               >
-                <X size={18} weight="bold" />
+                <XIcon size={18} weight="bold" />
               </button>
             </div>
 
@@ -578,14 +578,14 @@ export function CreateContractPage({
                 >
                   <div className="flex items-center gap-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-lg !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)]">
-                      <FolderPlus size={18} weight="bold" />
+                      <FolderPlusIcon size={18} weight="bold" />
                     </div>
                     <span className="text-xs font-semibold !text-[var(--text-primary)]">
                       {name}
                     </span>
                   </div>
                   {selectedProject === name && (
-                    <CheckCircle
+                    <CheckCircleIcon
                       size={18}
                       weight="fill"
                       className="!text-[var(--color-success-fg)]"

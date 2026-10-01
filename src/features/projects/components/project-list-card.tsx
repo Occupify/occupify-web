@@ -1,4 +1,4 @@
-import { ArrowRight } from '@phosphor-icons/react'
+import { ArrowRightIcon } from '@phosphor-icons/react'
 import type { MyProject } from '../types'
 
 interface ProjectListCardProps {
@@ -47,7 +47,7 @@ export function ProjectListCard({
                   {!hidePeriod && proj.period ? ` · ${proj.period}` : ''}
                 </div>
               </div>
-              <ArrowRight size={15} className="shrink-0 text-black/30" />
+              <ArrowRightIcon size={15} className="shrink-0 text-black/30" />
             </div>
           ))}
         </div>

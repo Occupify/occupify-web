@@ -1,5 +1,11 @@
 import { useState } from 'react'
-import { ArrowLeft, Check, ClipboardText, FolderPlus, X } from '@phosphor-icons/react'
+import {
+  ArrowLeftIcon,
+  CheckIcon,
+  ClipboardTextIcon,
+  FolderPlusIcon,
+  XIcon,
+} from '@phosphor-icons/react'
 import { CY_PERIODS, PREDEFINED_PROJECT_FIELDS } from '@/features/mock-data'
 
 export interface CreateProjectFormData {
@@ -55,7 +61,7 @@ export function CreateProjectPage({ onBack, onSubmit }: CreateProjectPageProps) 
             onClick={onBack}
             className="mb-3 flex cursor-pointer items-center gap-1.5 text-xs font-semibold !text-white/80 transition-colors hover:!text-white"
           >
-            <ArrowLeft size={14} weight="bold" />
+            <ArrowLeftIcon size={14} weight="bold" />
             <span>Quay lại</span>
           </button>
           <h1 className="text-2xl font-extrabold sm:text-3xl !text-white">Tạo dự án mới</h1>
@@ -71,7 +77,7 @@ export function CreateProjectPage({ onBack, onSubmit }: CreateProjectPageProps) 
           {/* Card Header */}
           <div className="flex items-center gap-3 border-b p-5 sm:px-6 !border-[var(--border-subtle)]">
             <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)]">
-              <FolderPlus size={22} weight="bold" />
+              <FolderPlusIcon size={22} weight="bold" />
             </div>
             <div>
               <h2 className="text-lg font-bold !text-[var(--text-primary)]">Tạo dự án mới</h2>
@@ -140,7 +146,7 @@ export function CreateProjectPage({ onBack, onSubmit }: CreateProjectPageProps) 
                           : '!border-[var(--border-default)] !bg-[var(--bg-elevated)] !text-[var(--text-secondary)] hover:!bg-[var(--bg-subtle)]'
                       }`}
                     >
-                      {isSelected && <Check size={13} weight="bold" />}
+                      {isSelected && <CheckIcon size={13} weight="bold" />}
                       <span>{field}</span>
                     </button>
                   )
@@ -156,9 +162,9 @@ export function CreateProjectPage({ onBack, onSubmit }: CreateProjectPageProps) 
                       onClick={() => toggleField(f)}
                       className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold !border-[var(--color-primary-500)] !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)]"
                     >
-                      <Check size={13} weight="bold" />
+                      <CheckIcon size={13} weight="bold" />
                       <span>{f}</span>
-                      <X size={12} weight="bold" />
+                      <XIcon size={12} weight="bold" />
                     </button>
                   ))}
               </div>
@@ -303,7 +309,7 @@ export function CreateProjectPage({ onBack, onSubmit }: CreateProjectPageProps) 
                 disabled={!canSubmit}
                 className="inline-flex cursor-pointer items-center gap-1.5 rounded-full px-6 py-2 text-xs font-bold !text-white transition-colors !bg-[var(--color-primary-500)] hover:!bg-[var(--color-primary-600)] disabled:cursor-not-allowed disabled:!bg-[rgba(0,0,0,0.12)] disabled:!text-[rgba(0,0,0,0.35)]"
               >
-                <ClipboardText size={15} weight="fill" />
+                <ClipboardTextIcon size={15} weight="fill" />
                 <span>Đăng dự án</span>
               </button>
             </div>

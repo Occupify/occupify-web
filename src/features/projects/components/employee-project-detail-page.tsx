@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowLeft, Briefcase, FileText } from '@phosphor-icons/react'
+import { ArrowLeftIcon, BriefcaseIcon, FileTextIcon } from '@phosphor-icons/react'
 import { Avatar } from '@/components/ui'
 import type { MyProject } from '../types'
 import { CancelModal } from './cancel-modal'
@@ -26,7 +26,7 @@ export function EmployeeProjectDetailPage({
           onClick={onBack}
           className="mb-5 flex cursor-pointer items-center gap-1.5 py-1 text-xs font-semibold !text-[var(--text-secondary)] transition-colors hover:!text-[var(--color-primary-500)]"
         >
-          <ArrowLeft size={14} weight="bold" />
+          <ArrowLeftIcon size={14} weight="bold" />
           <span>Quay lại</span>
         </button>
 
@@ -60,7 +60,7 @@ export function EmployeeProjectDetailPage({
                   </span>
                   {myContract?.role && (
                     <span className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-bold !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)]">
-                      <Briefcase size={12} weight="bold" />
+                      <BriefcaseIcon size={12} weight="bold" />
                       {myContract.role}
                     </span>
                   )}
@@ -157,7 +157,7 @@ export function EmployeeProjectDetailPage({
                     }}
                     className="inline-flex items-center gap-1.5 rounded px-3 py-1 font-bold no-underline transition-colors !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)] hover:!bg-[var(--color-primary-100)]"
                   >
-                    <FileText size={15} weight="bold" />
+                    <FileTextIcon size={15} weight="bold" />
                     <span>HopDong_{project.id}.pdf</span>
                   </a>
                 </div>

@@ -1,17 +1,17 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  Briefcase,
-  CalendarBlank,
-  CheckFat,
-  Clock,
-  DownloadSimple,
-  Eye,
-  FilePdf,
-  SealCheck,
-  Sparkle,
-  Wallet,
-  X,
+  BriefcaseIcon,
+  CalendarBlankIcon,
+  CheckFatIcon,
+  ClockIcon,
+  DownloadSimpleIcon,
+  EyeIcon,
+  FilePdfIcon,
+  SealCheckIcon,
+  SparkleIcon,
+  WalletIcon,
+  XIcon,
 } from '@phosphor-icons/react'
 import type { PendingProject } from '../types'
 
@@ -63,11 +63,11 @@ export function ProjectInvitationModal({
           <div className="mb-3 flex items-center justify-between">
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)]">
-                <Sparkle size={13} weight="fill" />
+                <SparkleIcon size={13} weight="fill" />
                 <span>Lời mời tham gia dự án</span>
               </span>
               <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold !bg-[#FEF3C7] !text-[#92400E]">
-                <Clock size={13} weight="bold" />
+                <ClockIcon size={13} weight="bold" />
                 <span>Hết hạn sau 3 ngày</span>
               </span>
             </div>
@@ -77,7 +77,7 @@ export function ProjectInvitationModal({
               onClick={onClose}
               className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border transition-colors !border-[var(--border-default)] !bg-[var(--bg-subtle)] !text-[var(--text-tertiary)] hover:!text-[var(--text-primary)]"
             >
-              <X size={16} weight="bold" />
+              <XIcon size={16} weight="bold" />
             </button>
           </div>
 
@@ -106,7 +106,7 @@ export function ProjectInvitationModal({
           {/* Key Terms Summary Strip */}
           <div className="flex flex-wrap items-center justify-between gap-3.5 rounded-xl border p-3.5 sm:px-4.5 !border-[var(--border-default)] !bg-[var(--bg-subtle)]">
             <div className="flex items-center gap-2">
-              <Briefcase size={16} className="!text-[var(--color-primary-500)]" />
+              <BriefcaseIcon size={16} className="!text-[var(--color-primary-500)]" />
               <span className="text-[13px] !text-[var(--text-secondary)]">Vai trò:</span>
               <span className="text-[13.5px] font-bold !text-[var(--text-primary)]">
                 {project.invitedRole}
@@ -116,7 +116,7 @@ export function ProjectInvitationModal({
             <div className="hidden h-4 w-px bg-slate-300 sm:block" />
 
             <div className="flex items-center gap-2">
-              <Wallet size={16} className="!text-[var(--color-primary-500)]" />
+              <WalletIcon size={16} className="!text-[var(--color-primary-500)]" />
               <span className="text-[13px] !text-[var(--text-secondary)]">Thù lao:</span>
               <span className="text-[13.5px] font-bold !text-[var(--color-primary-500)]">
                 {project.price}{' '}
@@ -129,7 +129,7 @@ export function ProjectInvitationModal({
             <div className="hidden h-4 w-px bg-slate-300 sm:block" />
 
             <div className="flex items-center gap-2">
-              <CalendarBlank size={16} className="!text-[var(--color-primary-500)]" />
+              <CalendarBlankIcon size={16} className="!text-[var(--color-primary-500)]" />
               <span className="text-[13px] !text-[var(--text-secondary)]">Hạn dự kiến:</span>
               <span className="text-[13.5px] font-bold !text-[var(--text-primary)]">
                 {project.dueDate ?? 'Theo thỏa thuận'}
@@ -161,7 +161,7 @@ export function ProjectInvitationModal({
                     <span className="text-[15px] font-bold !text-[var(--text-primary)]">
                       {project.owner}
                     </span>
-                    <SealCheck
+                    <SealCheckIcon
                       size={15}
                       weight="fill"
                       className="!text-[var(--color-primary-500)]"
@@ -201,7 +201,7 @@ export function ProjectInvitationModal({
                 <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-3 !border-[var(--border-default)] !bg-[var(--bg-subtle)]">
                   <div className="flex min-w-[220px] flex-1 items-center gap-3">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border !border-[#FECACA] !bg-[#FEF2F2] !text-[#DC2626]">
-                      <FilePdf size={22} weight="fill" />
+                      <FilePdfIcon size={22} weight="fill" />
                     </div>
                     <div className="min-w-0">
                       <div className="truncate text-[13.5px] font-bold !text-[var(--text-primary)]">
@@ -219,7 +219,7 @@ export function ProjectInvitationModal({
                       onClick={() => setViewingContract(true)}
                       className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-bold shadow-xs transition-colors !border-[var(--color-primary-500)] !bg-white !text-[var(--color-primary-500)] hover:!bg-[var(--color-primary-50)]"
                     >
-                      <Eye size={14} weight="bold" />
+                      <EyeIcon size={14} weight="bold" />
                       <span>Xem trước</span>
                     </button>
                     <button
@@ -234,7 +234,7 @@ export function ProjectInvitationModal({
                       }
                       className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors !border-[var(--border-default)] !bg-white !text-[var(--text-secondary)] hover:!bg-[var(--bg-subtle)]"
                     >
-                      <DownloadSimple size={14} weight="bold" />
+                      <DownloadSimpleIcon size={14} weight="bold" />
                       <span>Tải về</span>
                     </button>
                   </div>
@@ -292,7 +292,7 @@ export function ProjectInvitationModal({
             onClick={() => onAccept(project)}
             className="inline-flex cursor-pointer items-center gap-2 rounded-full px-6 py-2 text-[13.5px] font-bold !text-white shadow-md transition-all !bg-[var(--color-primary-500)] hover:!bg-[var(--color-primary-600)]"
           >
-            <CheckFat size={16} weight="fill" />
+            <CheckFatIcon size={16} weight="fill" />
             <span>Chấp nhận lời mời & Tham gia dự án</span>
           </button>
         </div>
@@ -312,7 +312,7 @@ export function ProjectInvitationModal({
           >
             <div className="mb-4 flex items-center justify-between border-b pb-3 !border-[var(--border-default)]">
               <div className="flex items-center gap-2.5">
-                <FilePdf size={24} weight="fill" className="!text-[#DC2626]" />
+                <FilePdfIcon size={24} weight="fill" className="!text-[#DC2626]" />
                 <div>
                   <div className="text-base font-extrabold !text-[var(--text-primary)]">
                     Bản thảo Hợp đồng Dịch vụ
@@ -327,7 +327,7 @@ export function ProjectInvitationModal({
                 onClick={() => setViewingContract(false)}
                 className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border transition-colors !border-[var(--border-default)] !bg-[var(--bg-subtle)] !text-[var(--text-tertiary)] hover:!text-[var(--text-primary)]"
               >
-                <X size={16} weight="bold" />
+                <XIcon size={16} weight="bold" />
               </button>
             </div>
 

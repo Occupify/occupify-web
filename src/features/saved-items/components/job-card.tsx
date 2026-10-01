@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Bookmark, Clock } from '@phosphor-icons/react'
+import { BookmarkIcon, ClockIcon } from '@phosphor-icons/react'
 import { Avatar } from '@/components/ui'
 import type { JobListing } from '../types'
 
@@ -76,7 +76,7 @@ export function JobCard({
           </div>
 
           <div className="mt-1 flex items-center gap-1.5 text-xs !text-[var(--text-tertiary)]">
-            <Clock size={13} className="!text-[var(--text-tertiary)]" />
+            <ClockIcon size={13} className="!text-[var(--text-tertiary)]" />
             <span>Đăng {job.postedAgo}</span>
             {job.location && (
               <>
@@ -106,7 +106,7 @@ export function JobCard({
                 : 'border-[#E2E8F0] !bg-[var(--bg-elevated)] !text-[#94A3B8] hover:!bg-[#F1F5F9] hover:!text-[var(--color-primary-500)]'
             }`}
           >
-            <Bookmark size={16} weight={isSaved ? 'fill' : 'regular'} />
+            <BookmarkIcon size={16} weight={isSaved ? 'fill' : 'regular'} />
           </button>
         </div>
       </div>
