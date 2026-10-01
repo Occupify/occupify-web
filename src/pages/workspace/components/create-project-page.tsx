@@ -6,6 +6,7 @@ import {
   FolderPlusIcon,
   XIcon,
 } from '@phosphor-icons/react'
+import { toast } from '@/components/feedback'
 import { CY_PERIODS, PREDEFINED_PROJECT_FIELDS } from '@/features/mock-data'
 
 export interface CreateProjectFormData {
@@ -49,7 +50,50 @@ export function CreateProjectPage({ onBack, onSubmit }: CreateProjectPageProps) 
     }
   }
 
-  const canSubmit = rTitle.trim().length > 0 && rDesc.trim().length > 0
+  const handleSubmit = () => {
+    if (!rTitle.trim()) {
+      toast.error('Vui lòng nhập tên dự án')
+      return
+    }
+
+    if (!rDesc.trim()) {
+      toast.error('Vui lòng nhập mô tả dự án')
+      return
+    }
+
+    if (selectedFields.length === 0) {
+      toast.error('Vui lòng chọn hoặc thêm ít nhất một lĩnh vực dự án')
+      return
+    }
+
+    const cleanPrice = rStartPrice.replace(/[^0-9]/g, '').trim()
+    const numericPrice = Number(cleanPrice)
+    if (!cleanPrice || isNaN(numericPrice) || numericPrice <= 0) {
+      toast.error('Vui lòng nhập giá khởi điểm hợp lệ (lớn hơn 0 VNĐ)')
+      return
+    }
+
+    if (!rDueDate) {
+      toast.error('Vui lòng chọn ngày đến hạn (Due date)')
+      return
+    }
+
+    if (rBidClose && rDueDate && rBidClose > rDueDate) {
+      toast.error('Hạn đóng chào mời không được sau ngày đến hạn (Due date)')
+      return
+    }
+
+    onSubmit({
+      name: rTitle.trim(),
+      description: rDesc.trim(),
+      tags: selectedFields,
+      startPrice: cleanPrice,
+      period: rPeriod,
+      dueDate: rDueDate,
+      bidCloseDate: rBidClose,
+      isPublic: rPublish === 'co',
+    })
+  }
 
   return (
     <div className="min-h-full pb-14 !bg-[var(--bg-base)]">
@@ -120,7 +164,7 @@ export function CreateProjectPage({ onBack, onSubmit }: CreateProjectPageProps) 
             <div className="p-5 sm:px-6">
               <div className="mb-1 flex items-center gap-1.5">
                 <label className="text-xs font-bold !text-[var(--text-secondary)]">
-                  Lĩnh vực dự án
+                  Lĩnh vực dự án *
                 </label>
                 {selectedFields.length > 0 && (
                   <span className="text-xs font-bold !text-[var(--color-primary-500)]">
@@ -198,7 +242,7 @@ export function CreateProjectPage({ onBack, onSubmit }: CreateProjectPageProps) 
             <div className="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2 sm:px-6">
               <div>
                 <label className="mb-1.5 block text-xs font-bold !text-[var(--text-secondary)]">
-                  Giá khởi điểm (VNĐ)
+                  Giá khởi điểm (VNĐ) *
                 </label>
                 <input
                   type="number"
@@ -230,7 +274,7 @@ export function CreateProjectPage({ onBack, onSubmit }: CreateProjectPageProps) 
             <div className="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2 sm:px-6">
               <div>
                 <label className="mb-1.5 block text-xs font-bold !text-[var(--text-secondary)]">
-                  Due date
+                  Due date *
                 </label>
                 <input
                   type="date"
@@ -292,22 +336,8 @@ export function CreateProjectPage({ onBack, onSubmit }: CreateProjectPageProps) 
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  if (canSubmit) {
-                    onSubmit({
-                      name: rTitle.trim(),
-                      description: rDesc.trim(),
-                      tags: selectedFields,
-                      startPrice: rStartPrice.trim(),
-                      period: rPeriod,
-                      dueDate: rDueDate || '2026-12-31',
-                      bidCloseDate: rBidClose,
-                      isPublic: rPublish === 'co',
-                    })
-                  }
-                }}
-                disabled={!canSubmit}
-                className="inline-flex cursor-pointer items-center gap-1.5 rounded-full px-6 py-2 text-xs font-bold !text-white transition-colors !bg-[var(--color-primary-500)] hover:!bg-[var(--color-primary-600)] disabled:cursor-not-allowed disabled:!bg-[rgba(0,0,0,0.12)] disabled:!text-[rgba(0,0,0,0.35)]"
+                onClick={handleSubmit}
+                className="inline-flex cursor-pointer items-center gap-1.5 rounded-full px-6 py-2 text-xs font-bold !text-white transition-colors !bg-[var(--color-primary-500)] hover:!bg-[var(--color-primary-600)] shadow-sm"
               >
                 <ClipboardTextIcon size={15} weight="fill" />
                 <span>Đăng dự án</span>

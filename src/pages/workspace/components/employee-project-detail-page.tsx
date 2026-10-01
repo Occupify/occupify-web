@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { ArrowLeftIcon, BriefcaseIcon, FileTextIcon } from '@phosphor-icons/react'
 import { Avatar } from '@/components/ui'
-import type { MyProject } from '../types'
-import { CancelModal } from './cancel-modal'
+import type { MyProject } from '@/features/projects'
+import { CancelModal } from '@/features/projects'
 
 interface EmployeeProjectDetailPageProps {
   project: MyProject

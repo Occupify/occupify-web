@@ -81,3 +81,37 @@ export interface ApplicantProposal {
   location: string
   appliedDate: string
 }
+
+export interface CreateProjectFormData {
+  name: string
+  description: string
+  tags: string[]
+  startPrice: string
+  period: string
+  dueDate: string
+  bidCloseDate: string
+  isPublic: boolean
+}
+
+export interface CreateContractFormData {
+  title: string
+  value: string
+  period: string
+  startDate?: string
+  endDate?: string
+  role: string
+  freelancerEmail: string
+  candidateName?: string
+  candidateEmail?: string
+  project?: string | null
+  projectName?: string
+  roleTitle?: string
+  salary?: string
+  scope?: string
+  jobDescription?: string
+  attachedFileName?: string
+  attachedFileSize?: string
+  termsFileName?: string
+  paymentType?: 'milestone' | 'period'
+  invitationMessage?: string
+}

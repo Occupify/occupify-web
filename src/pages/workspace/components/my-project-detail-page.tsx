@@ -15,8 +15,8 @@ import {
 } from '@phosphor-icons/react'
 import { Avatar } from '@/components/ui'
 import { toast } from '@/components/feedback'
-import { CancelModal } from './cancel-modal'
-import type { ApplicantProposal, MyProject, ProjectMember } from '../types'
+import { CancelModal } from '@/features/projects'
+import type { ApplicantProposal, MyProject, ProjectMember } from '@/features/projects'
 
 interface MyProjectDetailPageProps {
   project: MyProject

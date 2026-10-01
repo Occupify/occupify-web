@@ -11,7 +11,7 @@ import {
   SealCheckIcon,
   XIcon,
 } from '@phosphor-icons/react'
-import type { MyProject } from '../types'
+import type { MyProject } from '@/features/projects'
 import { CY_PERIODS, MY_PROJECTS_DATA } from '@/features/mock-data'
 
 export interface CreateContractFormData {
