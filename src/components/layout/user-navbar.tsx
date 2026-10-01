@@ -11,11 +11,13 @@ import {
   WalletIcon,
 } from '@phosphor-icons/react'
 import { Avatar } from '@/components/ui'
-import { MOCK_NOTIFICATIONS } from '@/features/notifications'
 
-export function UserNavBar() {
+export interface UserNavBarProps {
+  unreadNotificationsCount?: number
+}
+
+export function UserNavBar({ unreadNotificationsCount }: UserNavBarProps = {}) {
   const navigate = useNavigate()
-  const unreadCount = MOCK_NOTIFICATIONS.filter((n) => !n.isRead).length
 
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -38,7 +40,10 @@ export function UserNavBar() {
       to: '/notifications',
       label: 'Thông báo',
       Icon: BellIcon,
-      badge: unreadCount > 0 ? unreadCount : undefined,
+      badge:
+        unreadNotificationsCount && unreadNotificationsCount > 0
+          ? unreadNotificationsCount
+          : undefined,
       end: false,
     },
   ]
