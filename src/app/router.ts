@@ -26,7 +26,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'home',
-        Component: HomePage,
+        element: createElement(Navigate, { to: '/feed', replace: true }),
       },
       {
         path: 'workspace',
