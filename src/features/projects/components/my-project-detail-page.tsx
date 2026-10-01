@@ -27,6 +27,8 @@ interface MyProjectDetailPageProps {
     candidateName?: string,
     bidValue?: string,
     candidateEmail?: string,
+    jobDescription?: string,
+    mode?: 'create' | 'invite',
   ) => void
   onCancelProject?: (projectId: number, reason?: string) => void
   onUpdateMembers?: (projectId: number, members: ProjectMember[]) => void
@@ -162,6 +164,8 @@ export function MyProjectDetailPage({
         applicant.name,
         applicant.rawBidValue,
         applicant.email,
+        `Đảm nhiệm vị trí ${applicant.roleApplied} cho dự án ${project.name}. Cam kết thực hiện công việc theo thoả thuận ứng tuyển và bàn giao chất lượng.`,
+        'invite',
       )
     }
   }
@@ -322,7 +326,23 @@ export function MyProjectDetailPage({
                       {isRecruiting && (
                         <button
                           type="button"
-                          onClick={() => onCreateContract?.(r.title)}
+                          onClick={() => {
+                            const defaultJd =
+                              r.jobDescription ||
+                              `Đảm nhiệm vai trò ${r.title} cho dự án ${project.name}.${
+                                r.skills && r.skills.length > 0
+                                  ? ` Yêu cầu kỹ năng chuyên môn: ${r.skills.join(', ')}.`
+                                  : ''
+                              } Chịu trách nhiệm thực hiện các hạng mục chuyên môn, phối hợp kỹ thuật cùng đội ngũ và bàn giao sản phẩm đúng tiến độ cam kết.`
+                            onCreateContract?.(
+                              r.title,
+                              undefined,
+                              r.salaryRange ? r.salaryRange.split('-')[0].trim() : undefined,
+                              undefined,
+                              defaultJd,
+                              'invite',
+                            )
+                          }}
                           className="mt-1 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-bold transition-colors !border-[var(--color-primary-500)] !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)] hover:!bg-[var(--color-primary-500)] hover:!text-white"
                         >
                           <UserPlusIcon size={14} weight="bold" />

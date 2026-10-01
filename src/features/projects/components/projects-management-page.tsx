@@ -62,11 +62,13 @@ export function ProjectsManagementPage({
 
   const [selectedInvitation, setSelectedInvitation] = useState<PendingProject | null>(null)
   const [contractContext, setContractContext] = useState<{
+    mode?: 'create' | 'invite'
     initialProject?: string
     initialRole?: string
     initialCandidateName?: string
     initialCandidateEmail?: string
     initialBidValue?: string
+    initialJobDescription?: string
   } | null>(null)
 
   const subPage = searchParams.get('sub')
@@ -350,11 +352,13 @@ export function ProjectsManagementPage({
           setContractContext(null)
           handleBack()
         }}
+        mode={contractContext?.mode ?? 'create'}
         initialProject={contractContext?.initialProject}
         initialRole={contractContext?.initialRole}
         initialCandidateName={contractContext?.initialCandidateName}
         initialCandidateEmail={contractContext?.initialCandidateEmail}
         initialBidValue={contractContext?.initialBidValue}
+        initialJobDescription={contractContext?.initialJobDescription}
         projects={myProjects}
         onSubmit={handleCreateContract}
       />
@@ -368,13 +372,22 @@ export function ProjectsManagementPage({
         onBack={handleBack}
         onCancelProject={handleCancelMyProject}
         onUpdateMembers={handleUpdateMyProjectMembers}
-        onCreateContract={(roleTitle, candidateName, bidValue, candidateEmail) => {
+        onCreateContract={(
+          roleTitle,
+          candidateName,
+          bidValue,
+          candidateEmail,
+          jobDescription,
+          mode,
+        ) => {
           openCreateContract({
+            mode: mode ?? 'create',
             initialProject: viewingMyProject.name,
             initialRole: roleTitle,
             initialCandidateName: candidateName,
             initialCandidateEmail: candidateEmail,
             initialBidValue: bidValue,
+            initialJobDescription: jobDescription,
           })
         }}
       />

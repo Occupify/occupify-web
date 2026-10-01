@@ -7,6 +7,7 @@ export interface ProjectRole {
   slotsFilled?: number
   status?: 'recruiting' | 'filled'
   assignedMemberName?: string
+  jobDescription?: string
 }
 
 export interface ProjectMember {
