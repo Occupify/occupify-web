@@ -165,7 +165,7 @@ export function UserNavBar({ unreadNotificationsCount }: UserNavBarProps = {}) {
                     type="button"
                     onClick={() => {
                       setMenuOpen(false)
-                      navigate('/not-found')
+                      navigate('/')
                     }}
                     className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-semibold !text-[#C03A2B] hover:!bg-[#FBE2E2]"
                   >
