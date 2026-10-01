@@ -1,11 +1,14 @@
-import { lazy } from 'react'
-import { createBrowserRouter } from 'react-router-dom'
-import { AppLayout } from '@/components/layout'
+import { createElement, lazy } from 'react'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
+import { UserLayout } from '@/components/layout'
 
 const LandingPage = lazy(() => import('@/pages/landing'))
 const HomePage = lazy(() => import('@/pages/home'))
 const DesignPage = lazy(() => import('@/pages/design'))
 const NotFoundPage = lazy(() => import('@/pages/not-found'))
+const WorkspacePage = lazy(() => import('@/pages/workspace'))
+const SavedPage = lazy(() => import('@/pages/saved'))
+const NotificationsPage = lazy(() => import('@/pages/notifications'))
 
 export const router = createBrowserRouter([
   // Standalone public entry / authentication landing view
@@ -13,17 +16,41 @@ export const router = createBrowserRouter([
     path: '/',
     Component: LandingPage,
   },
-  // Main authenticated application routes with persistent top Navbar
+  // Main authenticated application routes with persistent UserLayout & Navigation Bar
   {
-    Component: AppLayout,
+    element: createElement(UserLayout),
     children: [
       {
-        path: '/home',
+        path: 'feed',
         Component: HomePage,
       },
       {
-        path: '/feed',
+        path: 'home',
         Component: HomePage,
+      },
+      {
+        path: 'workspace',
+        Component: WorkspacePage,
+      },
+      {
+        path: 'projects',
+        element: createElement(Navigate, { to: '/workspace', replace: true }),
+      },
+      {
+        path: 'saved',
+        Component: SavedPage,
+      },
+      {
+        path: 'notifications',
+        Component: NotificationsPage,
+      },
+      {
+        path: 'not-found',
+        Component: NotFoundPage,
+      },
+      {
+        path: '*',
+        Component: NotFoundPage,
       },
     ],
   },
@@ -31,10 +58,5 @@ export const router = createBrowserRouter([
   {
     path: '/design',
     Component: DesignPage,
-  },
-  // 404 Not Found fallback
-  {
-    path: '*',
-    Component: NotFoundPage,
   },
 ])

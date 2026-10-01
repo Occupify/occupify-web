@@ -22,7 +22,7 @@ export function LandingPage({ onLogin, onSignUp, onGoogle, onAdmin }: LandingPag
     if (onLogin) {
       onLogin()
     } else {
-      navigate('/login')
+      navigate('/workspace')
     }
   }, [onLogin, navigate])
 
