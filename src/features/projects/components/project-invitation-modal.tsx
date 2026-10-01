@@ -1,0 +1,384 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import {
+  Briefcase,
+  CalendarBlank,
+  CheckFat,
+  Clock,
+  DownloadSimple,
+  Eye,
+  FilePdf,
+  SealCheck,
+  Sparkle,
+  Wallet,
+  X,
+} from '@phosphor-icons/react'
+import type { PendingProject } from '../types'
+
+interface ProjectInvitationModalProps {
+  project: PendingProject
+  onClose: () => void
+  onAccept: (project: PendingProject) => void
+  onReject: (project: PendingProject) => void
+  onOpenChat?: (owner: string) => void
+  onViewProfile?: (ownerName: string) => void
+}
+
+export function ProjectInvitationModal({
+  project,
+  onClose,
+  onAccept,
+  onReject,
+  onViewProfile,
+}: ProjectInvitationModalProps) {
+  const navigate = useNavigate()
+  const [rejectReason, setRejectReason] = useState('')
+  const [showRejectForm, setShowRejectForm] = useState(false)
+  const [viewingContract, setViewingContract] = useState(false)
+
+  const handleProfileClick = () => {
+    if (onViewProfile) {
+      onViewProfile(project.owner)
+    } else {
+      navigate('/not-found')
+    }
+  }
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto backdrop-blur-xs !bg-[rgba(15,23,42,0.65)]"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose()
+      }}
+    >
+      <div
+        className="relative flex max-h-[92vh] w-full max-w-[680px] flex-col overflow-y-auto rounded-2xl border shadow-2xl !border-[var(--border-default)] !bg-[var(--bg-elevated)]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Modal Header */}
+        <div className="relative border-b p-6 pb-4 sm:px-7 !border-[var(--border-subtle)]">
+          {/* Top badges (Category + Expiry timer) + Close Button */}
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)]">
+                <Sparkle size={13} weight="fill" />
+                <span>Lời mời tham gia dự án</span>
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold !bg-[#FEF3C7] !text-[#92400E]">
+                <Clock size={13} weight="bold" />
+                <span>Hết hạn sau 3 ngày</span>
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border transition-colors !border-[var(--border-default)] !bg-[var(--bg-subtle)] !text-[var(--text-tertiary)] hover:!text-[var(--text-primary)]"
+            >
+              <X size={16} weight="bold" />
+            </button>
+          </div>
+
+          {/* Project Title */}
+          <h2 className="mb-2.5 text-[22px] font-extrabold leading-snug tracking-tight !text-[var(--text-primary)]">
+            {project.name}
+          </h2>
+
+          {/* Project Tags */}
+          {project.tags && project.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {project.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-md border px-2 py-0.5 text-[11.5px] font-semibold !border-[var(--border-default)] !bg-[var(--bg-subtle)] !text-[var(--text-secondary)]"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Modal Body */}
+        <div className="flex flex-col gap-4 p-5 sm:p-7">
+          {/* Key Terms Summary Strip */}
+          <div className="flex flex-wrap items-center justify-between gap-3.5 rounded-xl border p-3.5 sm:px-4.5 !border-[var(--border-default)] !bg-[var(--bg-subtle)]">
+            <div className="flex items-center gap-2">
+              <Briefcase size={16} className="!text-[var(--color-primary-500)]" />
+              <span className="text-[13px] !text-[var(--text-secondary)]">Vai trò:</span>
+              <span className="text-[13.5px] font-bold !text-[var(--text-primary)]">
+                {project.invitedRole}
+              </span>
+            </div>
+
+            <div className="hidden h-4 w-px bg-slate-300 sm:block" />
+
+            <div className="flex items-center gap-2">
+              <Wallet size={16} className="!text-[var(--color-primary-500)]" />
+              <span className="text-[13px] !text-[var(--text-secondary)]">Thù lao:</span>
+              <span className="text-[13.5px] font-bold !text-[var(--color-primary-500)]">
+                {project.price}{' '}
+                <span className="text-xs font-medium !text-[var(--text-secondary)]">
+                  / {project.period}
+                </span>
+              </span>
+            </div>
+
+            <div className="hidden h-4 w-px bg-slate-300 sm:block" />
+
+            <div className="flex items-center gap-2">
+              <CalendarBlank size={16} className="!text-[var(--color-primary-500)]" />
+              <span className="text-[13px] !text-[var(--text-secondary)]">Hạn dự kiến:</span>
+              <span className="text-[13.5px] font-bold !text-[var(--text-primary)]">
+                {project.dueDate ?? 'Theo thỏa thuận'}
+              </span>
+            </div>
+          </div>
+
+          {/* Invitation Letter Section - Fixed Height 400px container */}
+          <div className="flex h-[400px] flex-col rounded-xl border p-4.5 shadow-xs !border-[var(--border-default)] !bg-[var(--bg-elevated)]">
+            {/* Sender / Inviter Header */}
+            <div className="flex shrink-0 items-center justify-between border-b pb-3 !border-[var(--border-subtle)]">
+              <div
+                onClick={handleProfileClick}
+                className="inline-flex cursor-pointer items-center gap-3"
+              >
+                {project.ownerAvatar ? (
+                  <img
+                    src={project.ownerAvatar}
+                    alt={project.owner}
+                    className="h-10 w-10 rounded-full border-2 object-cover !border-[var(--color-primary-500)]"
+                  />
+                ) : (
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full text-base font-extrabold !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)]">
+                    {project.owner.charAt(0)}
+                  </div>
+                )}
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[15px] font-bold !text-[var(--text-primary)]">
+                      {project.owner}
+                    </span>
+                    <SealCheck
+                      size={15}
+                      weight="fill"
+                      className="!text-[var(--color-primary-500)]"
+                    />
+                  </div>
+                  <div className="text-xs font-semibold !text-[var(--color-primary-500)]">
+                    Chủ dự án · Nhấn xem trang cá nhân →
+                  </div>
+                </div>
+              </div>
+
+              <span className="rounded-md border px-2.5 py-1 text-[11.5px] font-semibold !border-[var(--border-default)] !bg-[var(--bg-subtle)] !text-[var(--text-secondary)]">
+                Thư mời hợp tác
+              </span>
+            </div>
+
+            {/* Letter Content - Scrollable */}
+            <div className="flex-1 overflow-y-auto pt-3 pr-1 text-[13.5px] leading-relaxed !text-[var(--text-primary)]">
+              <div className="mb-1.5 font-bold !text-[var(--text-primary)]">Nội dung lời mời:</div>
+              <p className="mb-2.5 !text-[var(--text-secondary)]">
+                {project.inviteMessage ||
+                  `Chào bạn! Qua hồ sơ và kinh nghiệm làm việc của bạn trên Occupify, chúng tôi nhận thấy năng lực của bạn rất phù hợp với vị trí ${project.invitedRole} trong dự án "${project.name}". Chúng tôi rất mong có cơ hội được hợp tác cùng bạn trong dự án này.`}
+              </p>
+
+              {project.description && (
+                <div className="mt-2.5 border-t border-dashed pt-2.5 text-[13px] !border-[var(--border-subtle)] !text-[var(--text-secondary)]">
+                  <span className="font-semibold !text-[var(--text-primary)]">Về dự án: </span>
+                  {project.description}
+                </div>
+              )}
+
+              {/* Attachment box */}
+              <div className="mt-3.5 border-t border-dashed pt-3 !border-[var(--border-subtle)]">
+                <div className="mb-2 text-xs font-bold tracking-wider uppercase !text-[var(--text-tertiary)]">
+                  Tài liệu & Hợp đồng đính kèm:
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-3 !border-[var(--border-default)] !bg-[var(--bg-subtle)]">
+                  <div className="flex min-w-[220px] flex-1 items-center gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border !border-[#FECACA] !bg-[#FEF2F2] !text-[#DC2626]">
+                      <FilePdf size={22} weight="fill" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="truncate text-[13.5px] font-bold !text-[var(--text-primary)]">
+                        HopDong_HopTac_{project.name.replace(/[^a-zA-Z0-9]/g, '_')}.pdf
+                      </div>
+                      <div className="mt-0.5 text-xs !text-[var(--text-tertiary)]">
+                        Bản thảo hợp đồng dự án · 1.8 MB · Định dạng PDF
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex shrink-0 items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setViewingContract(true)}
+                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-bold shadow-xs transition-colors !border-[var(--color-primary-500)] !bg-white !text-[var(--color-primary-500)] hover:!bg-[var(--color-primary-50)]"
+                    >
+                      <Eye size={14} weight="bold" />
+                      <span>Xem trước</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        alert(
+                          `Đang tải xuống: HopDong_HopTac_${project.name.replace(
+                            /[^a-zA-Z0-9]/g,
+                            '_',
+                          )}.pdf`,
+                        )
+                      }
+                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors !border-[var(--border-default)] !bg-white !text-[var(--text-secondary)] hover:!bg-[var(--bg-subtle)]"
+                    >
+                      <DownloadSimple size={14} weight="bold" />
+                      <span>Tải về</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Rejection Form */}
+          {showRejectForm && (
+            <div className="rounded-xl border p-4 sm:p-5 !border-[#FECACA] !bg-[#FEF2F2]">
+              <div className="mb-1.5 text-[13.5px] font-bold !text-[#991B1B]">
+                Lý do từ chối lời mời (tuỳ chọn)
+              </div>
+              <textarea
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                placeholder="VD: Hiện tại tôi đang bận dự án khác, mức thù lao chưa phù hợp, hoặc định hướng công nghệ khác..."
+                className="min-h-[70px] w-full rounded-lg border p-2.5 text-xs outline-none !border-[#FCA5A5] !bg-white !text-[var(--text-primary)]"
+              />
+              <div className="mt-2.5 flex items-center justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setShowRejectForm(false)}
+                  className="cursor-pointer text-xs font-semibold !text-[var(--text-secondary)] hover:!text-[var(--text-primary)]"
+                >
+                  Quay lại
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onReject(project)}
+                  className="cursor-pointer rounded-full px-4 py-1.5 text-xs font-bold !text-white shadow-xs !bg-[#DC2626] hover:!bg-[#B91C1C]"
+                >
+                  Xác nhận từ chối
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer Actions */}
+        <div className="flex items-center justify-end gap-3 border-t p-4 sm:px-7 !border-[var(--border-subtle)] !bg-[var(--bg-subtle)]/50">
+          {!showRejectForm && (
+            <button
+              type="button"
+              onClick={() => setShowRejectForm(true)}
+              className="cursor-pointer rounded-full border px-5 py-2 text-[13.5px] font-semibold transition-colors !border-[var(--border-default)] !bg-white !text-[var(--text-secondary)] hover:!border-[#FECACA] hover:!bg-[#FEF2F2] hover:!text-[#DC2626]"
+            >
+              Từ chối lời mời
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={() => onAccept(project)}
+            className="inline-flex cursor-pointer items-center gap-2 rounded-full px-6 py-2 text-[13.5px] font-bold !text-white shadow-md transition-all !bg-[var(--color-primary-500)] hover:!bg-[var(--color-primary-600)]"
+          >
+            <CheckFat size={16} weight="fill" />
+            <span>Chấp nhận lời mời & Tham gia dự án</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Contract Preview Modal */}
+      {viewingContract && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-60 flex items-center justify-center p-4 backdrop-blur-xs !bg-[rgba(15,23,42,0.7)]"
+          onClick={() => setViewingContract(false)}
+        >
+          <div
+            className="flex max-h-[88vh] w-full max-w-[640px] flex-col overflow-y-auto rounded-2xl p-6 shadow-2xl sm:p-7 !bg-[var(--bg-elevated)]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4 flex items-center justify-between border-b pb-3 !border-[var(--border-default)]">
+              <div className="flex items-center gap-2.5">
+                <FilePdf size={24} weight="fill" className="!text-[#DC2626]" />
+                <div>
+                  <div className="text-base font-extrabold !text-[var(--text-primary)]">
+                    Bản thảo Hợp đồng Dịch vụ
+                  </div>
+                  <div className="text-xs !text-[var(--text-tertiary)]">
+                    Dự án: {project.name} · Định dạng PDF
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setViewingContract(false)}
+                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border transition-colors !border-[var(--border-default)] !bg-[var(--bg-subtle)] !text-[var(--text-tertiary)] hover:!text-[var(--text-primary)]"
+              >
+                <X size={16} weight="bold" />
+              </button>
+            </div>
+
+            <div className="rounded-lg border p-4.5 text-[13px] leading-relaxed !border-[var(--border-default)] !bg-[var(--bg-subtle)] !text-[var(--text-primary)]">
+              <div className="mb-3 text-center font-extrabold uppercase !text-[var(--color-primary-500)]">
+                CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM
+                <br />
+                <span className="text-xs font-semibold !text-[var(--text-secondary)]">
+                  Độc lập - Tự do - Hạnh phúc
+                </span>
+              </div>
+              <div className="mb-3 text-center text-sm font-bold !text-[var(--text-primary)]">
+                HỢP ĐỒNG HỢP TÁC VÀ CUNG CẤP DỊCH VỤ DỰ ÁN
+              </div>
+              <p className="mb-1">
+                <strong>Bên A (Bên giao việc / Chủ dự án):</strong> {project.owner}{' '}
+                {project.ownerCompany ? `(${project.ownerCompany})` : ''}
+              </p>
+              <p className="mb-1">
+                <strong>Bên B (Bên nhận việc):</strong> Ứng viên được mời tham gia
+              </p>
+              <p className="mb-1">
+                <strong>1. Vị trí & Phạm vi công việc:</strong> {project.invitedRole} trong khuôn
+                khổ dự án &ldquo;{project.name}&rdquo;.
+              </p>
+              <p className="mb-1">
+                <strong>2. Mức thù lao:</strong> {project.price} ({project.period}). Các mốc thanh
+                toán tự động qua Smart Contract.
+              </p>
+              <p className="mb-1">
+                <strong>3. Thời hạn thực hiện:</strong> Hạn chót dự kiến đến{' '}
+                {project.dueDate ?? 'theo thỏa thuận đôi bên'}.
+              </p>
+              <p className="mb-1">
+                <strong>4. Quyền và nghĩa vụ:</strong> Cam kết bảo mật thông tin (NDA), chuyển giao
+                toàn bộ mã nguồn và tài sản sở hữu trí tuệ sau khi hoàn thành thanh toán.
+              </p>
+            </div>
+
+            <div className="mt-4.5 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setViewingContract(false)}
+                className="cursor-pointer rounded-full border px-5 py-2 text-[13px] font-semibold !border-[var(--border-default)] !bg-white !text-[var(--text-secondary)] hover:!bg-[var(--bg-subtle)]"
+              >
+                Đóng xem trước
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
