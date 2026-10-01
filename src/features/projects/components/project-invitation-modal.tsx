@@ -5,9 +5,6 @@ import {
   CalendarBlankIcon,
   CheckFatIcon,
   ClockIcon,
-  DownloadSimpleIcon,
-  EyeIcon,
-  FilePdfIcon,
   SealCheckIcon,
   SparkleIcon,
   WalletIcon,
@@ -34,7 +31,6 @@ export function ProjectInvitationModal({
   const navigate = useNavigate()
   const [rejectReason, setRejectReason] = useState('')
   const [showRejectForm, setShowRejectForm] = useState(false)
-  const [viewingContract, setViewingContract] = useState(false)
 
   const handleProfileClick = () => {
     if (onViewProfile) {
@@ -137,8 +133,8 @@ export function ProjectInvitationModal({
             </div>
           </div>
 
-          {/* Invitation Letter Section - Fixed Height 400px container */}
-          <div className="flex h-[400px] flex-col rounded-xl border p-4.5 shadow-xs !border-[var(--border-default)] !bg-[var(--bg-elevated)]">
+          {/* Invitation Letter Section - Cover Letter Only */}
+          <div className="flex flex-col rounded-xl border p-4.5 shadow-xs !border-[var(--border-default)] !bg-[var(--bg-elevated)]">
             {/* Sender / Inviter Header */}
             <div className="flex shrink-0 items-center justify-between border-b pb-3 !border-[var(--border-subtle)]">
               <div
@@ -178,8 +174,8 @@ export function ProjectInvitationModal({
               </span>
             </div>
 
-            {/* Letter Content - Scrollable */}
-            <div className="flex-1 overflow-y-auto pt-3 pr-1 text-[13.5px] leading-relaxed !text-[var(--text-primary)]">
+            {/* Letter Content - Cover letter */}
+            <div className="pt-3.5 text-[13.5px] leading-relaxed !text-[var(--text-primary)]">
               <div className="mb-1.5 font-bold !text-[var(--text-primary)]">Nội dung lời mời:</div>
               <p className="mb-2.5 !text-[var(--text-secondary)]">
                 {project.inviteMessage ||
@@ -192,54 +188,6 @@ export function ProjectInvitationModal({
                   {project.description}
                 </div>
               )}
-
-              {/* Attachment box */}
-              <div className="mt-3.5 border-t border-dashed pt-3 !border-[var(--border-subtle)]">
-                <div className="mb-2 text-xs font-bold tracking-wider uppercase !text-[var(--text-tertiary)]">
-                  Tài liệu & Hợp đồng đính kèm:
-                </div>
-                <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-3 !border-[var(--border-default)] !bg-[var(--bg-subtle)]">
-                  <div className="flex min-w-[220px] flex-1 items-center gap-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border !border-[#FECACA] !bg-[#FEF2F2] !text-[#DC2626]">
-                      <FilePdfIcon size={22} weight="fill" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="truncate text-[13.5px] font-bold !text-[var(--text-primary)]">
-                        HopDong_HopTac_{project.name.replace(/[^a-zA-Z0-9]/g, '_')}.pdf
-                      </div>
-                      <div className="mt-0.5 text-xs !text-[var(--text-tertiary)]">
-                        Bản thảo hợp đồng dự án · 1.8 MB · Định dạng PDF
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex shrink-0 items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setViewingContract(true)}
-                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-bold shadow-xs transition-colors !border-[var(--color-primary-500)] !bg-white !text-[var(--color-primary-500)] hover:!bg-[var(--color-primary-50)]"
-                    >
-                      <EyeIcon size={14} weight="bold" />
-                      <span>Xem trước</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        alert(
-                          `Đang tải xuống: HopDong_HopTac_${project.name.replace(
-                            /[^a-zA-Z0-9]/g,
-                            '_',
-                          )}.pdf`,
-                        )
-                      }
-                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors !border-[var(--border-default)] !bg-white !text-[var(--text-secondary)] hover:!bg-[var(--bg-subtle)]"
-                    >
-                      <DownloadSimpleIcon size={14} weight="bold" />
-                      <span>Tải về</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -297,88 +245,6 @@ export function ProjectInvitationModal({
           </button>
         </div>
       </div>
-
-      {/* Contract Preview Modal */}
-      {viewingContract && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-60 flex items-center justify-center p-4 backdrop-blur-xs !bg-[rgba(15,23,42,0.7)]"
-          onClick={() => setViewingContract(false)}
-        >
-          <div
-            className="flex max-h-[88vh] w-full max-w-[640px] flex-col overflow-y-auto rounded-2xl p-6 shadow-2xl sm:p-7 !bg-[var(--bg-elevated)]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="mb-4 flex items-center justify-between border-b pb-3 !border-[var(--border-default)]">
-              <div className="flex items-center gap-2.5">
-                <FilePdfIcon size={24} weight="fill" className="!text-[#DC2626]" />
-                <div>
-                  <div className="text-base font-extrabold !text-[var(--text-primary)]">
-                    Bản thảo Hợp đồng Dịch vụ
-                  </div>
-                  <div className="text-xs !text-[var(--text-tertiary)]">
-                    Dự án: {project.name} · Định dạng PDF
-                  </div>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setViewingContract(false)}
-                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border transition-colors !border-[var(--border-default)] !bg-[var(--bg-subtle)] !text-[var(--text-tertiary)] hover:!text-[var(--text-primary)]"
-              >
-                <XIcon size={16} weight="bold" />
-              </button>
-            </div>
-
-            <div className="rounded-lg border p-4.5 text-[13px] leading-relaxed !border-[var(--border-default)] !bg-[var(--bg-subtle)] !text-[var(--text-primary)]">
-              <div className="mb-3 text-center font-extrabold uppercase !text-[var(--color-primary-500)]">
-                CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM
-                <br />
-                <span className="text-xs font-semibold !text-[var(--text-secondary)]">
-                  Độc lập - Tự do - Hạnh phúc
-                </span>
-              </div>
-              <div className="mb-3 text-center text-sm font-bold !text-[var(--text-primary)]">
-                HỢP ĐỒNG HỢP TÁC VÀ CUNG CẤP DỊCH VỤ DỰ ÁN
-              </div>
-              <p className="mb-1">
-                <strong>Bên A (Bên giao việc / Chủ dự án):</strong> {project.owner}{' '}
-                {project.ownerCompany ? `(${project.ownerCompany})` : ''}
-              </p>
-              <p className="mb-1">
-                <strong>Bên B (Bên nhận việc):</strong> Ứng viên được mời tham gia
-              </p>
-              <p className="mb-1">
-                <strong>1. Vị trí & Phạm vi công việc:</strong> {project.invitedRole} trong khuôn
-                khổ dự án &ldquo;{project.name}&rdquo;.
-              </p>
-              <p className="mb-1">
-                <strong>2. Mức thù lao:</strong> {project.price} ({project.period}). Các mốc thanh
-                toán tự động qua Smart Contract.
-              </p>
-              <p className="mb-1">
-                <strong>3. Thời hạn thực hiện:</strong> Hạn chót dự kiến đến{' '}
-                {project.dueDate ?? 'theo thỏa thuận đôi bên'}.
-              </p>
-              <p className="mb-1">
-                <strong>4. Quyền và nghĩa vụ:</strong> Cam kết bảo mật thông tin (NDA), chuyển giao
-                toàn bộ mã nguồn và tài sản sở hữu trí tuệ sau khi hoàn thành thanh toán.
-              </p>
-            </div>
-
-            <div className="mt-4.5 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setViewingContract(false)}
-                className="cursor-pointer rounded-full border px-5 py-2 text-[13px] font-semibold !border-[var(--border-default)] !bg-white !text-[var(--text-secondary)] hover:!bg-[var(--bg-subtle)]"
-              >
-                Đóng xem trước
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

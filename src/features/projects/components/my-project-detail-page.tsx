@@ -6,7 +6,6 @@ import {
   FilePdfIcon,
   FileTextIcon,
   HandshakeIcon,
-  LinkSimpleIcon,
   LockIcon,
   PaperclipIcon,
   SealCheckIcon,
@@ -778,24 +777,6 @@ export function MyProjectDetailPage({
                   </button>
                 </div>
               </div>
-
-              {/* Portfolio Link */}
-              {selectedApplicant.portfolioUrl && (
-                <div>
-                  <div className="mb-1 text-[13px] font-bold !text-[var(--text-primary)]">
-                    Liên kết Portfolio / Sản phẩm
-                  </div>
-                  <a
-                    href={selectedApplicant.portfolioUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 text-[13px] font-semibold !text-[var(--color-primary-500)] hover:underline"
-                  >
-                    <LinkSimpleIcon size={15} />
-                    <span>{selectedApplicant.portfolioUrl}</span>
-                  </a>
-                </div>
-              )}
 
               {/* Candidate Comment / Bio */}
               <div>
