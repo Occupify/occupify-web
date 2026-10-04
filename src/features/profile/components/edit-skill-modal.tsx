@@ -10,8 +10,6 @@ export interface EditSkillModalProps {
   isSubmitting?: boolean
 }
 
-const DEFAULT_CATEGORIES = ['Frontend', 'Backend', 'Cloud', 'Công cụ & Khác']
-
 function EditSkillForm({
   skillToEdit,
   onClose,
@@ -19,15 +17,13 @@ function EditSkillForm({
   isSubmitting = false,
 }: Omit<EditSkillModalProps, 'isOpen'>) {
   const [name, setName] = React.useState(skillToEdit?.name || '')
-  const [category, setCategory] = React.useState(skillToEdit?.category || 'Frontend')
   const [isTopSkill, setIsTopSkill] = React.useState(skillToEdit?.isTopSkill ?? false)
 
   const handleSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault()
-    if (!name.trim() || !category.trim()) return
+    if (!name.trim()) return
     onSubmit({
       name: name.trim(),
-      category: category.trim(),
       isTopSkill,
     })
   }
@@ -99,7 +95,7 @@ function EditSkillForm({
 
         <form onSubmit={handleSubmit}>
           {/* Tên kỹ năng */}
-          <div style={{ marginBottom: 14 }}>
+          <div style={{ marginBottom: 18 }}>
             <label
               htmlFor="skill-name"
               style={{
@@ -118,7 +114,7 @@ function EditSkillForm({
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="VD: Java, React, Frontend, Cloud, TypeScript, AWS..."
+              placeholder="VD: Java, React, TypeScript, AWS, Figma, Docker..."
               style={{
                 width: '100%',
                 borderRadius: 8,
@@ -130,44 +126,6 @@ function EditSkillForm({
                 outline: 'none',
               }}
             />
-          </div>
-
-          {/* Nhóm kỹ năng */}
-          <div style={{ marginBottom: 16 }}>
-            <label
-              htmlFor="skill-cat"
-              style={{
-                display: 'block',
-                fontWeight: 700,
-                fontSize: 13,
-                marginBottom: 6,
-                color: '#334155',
-              }}
-            >
-              Nhóm chuyên môn <span style={{ color: '#DC2626' }}>*</span>
-            </label>
-            <select
-              id="skill-cat"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              style={{
-                width: '100%',
-                borderRadius: 8,
-                border: '1px solid #CBD5E1',
-                padding: '9px 12px',
-                fontSize: 14,
-                fontFamily: 'inherit',
-                boxSizing: 'border-box',
-                outline: 'none',
-                background: '#fff',
-              }}
-            >
-              {DEFAULT_CATEGORIES.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
           </div>
 
           {/* Kỹ năng nổi bật checkbox */}
@@ -220,14 +178,14 @@ function EditSkillForm({
             </button>
             <button
               type="submit"
-              disabled={!name.trim() || !category.trim() || isSubmitting}
+              disabled={!name.trim() || isSubmitting}
               style={{
                 padding: '9px 22px',
                 borderRadius: 8,
                 border: 'none',
-                background: name.trim() && category.trim() && !isSubmitting ? '#0A66C2' : '#94A3B8',
+                background: name.trim() && !isSubmitting ? '#0A66C2' : '#94A3B8',
                 color: '#fff',
-                cursor: name.trim() && category.trim() && !isSubmitting ? 'pointer' : 'not-allowed',
+                cursor: name.trim() && !isSubmitting ? 'pointer' : 'not-allowed',
                 fontWeight: 700,
                 fontSize: 13.5,
                 fontFamily: 'inherit',

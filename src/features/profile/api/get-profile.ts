@@ -373,7 +373,7 @@ export async function addSkillApi(payload: SkillFormData): Promise<ProfileSkill[
   const newSkill: ProfileSkill = {
     id: Date.now(),
     name: payload.name,
-    category: payload.category,
+    category: payload.category ?? '',
     isTopSkill: payload.isTopSkill ?? false,
   }
   currentProfileData.skills = [newSkill, ...currentProfileData.skills]
@@ -390,7 +390,7 @@ export async function updateSkillApi(
       ? {
           ...item,
           name: payload.name,
-          category: payload.category,
+          category: payload.category ?? item.category ?? '',
           isTopSkill: payload.isTopSkill ?? item.isTopSkill,
         }
       : item,

@@ -41,7 +41,7 @@ export interface ProfileExperience {
 export interface ProfileSkill {
   id: string | number
   name: string
-  category: string
+  category?: string
   isTopSkill?: boolean
 }
 
@@ -114,6 +114,6 @@ export interface ProjectFormData {
 
 export interface SkillFormData {
   name: string
-  category: string
+  category?: string
   isTopSkill?: boolean
 }

@@ -1,4 +1,3 @@
-import * as React from 'react'
 import { PlusIcon, PencilSimpleIcon, TrashIcon, StarIcon } from '@phosphor-icons/react'
 import type { ProfileSkill } from '../types'
 
@@ -17,36 +16,6 @@ export function ProfileSkillsCard({
   onEditClick,
   onDeleteClick,
 }: ProfileSkillsCardProps) {
-  const [selectedCategory, setSelectedCategory] = React.useState<string>('all')
-
-  const categories = React.useMemo(() => {
-    const cats = new Set<string>()
-    skills.forEach((s) => {
-      if (s.category) cats.add(s.category)
-    })
-    return ['all', ...Array.from(cats)]
-  }, [skills])
-
-  // Group skills by category for "all" view
-  const groupedSkills = React.useMemo(() => {
-    const map = new Map<string, ProfileSkill[]>()
-    skills.forEach((s) => {
-      const cat = s.category || 'Khác'
-      const list = map.get(cat) || []
-      list.push(s)
-      map.set(cat, list)
-    })
-    return Array.from(map.entries()).map(([category, items]) => ({
-      category,
-      items,
-    }))
-  }, [skills])
-
-  const filteredSkills = React.useMemo(() => {
-    if (selectedCategory === 'all') return null
-    return skills.filter((s) => s.category === selectedCategory)
-  }, [skills, selectedCategory])
-
   const renderSkillBadge = (skill: ProfileSkill) => (
     <div
       key={skill.id}
@@ -222,44 +191,6 @@ export function ProfileSkillsCard({
         )}
       </div>
 
-      {/* Category filter tabs */}
-      {categories.length > 2 && (
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: 6,
-            marginBottom: 20,
-          }}
-        >
-          {categories.map((cat) => {
-            const isSelected = selectedCategory === cat
-            const label = cat === 'all' ? 'Tất cả' : cat
-            return (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => setSelectedCategory(cat)}
-                style={{
-                  padding: '5px 14px',
-                  borderRadius: 9999,
-                  border: isSelected ? '1px solid #0F172A' : '1px solid #E2E8F0',
-                  background: isSelected ? '#0F172A' : '#F8FAFC',
-                  color: isSelected ? '#fff' : '#475569',
-                  fontSize: 12.5,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                  transition: 'all 120ms ease',
-                }}
-              >
-                {label}
-              </button>
-            )
-          })}
-        </div>
-      )}
-
       {/* Skills rendering */}
       {skills.length === 0 ? (
         <div
@@ -275,50 +206,9 @@ export function ProfileSkillsCard({
         >
           Chưa có thông tin kỹ năng chuyên môn.
         </div>
-      ) : selectedCategory === 'all' ? (
-        /* Categorized clean list */
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          {groupedSkills.map((grp) => (
-            <div key={grp.category}>
-              <div
-                style={{
-                  fontSize: 12,
-                  fontWeight: 700,
-                  color: '#64748B',
-                  marginBottom: 8,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.04em',
-                }}
-              >
-                {grp.category}
-              </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                {grp.items.map(renderSkillBadge)}
-              </div>
-            </div>
-          ))}
-        </div>
       ) : (
-        /* Filtered single category view */
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-          {filteredSkills && filteredSkills.length > 0 ? (
-            filteredSkills.map(renderSkillBadge)
-          ) : (
-            <div
-              style={{
-                width: '100%',
-                padding: '20px 16px',
-                textAlign: 'center',
-                color: '#94A3B8',
-                fontSize: 13,
-                background: '#F8FAFC',
-                borderRadius: 8,
-                border: '1px dashed #E2E8F0',
-              }}
-            >
-              Chưa có kỹ năng nào trong nhóm này.
-            </div>
-          )}
+          {skills.map(renderSkillBadge)}
         </div>
       )}
     </div>
