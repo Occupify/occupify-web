@@ -41,6 +41,7 @@ export function useProjects() {
     mutationFn: createProject,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: projectKeys.my() })
+      queryClient.invalidateQueries({ queryKey: ['jobs'] })
     },
   })
 

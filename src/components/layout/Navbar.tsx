@@ -57,8 +57,7 @@ export function Navbar({
   const clearTokens = useAuthStore((state) => state.clearTokens)
 
   const displayName = userName ?? currentUser?.fullName ?? ''
-  const displayHeadline =
-    userHeadline ?? currentUser?.headline ?? currentUser?.email ?? ''
+  const displayHeadline = userHeadline ?? currentUser?.headline ?? currentUser?.email ?? ''
   const avatarUrl = currentUser?.avatarUrl
 
   // Close dropdown menu when clicking outside

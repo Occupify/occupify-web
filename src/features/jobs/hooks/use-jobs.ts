@@ -1,5 +1,6 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getJobs } from '../api/get-jobs'
+import { createJob, type CreateJobInput } from '../api/create-job'
 import type { GetJobsParams } from '../types'
 
 export const JOB_QUERY_KEYS = {
@@ -13,5 +14,15 @@ export function useJobs(params?: GetJobsParams) {
     queryKey: JOB_QUERY_KEYS.list(params),
     queryFn: () => getJobs(params),
     staleTime: 1000 * 60 * 2,
+  })
+}
+
+export function useCreateJob() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (input: CreateJobInput) => createJob(input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: JOB_QUERY_KEYS.all })
+    },
   })
 }

@@ -472,6 +472,20 @@ const MOCK_JOBS_PAYLOAD: JobListing[] = [
   },
 ]
 
+let jobsStore: JobListing[] = [...MOCK_JOBS_PAYLOAD]
+
+export function addJobListing(job: JobListing): void {
+  jobsStore = [job, ...jobsStore]
+}
+
+export function getInternalJobsStore(): JobListing[] {
+  return [...jobsStore]
+}
+
+export function resetJobsStore(): void {
+  jobsStore = [...MOCK_JOBS_PAYLOAD]
+}
+
 /**
  * Fetches the list of job postings with optional query parameters.
  *
@@ -486,7 +500,7 @@ const MOCK_JOBS_PAYLOAD: JobListing[] = [
 export async function getJobs(params?: GetJobsParams): Promise<JobListing[]> {
   return new Promise((resolve) => {
     setTimeout(() => {
-      let result = [...MOCK_JOBS_PAYLOAD]
+      let result = [...jobsStore]
 
       // 1. Text Search Keyword
       if (params?.search && params.search.trim()) {

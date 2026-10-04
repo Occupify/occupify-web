@@ -142,7 +142,6 @@ export function JobCard({
               {isClosed ? 'Đã đóng tuyển' : 'Đang mở tuyển'}
             </span>
 
-
             {/* Experience Level Badge */}
             <span
               style={{

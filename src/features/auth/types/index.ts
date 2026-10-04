@@ -19,3 +19,22 @@ export interface AuthTokens {
   refreshToken: string
   expiresIn?: number
 }
+
+export interface LoginCredentials {
+  username: string
+  password?: string
+  rememberMe?: boolean
+}
+
+export interface SignUpCredentials {
+  username: string
+  email: string
+  password?: string
+  confirmPassword?: string
+  school?: string
+}
+
+export interface AuthResponse {
+  tokens: AuthTokens
+  user?: UserProfile
+}

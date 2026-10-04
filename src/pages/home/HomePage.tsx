@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   useJobs,
   JobCard,
@@ -15,6 +16,7 @@ import {
   type GetJobsParams,
 } from '@/features/jobs'
 import { useCurrentUser } from '@/features/auth'
+import { useProjects, type CreateProjectFormData } from '@/features/projects'
 import { toast } from '@/components/feedback'
 import {
   HomeHeroBanner,
@@ -58,6 +60,29 @@ export function HomePage({
   pendingProjectsCount: propPendingProjectsCount,
   currentUserName: propUserName,
 }: HomePageProps) {
+  const navigate = useNavigate()
+
+  const handleNavigateProjects = React.useCallback(() => {
+    if (onNavigateProjects) {
+      onNavigateProjects()
+    } else {
+      navigate('/workspace')
+    }
+  }, [onNavigateProjects, navigate])
+
+  const handleViewProfile = React.useCallback(
+    (name?: string) => {
+      if (onViewProfile) {
+        onViewProfile(name)
+      } else if (name) {
+        navigate(`/profile?name=${encodeURIComponent(name)}`)
+      } else {
+        navigate('/profile')
+      }
+    },
+    [onViewProfile, navigate],
+  )
+
   // Server state: Current user profile from TanStack Query
   const { data: currentUser } = useCurrentUser()
   const currentUserName = propUserName ?? currentUser?.fullName
@@ -122,17 +147,21 @@ export function HomePage({
     toast.info(isNowSaved ? 'Đã lưu công việc vào danh sách yêu thích' : 'Đã bỏ lưu công việc')
   }
 
+  const { createProject } = useProjects()
+
+  const handleCreateProject = async (formData: CreateProjectFormData) => {
+    try {
+      await createProject(formData)
+      setSubPage(null)
+      toast.success(`Dự án "${formData.name}" đã được đăng tải thành công!`)
+    } catch {
+      toast.error('Có lỗi xảy ra khi tạo dự án.')
+    }
+  }
+
   // Render SubPages if active
   if (subPage === 'create-project') {
-    return (
-      <CreateProjectPage
-        onBack={() => setSubPage(null)}
-        onSubmit={() => {
-          setSubPage(null)
-          toast.success('Dự án đã được tạo thành công!')
-        }}
-      />
-    )
+    return <CreateProjectPage onBack={() => setSubPage(null)} onSubmit={handleCreateProject} />
   }
 
   if (subPage === 'create-contract') {
@@ -301,7 +330,7 @@ export function HomePage({
                   isSaved={activeSavedJobIds.includes(job.id)}
                   onToggleSave={() => handleToggleSave(job.id)}
                   onClick={() => onSelectJob?.(job)}
-                  onViewProfile={onViewProfile}
+                  onViewProfile={handleViewProfile}
                 />
               ))}
 
@@ -324,7 +353,7 @@ export function HomePage({
             myProjectsCount={myProjectsCount}
             employeeProjectsCount={employeeProjectsCount}
             pendingProjectsCount={pendingProjectsCount}
-            onNavigateProjects={onNavigateProjects}
+            onNavigateProjects={handleNavigateProjects}
           />
 
           {/* Occupify Wallet Widget */}
