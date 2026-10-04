@@ -50,7 +50,7 @@ export function LoginPage({ onBack, onSuccess, onGoogle, onSignUp }: LoginPagePr
     <div
       style={{
         minHeight: '100vh',
-        background: '#F8FAFC',
+        background: 'var(--bg-base, #F4F2EE)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',

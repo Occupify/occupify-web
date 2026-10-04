@@ -112,7 +112,11 @@ export function JobFilterToolbar({
     { value: '30d' as const, label: '30 ngày qua' },
   ]
 
-  const isOpenOnly = statusFilter === 'OPEN'
+  const statusOptions = filterMeta?.jobStatuses || [
+    { value: 'all' as const, label: 'Tất cả trạng thái' },
+    { value: 'OPEN' as const, label: '🟢 Đang mở tuyển' },
+    { value: 'CLOSED' as const, label: '⚪ Đã đóng tuyển' },
+  ]
 
   return (
     <div
@@ -459,7 +463,7 @@ export function JobFilterToolbar({
           </select>
         </div>
 
-        {/* 6. Trạng thái tuyển dụng (Nút bấm toggle tiện lợi) */}
+        {/* 6. Trạng thái tuyển dụng */}
         <div>
           <label
             style={{
@@ -474,39 +478,59 @@ export function JobFilterToolbar({
               marginBottom: 5,
             }}
           >
-            <CheckCircleIcon size={13} color={isOpenOnly ? '#059669' : '#64748B'} weight="bold" />
+            <CheckCircleIcon
+              size={13}
+              color={
+                statusFilter === 'OPEN'
+                  ? '#059669'
+                  : statusFilter === 'CLOSED'
+                    ? '#64748B'
+                    : '#0A66C2'
+              }
+              weight="bold"
+            />
             <span>Trạng thái</span>
           </label>
-          <button
-            type="button"
-            onClick={() => onStatusFilterChange(isOpenOnly ? 'all' : 'OPEN')}
+          <select
+            value={statusFilter}
+            onChange={(e) => onStatusFilterChange(e.target.value as 'all' | JobStatus)}
+            className="pro-select"
+            aria-label="Lọc theo trạng thái tuyển dụng"
             style={{
               width: '100%',
               padding: '7px 10px',
               borderRadius: 8,
-              border: `1px solid ${isOpenOnly ? '#A7F3D0' : 'var(--border-default)'}`,
-              background: isOpenOnly ? '#ECFDF5' : '#F8FAFC',
+              border: `1px solid ${
+                statusFilter === 'OPEN'
+                  ? '#059669'
+                  : statusFilter === 'CLOSED'
+                    ? '#94A3B8'
+                    : 'var(--border-default)'
+              }`,
+              background:
+                statusFilter === 'OPEN'
+                  ? '#ECFDF5'
+                  : statusFilter === 'CLOSED'
+                    ? '#F1F5F9'
+                    : '#fff',
               fontSize: 12.5,
-              fontWeight: 700,
-              color: isOpenOnly ? '#059669' : '#64748B',
+              fontWeight: statusFilter !== 'all' ? 700 : 500,
+              color:
+                statusFilter === 'OPEN'
+                  ? '#059669'
+                  : statusFilter === 'CLOSED'
+                    ? '#475569'
+                    : '#0F172A',
               cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 6,
-              transition: 'all 150ms ease',
+              outline: 'none',
             }}
           >
-            <span
-              style={{
-                width: 7,
-                height: 7,
-                borderRadius: '50%',
-                background: isOpenOnly ? '#059669' : '#94A3B8',
-              }}
-            />
-            <span>{isOpenOnly ? 'Đang mở tuyển' : 'Tất cả trạng thái'}</span>
-          </button>
+            {statusOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
     </div>

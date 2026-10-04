@@ -54,7 +54,7 @@ export function LandingPage({ onLogin, onSignUp, onGoogle, onAdmin }: LandingPag
     <div
       style={{
         minHeight: '100vh',
-        background: '#F8FAFC',
+        background: 'var(--bg-base, #F4F2EE)',
         display: 'flex',
         alignItems: 'stretch',
         fontFamily:

@@ -26,7 +26,6 @@ import {
   ProjectsStatusCard,
   WalletSummaryCard,
   CreateProjectPage,
-  CreateContractPage,
 } from './components'
 
 export interface HomePageProps {
@@ -129,7 +128,7 @@ export function HomePage({
   const { data: displayJobs = [], isLoading } = useJobs(jobParams)
 
   // Page / SubPage routing state
-  const [subPage, setSubPage] = React.useState<'create-project' | 'create-contract' | null>(null)
+  const [subPage, setSubPage] = React.useState<'create-project' | null>(null)
 
   // Local saved jobs fallback if not controlled by parent
   const [localSavedJobIds, setLocalSavedJobIds] = React.useState<number[]>([])
@@ -162,18 +161,6 @@ export function HomePage({
   // Render SubPages if active
   if (subPage === 'create-project') {
     return <CreateProjectPage onBack={() => setSubPage(null)} onSubmit={handleCreateProject} />
-  }
-
-  if (subPage === 'create-contract') {
-    return (
-      <CreateContractPage
-        onBack={() => setSubPage(null)}
-        onSubmit={() => {
-          setSubPage(null)
-          toast.success('Hợp đồng đã được tạo và gửi lời mời!')
-        }}
-      />
-    )
   }
 
   const hasActiveFilters =
@@ -345,7 +332,7 @@ export function HomePage({
           {/* Quick Actions Card */}
           <QuickActionsCard
             onCreateProject={() => setSubPage('create-project')}
-            onCreateContract={() => setSubPage('create-contract')}
+            onCreateContract={() => navigate('/workspace?sub=create-contract')}
           />
 
           {/* Projects Management Status Widget */}

@@ -120,7 +120,7 @@ export function CreateProjectPage({ onBack, onSubmit, initialData }: CreateProje
   }
 
   return (
-    <div style={{ background: '#F8FAFC', minHeight: '100%', paddingBottom: 56 }}>
+    <div style={{ background: 'var(--bg-base, #F4F2EE)', minHeight: '100%', paddingBottom: 56 }}>
       {/* ── Top Hero Gradient Banner ── */}
       <div
         style={{

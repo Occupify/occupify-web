@@ -53,7 +53,7 @@ export function SignUpPage({ onBack, onSuccess, onGoogle, onLogin }: SignUpPageP
     <div
       style={{
         minHeight: '100vh',
-        background: '#F4F2EE',
+        background: 'var(--bg-base, #F4F2EE)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',

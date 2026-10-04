@@ -29,8 +29,8 @@ const MOCK_JOB_FILTER_METADATA: JobFilterMetadata = {
   ],
   jobStatuses: [
     { value: 'all', label: 'Tất cả trạng thái' },
-    { value: 'OPEN', label: '🟢 Đang mở tuyển (OPEN)' },
-    { value: 'CLOSED', label: '⚪ Đã đóng tuyển (CLOSED)' },
+    { value: 'OPEN', label: '🟢 Đang mở tuyển' },
+    { value: 'CLOSED', label: '⚪ Đã đóng tuyển' },
   ],
   budgetRanges: [
     { value: 'all', label: 'Tất cả mức ngân sách' },
