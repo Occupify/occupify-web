@@ -17,6 +17,12 @@ export interface CreateJobInput {
   clientName?: string
   company?: string
   roles?: JobRoleItem[]
+  dueDate?: string
+  bidCloseDate?: string
+  tags?: string[]
+  contractDuration?: string
+  salaryDueDate?: string
+  completedProjectsCount?: number
 }
 
 export async function createJob(input: CreateJobInput): Promise<JobListing> {
@@ -75,6 +81,12 @@ export async function createJob(input: CreateJobInput): Promise<JobListing> {
     clientRating: 5.0,
     duration: input.duration || '1 - 3 tháng',
     hoursPerDay: input.hoursPerDay || 4,
+    dueDate: input.dueDate,
+    bidCloseDate: input.bidCloseDate,
+    tags: input.tags,
+    contractDuration: input.contractDuration,
+    salaryDueDate: input.salaryDueDate,
+    completedProjectsCount: input.completedProjectsCount || 1,
     roles: input.roles,
   }
 

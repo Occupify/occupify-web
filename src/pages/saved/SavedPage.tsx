@@ -99,7 +99,7 @@ export function SavedPage() {
                 job={job}
                 isSaved={savedJobIds.includes(job.id)}
                 onToggleSave={() => handleToggleSave(job.id)}
-                onClick={() => navigate('/home')}
+                onClick={() => navigate(`/home?jobId=${job.id}`)}
                 onViewProfile={() =>
                   navigate(
                     job.clientName
