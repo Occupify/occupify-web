@@ -17,7 +17,7 @@ export function AuthPanel({ onLogin, onSignUp, onGoogle, onAdmin }: AuthPanelPro
         justifyContent: 'center',
         alignItems: 'center',
         padding: '48px 36px',
-        background: '#F8FAFC',
+        background: 'var(--bg-base, #F4F2EE)',
       }}
     >
       <div

@@ -1,3 +1,5 @@
+import type { JobExperienceLevel } from '@/features/jobs/types'
+
 export interface ProjectRole {
   id: string
   title: string
@@ -46,7 +48,8 @@ export interface MyProject {
   ownerCompany?: string
   ownerRating?: number
   period: string
-  dueDate: string
+  dueDate?: string
+  contractDuration?: string
   description?: string
   tags?: string[]
   members: ProjectMember[]
@@ -88,9 +91,15 @@ export interface CreateProjectFormData {
   tags: string[]
   startPrice: string
   period: string
-  dueDate: string
-  bidCloseDate: string
-  isPublic: boolean
+  dueDate?: string
+  bidCloseDate?: string
+  contractDuration?: string
+  isPublic?: boolean
+  experienceLevel?: JobExperienceLevel
+  hoursPerDay?: number
+  openPositions?: number
+  duration?: string
+  roles?: ProjectRole[]
 }
 
 export interface CreateContractFormData {

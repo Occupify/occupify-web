@@ -2,7 +2,7 @@ export const siteConfig = {
   name: 'Occupify',
   title: 'Occupify — Nền tảng Kết nối Freelancer & Doanh nghiệp Số 1',
   description:
-    'Hệ sinh thái kết nối tài năng công nghệ, quản lý hợp đồng thông minh, ký quỹ an toàn và việc làm linh hoạt tại Việt Nam.',
+    'Hệ sinh thái kết nối tài năng công nghệ, quản lý hợp đồng thông minh và việc làm linh hoạt tại Việt Nam.',
   url: 'https://occupify.vn',
   author: 'Occupify Team',
   supportEmail: 'support@occupify.vn',

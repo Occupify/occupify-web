@@ -505,7 +505,7 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
                   if (onExploreJobs) {
                     onExploreJobs()
                   } else {
-                    navigate('/not-found')
+                    navigate('/home')
                   }
                 }}
                 className="flex w-full cursor-pointer items-center gap-2 rounded-md border p-2.5 text-left text-xs font-semibold transition-colors !border-[var(--border-default)] !bg-[var(--bg-subtle)] !text-[var(--text-primary)] hover:!bg-[var(--bg-base)]"
@@ -580,7 +580,7 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
             if (onViewProfile) {
               onViewProfile(ownerName)
             } else {
-              navigate('/not-found')
+              navigate(`/profile?name=${encodeURIComponent(ownerName)}`)
             }
           }}
         />

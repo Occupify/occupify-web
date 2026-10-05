@@ -36,7 +36,7 @@ export function ProjectInvitationModal({
     if (onViewProfile) {
       onViewProfile(project.owner)
     } else {
-      navigate('/not-found')
+      navigate(`/profile?name=${encodeURIComponent(project.owner)}`)
     }
   }
 
