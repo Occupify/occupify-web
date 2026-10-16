@@ -1,12 +1,23 @@
-export type UserRole = 'freelancer' | 'client' | 'admin'
+/**
+ * Domain Models, Credentials, and DTO contracts for Authentication
+ * Fully mapped to occupify-identity microservice contracts.
+ */
 
-export interface UserProfile {
+export type UserRole = 'FREELANCER' | 'CLIENT' | 'ADMIN' | 'freelancer' | 'client' | 'admin'
+export type UserStatus = 'INACTIVE' | 'ACTIVE' | 'BANNED' | 'inactive' | 'active' | 'banned'
+
+export interface AuthUser {
   id: string
-  fullName: string
   email: string
+  role: string
+  status: string
+  createdAt?: string
+  fullName?: string
   avatarUrl?: string
+}
+
+export interface UserProfile extends AuthUser {
   headline?: string
-  role?: UserRole
   connectionsCount?: number
   walletBalance?: number
   myProjectsCount?: number
@@ -20,21 +31,57 @@ export interface AuthTokens {
   expiresIn?: number
 }
 
+export interface AuthResponseData {
+  accessToken: string
+  refreshToken: string
+  user?: AuthUser
+}
+
 export interface LoginCredentials {
-  username: string
-  password?: string
+  email: string
+  password: string
   rememberMe?: boolean
+  username?: string // Backward compatibility for legacy inputs
 }
 
 export interface SignUpCredentials {
-  username: string
   email: string
-  password?: string
+  password: string
   confirmPassword?: string
+  username?: string
   school?: string
 }
 
-export interface AuthResponse {
-  tokens: AuthTokens
-  user?: UserProfile
+export interface VerifyOtpPayload {
+  email: string
+  otpCode: string
+  type: 'REGISTER' | 'FORGOT_PASSWORD'
+}
+
+export interface SendOtpPayload {
+  email: string
+  type: 'REGISTER' | 'FORGOT_PASSWORD'
+}
+
+export interface ForgotPasswordPayload {
+  email: string
+}
+
+export interface ResetPasswordPayload {
+  resetToken: string
+  newPassword: string
+  confirmPassword: string
+}
+
+export interface ChangePasswordPayload {
+  oldPassword: string
+  newPassword: string
+  confirmPassword: string
+}
+
+export interface VerifyOtpSuccessData {
+  accessToken?: string
+  refreshToken?: string
+  user?: AuthUser
+  resetToken?: string
 }

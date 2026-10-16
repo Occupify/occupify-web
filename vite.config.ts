@@ -53,7 +53,12 @@ export default defineConfig(({ mode }) => {
               if (id.includes('@phosphor-icons/react')) {
                 return 'vendor-icons'
               }
-              if (id.includes('zustand') || id.includes('clsx') || id.includes('tailwind-merge')) {
+              if (
+                id.includes('zustand') ||
+                id.includes('clsx') ||
+                id.includes('tailwind-merge') ||
+                id.includes('zod')
+              ) {
                 return 'vendor-ui'
               }
             }

@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { AuthInput } from './auth-input'
 import { GoogleButton } from './google-button'
-import { loginApi, MOCK_AUTH_TOKENS } from '../api'
-import { useAuthStore } from '@/stores'
+import { useLogin, useGoogleLogin } from '../hooks'
+import { getAuthErrorMessage } from '../utils'
 
 export interface LoginFormProps {
   onSuccess?: () => void
@@ -11,46 +11,52 @@ export interface LoginFormProps {
 }
 
 export function LoginForm({ onSuccess, onGoogle, onSignUp }: LoginFormProps) {
-  const [username, setUsername] = React.useState('nguyeminhkhoa@gmail.com')
-  const [password, setPassword] = React.useState('123456')
+  const [email, setEmail] = React.useState('')
+  const [password, setPassword] = React.useState('')
   const [rememberMe, setRememberMe] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
-  const [isLoading, setIsLoading] = React.useState(false)
-  const setTokens = useAuthStore((state) => state.setTokens)
+
+  const loginMutation = useLogin()
+  const googleLoginMutation = useGoogleLogin()
 
   const handleSubmit = async (e?: React.SyntheticEvent) => {
     if (e) {
       e.preventDefault()
     }
-    if (!username.trim() || !password.trim()) {
-      setError('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.')
+    if (!email.trim() || !password.trim()) {
+      setError('Vui lòng nhập đầy đủ email và mật khẩu.')
       return
     }
 
     try {
-      setIsLoading(true)
       setError(null)
-      const tokens = await loginApi({ username, password, rememberMe })
-      setTokens(tokens.accessToken, tokens.refreshToken)
+      await loginMutation.mutateAsync({
+        email: email.trim(),
+        password,
+        rememberMe,
+      })
       if (onSuccess) {
         onSuccess()
       }
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Đăng nhập không thành công.'
-      setError(message)
-    } finally {
-      setIsLoading(false)
+      setError(getAuthErrorMessage(err, 'Đăng nhập không thành công.'))
     }
   }
 
-  const handleGoogle = () => {
-    setTokens(MOCK_AUTH_TOKENS.accessToken, MOCK_AUTH_TOKENS.refreshToken)
-    if (onGoogle) {
-      onGoogle()
-    } else if (onSuccess) {
-      onSuccess()
+  const handleGoogle = async () => {
+    try {
+      await googleLoginMutation.mutateAsync()
+      if (onGoogle) {
+        onGoogle()
+      } else if (onSuccess) {
+        onSuccess()
+      }
+    } catch (err: unknown) {
+      setError(getAuthErrorMessage(err, 'Đăng nhập bằng Google không thành công.'))
     }
   }
+
+  const isLoading = loginMutation.isPending || googleLoginMutation.isPending
 
   return (
     <div
@@ -98,10 +104,11 @@ export function LoginForm({ onSuccess, onGoogle, onSignUp }: LoginFormProps) {
 
       <form onSubmit={handleSubmit}>
         <AuthInput
-          label="Tên đăng nhập"
-          value={username}
-          onChange={setUsername}
-          placeholder="Nhập tên đăng nhập hoặc email"
+          label="Email"
+          type="email"
+          value={email}
+          onChange={setEmail}
+          placeholder="Nhập địa chỉ email của bạn"
           required
         />
         <AuthInput

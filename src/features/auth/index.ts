@@ -1,6 +1,7 @@
 export * from './types'
 export * from './api'
 export * from './hooks'
+export * from './utils'
 export * from './components/google-button'
 export * from './components/auth-input'
 export * from './components/step-indicator'
