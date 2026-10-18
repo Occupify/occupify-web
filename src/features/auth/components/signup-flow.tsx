@@ -3,8 +3,9 @@ import { CheckFatIcon } from '@phosphor-icons/react'
 import { AuthInput } from './auth-input'
 import { GoogleButton } from './google-button'
 import { StepIndicator } from './step-indicator'
-import { MOCK_SCHOOL_OPTIONS, MOCK_AUTH_TOKENS, signupApi, verifyOtpApi } from '../api'
-import { useAuthStore } from '@/stores'
+import { MOCK_SCHOOL_OPTIONS } from '../api'
+import { useRegister, useVerifyOtp, useResendOtp, useGoogleLogin } from '../hooks'
+import { getAuthErrorMessage } from '../utils'
 
 export interface SignUpFlowProps {
   onSuccess?: () => void
@@ -35,59 +36,129 @@ export function SignUpFlow({
   )
 
   // Step 0: credentials
-  const [username, setUsername] = React.useState('')
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
   const [confirmPassword, setConfirmPassword] = React.useState('')
-  const [pwError, setPwError] = React.useState('')
+  const [registerError, setRegisterError] = React.useState('')
 
   // Step 1: OTP
   const [otp, setOtp] = React.useState(['', '', '', '', '', ''])
   const [otpError, setOtpError] = React.useState('')
-  const [isVerifyingOtp, setIsVerifyingOtp] = React.useState(false)
+  const [resendCooldown, setResendCooldown] = React.useState(0)
+  const [resendSuccess, setResendSuccess] = React.useState('')
   const otpRefs = React.useRef<(HTMLInputElement | null)[]>([])
 
   // Step 2: school
   const [school, setSchool] = React.useState('')
   const [schoolSearch, setSchoolSearch] = React.useState('')
-  const [isSubmitting, setIsSubmitting] = React.useState(false)
 
   const TOTAL_STEPS = 3
-  const setTokens = useAuthStore((state) => state.setTokens)
 
-  const handleFinish = React.useCallback(async () => {
-    try {
-      setIsSubmitting(true)
-      const tokens = await signupApi({
-        username,
-        email,
-        password,
-        confirmPassword,
-        school,
-      })
-      setTokens(tokens.accessToken, tokens.refreshToken)
-      if (onSuccess) {
-        onSuccess()
-      }
-    } catch {
-      // Fallback
-      setTokens(MOCK_AUTH_TOKENS.accessToken, MOCK_AUTH_TOKENS.refreshToken)
-      if (onSuccess) {
-        onSuccess()
-      }
-    } finally {
-      setIsSubmitting(false)
+  const registerMutation = useRegister()
+  const verifyOtpMutation = useVerifyOtp()
+  const resendOtpMutation = useResendOtp()
+  const googleLoginMutation = useGoogleLogin()
+
+  // Cooldown countdown timer for resend OTP
+  React.useEffect(() => {
+    if (resendCooldown <= 0) return
+    const timer = setInterval(() => {
+      setResendCooldown((prev) => (prev > 0 ? prev - 1 : 0))
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [resendCooldown])
+
+  // Step 0: Submit Registration
+  const handleRegisterSubmit = async (e?: React.SyntheticEvent) => {
+    if (e) e.preventDefault()
+    setRegisterError('')
+
+    if (!email.trim() || !password.trim() || !confirmPassword.trim()) {
+      setRegisterError('Vui lòng điền đầy đủ thông tin.')
+      return
     }
-  }, [username, email, password, confirmPassword, school, setTokens, onSuccess])
 
-  const handleGoogle = React.useCallback(() => {
-    setTokens(MOCK_AUTH_TOKENS.accessToken, MOCK_AUTH_TOKENS.refreshToken)
-    if (onGoogle) {
-      onGoogle()
-    } else if (onSuccess) {
+    if (password.length < 8) {
+      setRegisterError('Mật khẩu phải có ít nhất 8 ký tự.')
+      return
+    }
+
+    if (password !== confirmPassword) {
+      setRegisterError('Mật khẩu và xác nhận mật khẩu không khớp.')
+      return
+    }
+
+    try {
+      await registerMutation.mutateAsync({
+        email: email.trim(),
+        password,
+      })
+      setStep(1)
+      setResendCooldown(60)
+    } catch (err: unknown) {
+      setRegisterError(getAuthErrorMessage(err, 'Đăng ký không thành công.'))
+    }
+  }
+
+  // Step 1: Verify OTP
+  const handleVerifyOtp = async () => {
+    const code = otp.join('')
+    if (code.length < 6) {
+      setOtpError('Vui lòng nhập đủ 6 chữ số.')
+      return
+    }
+
+    try {
+      setOtpError('')
+      await verifyOtpMutation.mutateAsync({
+        email: email.trim(),
+        otpCode: code,
+        type: 'REGISTER',
+      })
+      setStep(2)
+    } catch (err: unknown) {
+      setOtpError(getAuthErrorMessage(err, 'Xác thực OTP không thành công.'))
+    }
+  }
+
+  // Step 1: Resend OTP
+  const handleResendOtp = async () => {
+    if (resendCooldown > 0 || resendOtpMutation.isPending) return
+
+    try {
+      setOtpError('')
+      setResendSuccess('')
+      await resendOtpMutation.mutateAsync({
+        email: email.trim(),
+        type: 'REGISTER',
+      })
+      setResendCooldown(60)
+      setResendSuccess('Đã gửi lại mã OTP vào hòm thư của bạn.')
+      setOtp(['', '', '', '', '', ''])
+    } catch (err: unknown) {
+      setOtpError(getAuthErrorMessage(err, 'Lỗi gửi lại mã OTP.'))
+    }
+  }
+
+  // Step 2: Finish onboarding
+  const handleFinish = React.useCallback(() => {
+    if (onSuccess) {
       onSuccess()
     }
-  }, [setTokens, onGoogle, onSuccess])
+  }, [onSuccess])
+
+  const handleGoogle = React.useCallback(async () => {
+    try {
+      await googleLoginMutation.mutateAsync()
+      if (onGoogle) {
+        onGoogle()
+      } else if (onSuccess) {
+        onSuccess()
+      }
+    } catch (err: unknown) {
+      setRegisterError(getAuthErrorMessage(err, 'Đăng ký bằng Google không thành công.'))
+    }
+  }, [googleLoginMutation, onGoogle, onSuccess])
 
   const handleOtpChange = (idx: number, val: string) => {
     if (!/^\d?$/.test(val)) return
@@ -102,26 +173,6 @@ export function SignUpFlow({
   const handleOtpKeyDown = (idx: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Backspace' && !otp[idx] && idx > 0) {
       otpRefs.current[idx - 1]?.focus()
-    }
-  }
-
-  const handleVerifyOtp = async () => {
-    const code = otp.join('')
-    if (code.length < 6) {
-      setOtpError('Vui lòng nhập đủ 6 chữ số.')
-      return
-    }
-
-    try {
-      setIsVerifyingOtp(true)
-      setOtpError('')
-      await verifyOtpApi(email || 'user@example.com', code)
-      setStep(2)
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Mã OTP không hợp lệ.'
-      setOtpError(message)
-    } finally {
-      setIsVerifyingOtp(false)
     }
   }
 
@@ -212,63 +263,57 @@ export function SignUpFlow({
           >
             Điền thông tin để bắt đầu hành trình của bạn.
           </p>
-          <AuthInput
-            label="Tên đăng nhập"
-            value={username}
-            onChange={setUsername}
-            placeholder="Nhập tên đăng nhập"
-            required
-          />
-          <AuthInput
-            label="Email"
-            type="email"
-            value={email}
-            onChange={setEmail}
-            placeholder="Nhập địa chỉ email"
-            required
-          />
-          <AuthInput
-            label="Mật khẩu"
-            type="password"
-            value={password}
-            onChange={setPassword}
-            placeholder="Tối thiểu 8 ký tự"
-            required
-          />
-          <AuthInput
-            label="Xác nhận mật khẩu"
-            type="password"
-            value={confirmPassword}
-            onChange={setConfirmPassword}
-            placeholder="Nhập lại mật khẩu"
-            required
-          />
-          {pwError && <p style={{ fontSize: 13, color: '#C03A2B', marginBottom: 10 }}>{pwError}</p>}
-          {primaryBtn(
-            'Tiếp tục',
-            () => {
-              if (
-                !username.trim() ||
-                !email.trim() ||
-                !password.trim() ||
-                !confirmPassword.trim()
-              ) {
-                setPwError('Vui lòng điền đầy đủ thông tin.')
-                return
-              }
-              if (password !== confirmPassword) {
-                setPwError('Mật khẩu không khớp.')
-                return
-              }
-              if (password.length < 8) {
-                setPwError('Mật khẩu phải có ít nhất 8 ký tự.')
-                return
-              }
-              setPwError('')
-              setStep(1)
-            },
-            !(username.trim() && email.trim() && password.trim() && confirmPassword.trim()),
+
+          {registerError && (
+            <div
+              style={{
+                background: '#FEF2F2',
+                border: '1px solid #FCA5A5',
+                borderRadius: 8,
+                padding: '10px 14px',
+                color: '#B91C1C',
+                fontSize: 13,
+                marginBottom: 16,
+              }}
+            >
+              {registerError}
+            </div>
           )}
+
+          <form onSubmit={handleRegisterSubmit}>
+            <AuthInput
+              label="Email"
+              type="email"
+              value={email}
+              onChange={setEmail}
+              placeholder="Nhập địa chỉ email của bạn"
+              required
+            />
+            <AuthInput
+              label="Mật khẩu"
+              type="password"
+              value={password}
+              onChange={setPassword}
+              placeholder="Tối thiểu 8 ký tự"
+              required
+            />
+            <AuthInput
+              label="Xác nhận mật khẩu"
+              type="password"
+              value={confirmPassword}
+              onChange={setConfirmPassword}
+              placeholder="Nhập lại mật khẩu"
+              required
+            />
+
+            {primaryBtn(
+              registerMutation.isPending ? 'Đang tạo tài khoản...' : 'Tiếp tục',
+              () => handleRegisterSubmit(),
+              !(email.trim() && password.trim() && confirmPassword.trim()) ||
+                registerMutation.isPending,
+            )}
+          </form>
+
           <div
             style={{
               display: 'flex',
@@ -346,12 +391,31 @@ export function SignUpFlow({
             style={{
               fontSize: 14,
               color: 'rgba(0,0,0,0.55)',
-              marginBottom: 28,
+              marginBottom: 20,
               lineHeight: 1.6,
             }}
           >
-            Chúng tôi đã gửi mã 6 chữ số đến email của bạn. Vui lòng nhập mã để xác thực.
+            Mã OTP 6 chữ số đã được gửi đến email <strong>{email}</strong>. Vui lòng kiểm tra hòm
+            thư của bạn.
           </p>
+
+          {resendSuccess && (
+            <div
+              style={{
+                background: '#F0FDF4',
+                border: '1px solid #86EFAC',
+                borderRadius: 8,
+                padding: '8px 12px',
+                color: '#166534',
+                fontSize: 13,
+                marginBottom: 16,
+                textAlign: 'center',
+              }}
+            >
+              {resendSuccess}
+            </div>
+          )}
+
           <div
             style={{
               display: 'flex',
@@ -396,6 +460,7 @@ export function SignUpFlow({
               />
             ))}
           </div>
+
           {otpError && (
             <p
               style={{
@@ -408,26 +473,45 @@ export function SignUpFlow({
               {otpError}
             </p>
           )}
+
           <p
             style={{
               fontSize: 13,
               color: 'rgba(0,0,0,0.50)',
               textAlign: 'center',
-              marginBottom: 4,
+              marginBottom: 16,
             }}
           >
             Không nhận được mã?{' '}
-            <span
-              style={{ color: '#0A66C2', cursor: 'pointer', fontWeight: 600 }}
-              onClick={() => setOtp(['', '', '', '', '', ''])}
-            >
-              Gửi lại
-            </span>
+            {resendCooldown > 0 ? (
+              <span style={{ color: '#64748B', fontWeight: 600 }}>
+                Gửi lại sau ({resendCooldown}s)
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={handleResendOtp}
+                disabled={resendOtpMutation.isPending}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#0A66C2',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  padding: 0,
+                  fontSize: 13,
+                  fontFamily: 'inherit',
+                }}
+              >
+                {resendOtpMutation.isPending ? 'Đang gửi...' : 'Gửi lại mã OTP'}
+              </button>
+            )}
           </p>
+
           {primaryBtn(
-            isVerifyingOtp ? 'Đang xác thực...' : 'Xác thực',
+            verifyOtpMutation.isPending ? 'Đang xác thực...' : 'Xác thực tài khoản',
             handleVerifyOtp,
-            otp.join('').length < 6 || isVerifyingOtp,
+            otp.join('').length < 6 || verifyOtpMutation.isPending,
           )}
         </>
       )}
@@ -449,108 +533,53 @@ export function SignUpFlow({
             style={{
               fontSize: 14,
               color: 'rgba(0,0,0,0.55)',
-              marginBottom: 22,
+              marginBottom: 20,
             }}
           >
-            Chọn hoặc nhập tên trường đại học / trường bạn đang theo học.
+            Chọn trường học của bạn để tối ưu hồ sơ việc làm.
           </p>
-          <div style={{ marginBottom: 12 }}>
-            <input
-              value={schoolSearch}
-              onChange={(e) => setSchoolSearch(e.target.value)}
-              placeholder="Tìm kiếm trường..."
-              style={{ ...inputStyle, marginBottom: 8 }}
-              onFocus={(e) => {
-                ;(e.currentTarget as HTMLElement).style.borderColor = '#0A66C2'
-              }}
-              onBlur={(e) => {
-                ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(0,0,0,0.18)'
-              }}
-            />
-            <div
-              style={{
-                maxHeight: 220,
-                overflowY: 'auto',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 4,
-              }}
-            >
-              {filteredSchools.map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => {
-                    setSchool(s)
-                    setSchoolSearch(s)
-                  }}
-                  style={{
-                    padding: '10px 14px',
-                    borderRadius: 8,
-                    border: `1.5px solid ${school === s ? '#0A66C2' : 'rgba(0,0,0,0.10)'}`,
-                    background: school === s ? '#EAF1FA' : '#FAFAF8',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    fontSize: 14,
-                    color: school === s ? '#0A66C2' : 'rgba(0,0,0,0.80)',
-                    fontFamily: 'inherit',
-                    fontWeight: school === s ? 700 : 400,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    transition: 'all 150ms',
-                  }}
-                >
-                  <span>{s}</span>
-                  {school === s && <CheckFatIcon size={15} color="#0A66C2" weight="fill" />}
-                </button>
-              ))}
-            </div>
-          </div>
+
+          <input
+            type="text"
+            placeholder="Tìm kiếm trường học..."
+            value={schoolSearch}
+            onChange={(e) => setSchoolSearch(e.target.value)}
+            style={{ ...inputStyle, marginBottom: 12 }}
+          />
+
           <div
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginTop: 8,
-              gap: 12,
+              maxHeight: 180,
+              overflowY: 'auto',
+              border: '1px solid rgba(0,0,0,0.10)',
+              borderRadius: 6,
+              marginBottom: 16,
             }}
           >
-            <button
-              type="button"
-              disabled={isSubmitting}
-              onClick={handleFinish}
-              style={{
-                background: 'none',
-                border: 'none',
-                cursor: isSubmitting ? 'default' : 'pointer',
-                fontSize: 14,
-                color: 'rgba(0,0,0,0.55)',
-                fontFamily: 'inherit',
-                fontWeight: 500,
-                padding: '10px 0',
-              }}
-              onMouseEnter={(e) => {
-                if (!isSubmitting) {
-                  ;(e.currentTarget as HTMLElement).style.color = 'rgba(0,0,0,0.90)'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isSubmitting) {
-                  ;(e.currentTarget as HTMLElement).style.color = 'rgba(0,0,0,0.55)'
-                }
-              }}
-            >
-              Bỏ qua
-            </button>
-            <div style={{ flex: 1 }}>
-              {primaryBtn(
-                isSubmitting ? 'Đang hoàn tất...' : 'Hoàn tất',
-                handleFinish,
-                !school || isSubmitting,
-              )}
-            </div>
+            {filteredSchools.map((s) => (
+              <div
+                key={s}
+                onClick={() => setSchool(s)}
+                style={{
+                  padding: '10px 14px',
+                  cursor: 'pointer',
+                  background: school === s ? 'rgba(10,102,194,0.08)' : 'transparent',
+                  color: school === s ? '#0A66C2' : 'rgba(0,0,0,0.85)',
+                  fontWeight: school === s ? 600 : 400,
+                  fontSize: 13.5,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  borderBottom: '1px solid rgba(0,0,0,0.05)',
+                }}
+              >
+                <span>{s}</span>
+                {school === s && <CheckFatIcon size={16} weight="fill" color="#0A66C2" />}
+              </div>
+            ))}
           </div>
+
+          {primaryBtn('Hoàn tất và Đăng nhập', handleFinish, false)}
         </>
       )}
     </div>

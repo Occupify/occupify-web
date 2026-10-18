@@ -1,13 +1,15 @@
 import type { UserProfile } from '../types'
+import { useAuthStore } from '@/stores'
 
-// Dữ liệu mô phỏng thông tin người dùng đang đăng nhập (Mock Current User payload)
+// Fallback user for offline prototype demonstration
 const MOCK_CURRENT_USER: UserProfile = {
   id: 'usr_01jk98m',
   fullName: 'Nguyễn Minh Khoa',
   email: 'nguyenminhkhoa@gmail.com',
   avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
   headline: 'Senior UI/UX Designer & Product Architect',
-  role: 'freelancer',
+  role: 'FREELANCER',
+  status: 'ACTIVE',
   connectionsCount: 534,
   walletBalance: 52450000,
   myProjectsCount: 2,
@@ -17,20 +19,25 @@ const MOCK_CURRENT_USER: UserProfile = {
 
 /**
  * Fetches the currently authenticated user's profile information.
- *
- * NOTE: Currently mocks the network response. When backend endpoint is available,
- * replace this implementation with:
- *
- * ```ts
- * import { apiClient } from '@/lib/api-client'
- * const response = await apiClient.get<UserProfile>('/auth/me')
- * return response.data
- * ```
+ * Uses cached auth session user from occupify-identity if available.
  */
 export async function getCurrentUser(): Promise<UserProfile> {
+  const storeUser = useAuthStore.getState().user
+  if (storeUser) {
+    return {
+      ...MOCK_CURRENT_USER,
+      ...storeUser,
+      id: storeUser.id,
+      email: storeUser.email,
+      role: storeUser.role,
+      status: storeUser.status,
+      fullName: storeUser.fullName || storeUser.email.split('@')[0],
+    }
+  }
+
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(MOCK_CURRENT_USER)
-    }, 120)
+    }, 50)
   })
 }

@@ -1,21 +1,34 @@
+import { apiClient } from '@/lib/api-client'
+import type { SingleResponse } from '@/types'
+import type { VerifyOtpPayload, VerifyOtpSuccessData } from '../types'
+import { verifyOtpEnvelopeSchema } from './schemas'
+
 /**
- * Verifies a 6-digit OTP code sent to user email.
- *
- * NOTE: Currently mocks the network response. When backend endpoint is available:
- * ```ts
- * import { apiClient } from '@/lib/api-client'
- * const response = await apiClient.post<{ valid: boolean }>('/auth/verify-otp', { email, code })
- * return response.data.valid
- * ```
+ * Verifies submitted OTP code against Redis store in occupify-identity.
+ * - If REGISTER: Activates user account and returns active AuthTokens + UserResponse.
+ * - If FORGOT_PASSWORD: Generates and returns temporary password resetToken.
+ * Endpoint: POST /auth/verify-otp
  */
-export async function verifyOtpApi(email: string, code: string): Promise<boolean> {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (!email || code.length < 6) {
-        reject(new Error('Vui lòng nhập đủ 6 chữ số OTP.'))
-        return
-      }
-      resolve(true)
-    }, 100)
+export async function verifyOtpApi(
+  payloadOrEmail: VerifyOtpPayload | string,
+  maybeCode?: string,
+  maybeType: 'REGISTER' | 'FORGOT_PASSWORD' = 'REGISTER',
+): Promise<VerifyOtpSuccessData> {
+  const payload: VerifyOtpPayload =
+    typeof payloadOrEmail === 'string'
+      ? {
+          email: payloadOrEmail,
+          otpCode: maybeCode || '',
+          type: maybeType,
+        }
+      : payloadOrEmail
+
+  const raw = await apiClient.post<SingleResponse<VerifyOtpSuccessData>>('/auth/verify-otp', {
+    email: payload.email.trim(),
+    otpCode: payload.otpCode.trim(),
+    type: payload.type,
   })
+
+  const validated = verifyOtpEnvelopeSchema.parse(raw)
+  return validated.data as VerifyOtpSuccessData
 }

@@ -13,8 +13,7 @@ import {
 } from '@phosphor-icons/react'
 import { OccupifyLogo, Avatar } from '@/components/ui'
 import { toast } from '@/components/feedback'
-import { useCurrentUser } from '@/features/auth'
-import { useAuthStore } from '@/stores'
+import { useCurrentUser, useSignOut } from '@/features/auth'
 
 export interface NavItemConfig {
   id: string
@@ -54,7 +53,7 @@ export function Navbar({
 
   // Server state: User profile from TanStack Query
   const { data: currentUser } = useCurrentUser()
-  const clearTokens = useAuthStore((state) => state.clearTokens)
+  const signOutMutation = useSignOut()
 
   const displayName = userName ?? currentUser?.fullName ?? ''
   const displayHeadline = userHeadline ?? currentUser?.headline ?? currentUser?.email ?? ''
@@ -73,13 +72,16 @@ export function Navbar({
 
   const handleLogout = () => {
     setMenuOpen(false)
-    clearTokens()
-    if (onLogout) {
-      onLogout()
-    } else {
-      toast.info('Đã đăng xuất khỏi tài khoản Occupify')
-      navigate('/')
-    }
+    signOutMutation.mutate(undefined, {
+      onSettled: () => {
+        if (onLogout) {
+          onLogout()
+        } else {
+          toast.info('Đã đăng xuất khỏi tài khoản Occupify')
+          navigate('/')
+        }
+      },
+    })
   }
 
   return (
