@@ -1,9 +1,11 @@
 import * as React from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   useJobs,
+  useJob,
   JobCard,
   JobEmptyState,
+  JobDetailsView,
   type JobListing,
   type Contract,
   type JobSortBy,
@@ -60,6 +62,8 @@ export function HomePage({
   currentUserName: propUserName,
 }: HomePageProps) {
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [selectedJobState, setSelectedJobState] = React.useState<JobListing | null>(null)
 
   const handleNavigateProjects = React.useCallback(() => {
     if (onNavigateProjects) {
@@ -127,6 +131,42 @@ export function HomePage({
   // Fetch jobs from server state (TanStack Query) with filter & sort params
   const { data: displayJobs = [], isLoading } = useJobs(jobParams)
 
+  // Parse jobId from URL query parameters
+  const jobIdParam = searchParams.get('jobId')
+  const numericJobId = jobIdParam ? Number(jobIdParam) : null
+  const validJobId = numericJobId && !Number.isNaN(numericJobId) ? numericJobId : null
+
+  // Query individual job if navigated directly via URL and not in feed
+  const { data: queriedJob } = useJob(validJobId)
+
+  // Derive selectedJob reactively from URL parameter, queried job, or fallback state
+  const selectedJob = React.useMemo(() => {
+    if (!validJobId) return selectedJobState
+    return displayJobs.find((j) => j.id === validJobId) ?? queriedJob ?? selectedJobState
+  }, [validJobId, displayJobs, queriedJob, selectedJobState])
+
+  const handleSelectJob = React.useCallback(
+    (job: JobListing) => {
+      setSelectedJobState(job)
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev)
+        next.set('jobId', String(job.id))
+        return next
+      })
+      onSelectJob?.(job)
+    },
+    [onSelectJob, setSearchParams],
+  )
+
+  const handleBackFromJobDetails = React.useCallback(() => {
+    setSelectedJobState(null)
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev)
+      next.delete('jobId')
+      return next
+    })
+  }, [setSearchParams])
+
   // Page / SubPage routing state
   const [subPage, setSubPage] = React.useState<'create-project' | null>(null)
 
@@ -161,6 +201,19 @@ export function HomePage({
   // Render SubPages if active
   if (subPage === 'create-project') {
     return <CreateProjectPage onBack={() => setSubPage(null)} onSubmit={handleCreateProject} />
+  }
+
+  // Render Job Details if a job is selected
+  if (selectedJob) {
+    return (
+      <JobDetailsView
+        job={selectedJob}
+        onBack={handleBackFromJobDetails}
+        onViewProfile={handleViewProfile}
+        isSaved={activeSavedJobIds.includes(selectedJob.id)}
+        onToggleSave={() => handleToggleSave(selectedJob.id)}
+      />
+    )
   }
 
   const hasActiveFilters =
@@ -316,7 +369,7 @@ export function HomePage({
                   job={job}
                   isSaved={activeSavedJobIds.includes(job.id)}
                   onToggleSave={() => handleToggleSave(job.id)}
-                  onClick={() => onSelectJob?.(job)}
+                  onClick={() => handleSelectJob(job)}
                   onViewProfile={handleViewProfile}
                 />
               ))}

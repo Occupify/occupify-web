@@ -1,3 +1,5 @@
 export * from './get-jobs'
 export * from './get-job-filters'
 export * from './create-job'
+export * from './apply-job'
+export * from './report-job'

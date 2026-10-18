@@ -51,6 +51,12 @@ export interface JobListing {
   clientRating?: number
   duration?: string
   hoursPerDay?: number // Số giờ làm việc yêu cầu mỗi ngày (VD: 2, 4, 8)
+  dueDate?: string
+  bidCloseDate?: string
+  tags?: string[]
+  completedProjectsCount?: number
+  contractDuration?: string
+  salaryDueDate?: string
 }
 
 export interface GetJobsParams {
@@ -88,4 +94,42 @@ export interface Contract {
   deadline: string
   status: 'in-progress' | 'pending' | 'opening' | 'overdue'
   role?: string
+}
+
+export type JobSalaryCycle = 'monthly' | 'hourly' | 'daily' | 'weekly' | 'fixed'
+
+export interface ApplyJobInput {
+  jobId: number
+  roleId: string
+  salaryCycle: JobSalaryCycle
+  bidPrice: string
+  commitment?: string
+  fixedDeliveryDays?: string
+  weeklyHours?: string
+  cvFile?: { name: string; size: string } | null
+  portfolioLink?: string
+}
+
+export interface ApplyJobResponse {
+  success: boolean
+  message: string
+  applicationId: string
+  roleId: string
+  submittedAt: string
+}
+
+export interface ReportJobInput {
+  jobId: number
+  clientName: string
+  jobTitle: string
+  reason: string
+  detail: string
+  evidenceImage?: string
+}
+
+export interface ReportJobResponse {
+  success: boolean
+  message: string
+  reportId: string
+  createdAt: string
 }

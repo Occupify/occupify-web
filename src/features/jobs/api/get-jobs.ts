@@ -28,6 +28,12 @@ const MOCK_JOBS_PAYLOAD: JobListing[] = [
     clientRating: 4.9,
     duration: '3 - 6 tháng',
     hoursPerDay: 4,
+    dueDate: '31/12/2026',
+    bidCloseDate: '15/11/2026',
+    tags: ['Fintech', 'Mobile App', 'Design System', 'Banking'],
+    completedProjectsCount: 24,
+    contractDuration: '3 - 6 tháng',
+    salaryDueDate: 'Ngày 05 hàng tháng',
     roles: [
       {
         id: 'r1-1',
@@ -113,6 +119,12 @@ const MOCK_JOBS_PAYLOAD: JobListing[] = [
     clientRating: 5.0,
     duration: '1 - 3 tháng',
     hoursPerDay: 8,
+    dueDate: '15/02/2027',
+    bidCloseDate: '30/11/2026',
+    tags: ['Super App', 'Social Network', 'High Scalability', 'Consumer App'],
+    completedProjectsCount: 38,
+    contractDuration: '1 - 3 tháng',
+    salaryDueDate: 'Theo tiến độ nghiệm thu',
     roles: [
       {
         id: 'r2-1',
@@ -178,6 +190,12 @@ const MOCK_JOBS_PAYLOAD: JobListing[] = [
     clientRating: 4.8,
     duration: '2 - 4 tháng',
     hoursPerDay: 4,
+    dueDate: '28/02/2027',
+    bidCloseDate: '20/11/2026',
+    tags: ['E-Commerce', 'Checkout Flow', 'Conversion Rate', 'A/B Testing'],
+    completedProjectsCount: 19,
+    contractDuration: '2 - 4 tháng',
+    salaryDueDate: 'Ngày 05 hàng tháng',
     roles: [
       {
         id: 'r3-1',
@@ -243,6 +261,12 @@ const MOCK_JOBS_PAYLOAD: JobListing[] = [
     clientRating: 4.6,
     duration: 'Linh hoạt theo giờ',
     hoursPerDay: 2,
+    dueDate: '30/01/2027',
+    bidCloseDate: '10/11/2026',
+    tags: ['Mobile Banking', 'Security UX', 'Accessibility', 'Compliance'],
+    completedProjectsCount: 15,
+    contractDuration: 'Linh hoạt',
+    salaryDueDate: 'Thứ 6 hàng tuần',
     roles: [
       {
         id: 'r4-1',
@@ -308,6 +332,12 @@ const MOCK_JOBS_PAYLOAD: JobListing[] = [
     clientRating: 4.9,
     duration: '2 - 3 tuần',
     hoursPerDay: 6,
+    dueDate: '15/12/2026',
+    bidCloseDate: '05/11/2026',
+    tags: ['MVP', 'Startup B2B', 'SaaS', 'Wireframing'],
+    completedProjectsCount: 8,
+    contractDuration: '2 - 3 tuần',
+    salaryDueDate: 'Nghiệm thu theo mốc',
     roles: [
       {
         id: 'r5-1',
@@ -355,6 +385,12 @@ const MOCK_JOBS_PAYLOAD: JobListing[] = [
     clientRating: 4.7,
     duration: '1 tháng',
     hoursPerDay: 8,
+    dueDate: '30/11/2026',
+    bidCloseDate: '15/10/2026',
+    tags: ['Design System', 'React', 'Tokens', 'Documentation'],
+    completedProjectsCount: 42,
+    contractDuration: '1 tháng',
+    salaryDueDate: 'Thứ 6 hàng tuần',
     roles: [
       {
         id: 'r6-1',
@@ -402,6 +438,12 @@ const MOCK_JOBS_PAYLOAD: JobListing[] = [
     clientRating: 4.5,
     duration: '3 - 5 ngày',
     hoursPerDay: 3,
+    dueDate: '20/10/2026',
+    bidCloseDate: '12/10/2026',
+    tags: ['Marketing', 'Banner Ads', 'Photoshop', 'Social Media'],
+    completedProjectsCount: 11,
+    contractDuration: '3 - 5 ngày',
+    salaryDueDate: 'Thứ 6 hàng tuần',
     roles: [
       {
         id: 'r7-1',
@@ -449,6 +491,12 @@ const MOCK_JOBS_PAYLOAD: JobListing[] = [
     clientRating: 4.8,
     duration: 'Theo giờ',
     hoursPerDay: 2,
+    dueDate: '31/12/2026',
+    bidCloseDate: '01/11/2026',
+    tags: ['SEO', 'Content Writing', 'Copywriting', 'Keyword Research'],
+    completedProjectsCount: 7,
+    contractDuration: 'Linh hoạt',
+    salaryDueDate: 'Hàng tuần',
     roles: [
       {
         id: 'r8-1',
@@ -585,5 +633,17 @@ export async function getJobs(params?: GetJobsParams): Promise<JobListing[]> {
 
       resolve(result)
     }, 150)
+  })
+}
+
+/**
+ * Fetches a single job posting by ID.
+ */
+export async function getJobById(id: number): Promise<JobListing | null> {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const match = jobsStore.find((job) => job.id === id) || null
+      resolve(match)
+    }, 80)
   })
 }
