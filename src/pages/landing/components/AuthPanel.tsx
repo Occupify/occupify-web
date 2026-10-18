@@ -1,13 +1,21 @@
+import type { CredentialResponse } from '@react-oauth/google'
 import { GoogleButton } from '@/features/auth'
 
 export interface AuthPanelProps {
   onLogin: () => void
   onSignUp: () => void
   onGoogle: () => void
+  onGoogleSuccess?: (credentialResponse: CredentialResponse) => void
   onAdmin: () => void
 }
 
-export function AuthPanel({ onLogin, onSignUp, onGoogle, onAdmin }: AuthPanelProps) {
+export function AuthPanel({
+  onLogin,
+  onSignUp,
+  onGoogle,
+  onGoogleSuccess,
+  onAdmin,
+}: AuthPanelProps) {
   return (
     <div
       style={{
@@ -124,7 +132,11 @@ export function AuthPanel({ onLogin, onSignUp, onGoogle, onAdmin }: AuthPanelPro
           <div style={{ flex: 1, height: 1, background: '#E2E8F0' }} />
         </div>
 
-        <GoogleButton onClick={onGoogle} label="Tiếp tục với Google" />
+        <GoogleButton
+          onSuccess={onGoogleSuccess}
+          onClick={onGoogle}
+          label="Tiếp tục với Google"
+        />
 
         <p
           style={{
