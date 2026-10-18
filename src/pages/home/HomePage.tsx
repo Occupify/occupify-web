@@ -28,6 +28,8 @@ import {
   ProjectsStatusCard,
   WalletSummaryCard,
   CreateProjectPage,
+  FreelancerProfileCard,
+  MarketplaceTrustCard,
 } from './components'
 
 export interface HomePageProps {
@@ -63,7 +65,6 @@ export function HomePage({
 }: HomePageProps) {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
-  const [selectedJobState, setSelectedJobState] = React.useState<JobListing | null>(null)
 
   const handleNavigateProjects = React.useCallback(() => {
     if (onNavigateProjects) {
@@ -139,15 +140,14 @@ export function HomePage({
   // Query individual job if navigated directly via URL and not in feed
   const { data: queriedJob } = useJob(validJobId)
 
-  // Derive selectedJob reactively from URL parameter, queried job, or fallback state
+  // Derive selectedJob reactively from URL parameter (URL is single source of truth)
   const selectedJob = React.useMemo(() => {
-    if (!validJobId) return selectedJobState
-    return displayJobs.find((j) => j.id === validJobId) ?? queriedJob ?? selectedJobState
-  }, [validJobId, displayJobs, queriedJob, selectedJobState])
+    if (!validJobId) return null
+    return displayJobs.find((j) => j.id === validJobId) ?? queriedJob ?? null
+  }, [validJobId, displayJobs, queriedJob])
 
   const handleSelectJob = React.useCallback(
     (job: JobListing) => {
-      setSelectedJobState(job)
       setSearchParams((prev) => {
         const next = new URLSearchParams(prev)
         next.set('jobId', String(job.id))
@@ -159,7 +159,6 @@ export function HomePage({
   )
 
   const handleBackFromJobDetails = React.useCallback(() => {
-    setSelectedJobState(null)
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev)
       next.delete('jobId')
@@ -238,170 +237,148 @@ export function HomePage({
   }
 
   return (
-    <div style={{ maxWidth: 1128, margin: '0 auto', padding: '24px 16px' }}>
-      {/* ─── Hero Banner ─── */}
-      <HomeHeroBanner
-        userName={currentUserName}
-        searchKeyword={searchKeyword}
-        onSearchChange={setSearchKeyword}
-      />
+    <div className="min-h-full bg-slate-50/70 py-6 px-4 sm:px-6 lg:px-8 pb-16">
+      <div className="max-w-7xl mx-auto">
+        {/* ─── Hero Banner ─── */}
+        <HomeHeroBanner
+          userName={currentUserName}
+          searchKeyword={searchKeyword}
+          onSearchChange={setSearchKeyword}
+          onSelectTag={(tag) => setSearchKeyword(tag)}
+        />
 
-      {/* ─── Main 2-Column Marketplace Layout ─── */}
-      <div
-        className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px] gap-5 items-start"
-        style={{
-          display: 'grid',
-        }}
-      >
-        {/* Left Column: Job & Contract Feed */}
-        <div>
-          {/* Filter Toolbar */}
-          <JobFilterToolbar
-            totalJobs={displayJobs.length}
-            hasActiveFilters={hasActiveFilters}
-            onResetFilters={handleResetFilters}
-            sortBy={sortBy}
-            onSortByChange={setSortBy}
-            hoursPerDay={hoursPerDay}
-            onHoursPerDayChange={setHoursPerDay}
-            budgetRange={budgetRange}
-            onBudgetRangeChange={setBudgetRange}
-            salaryTypeFilter={salaryTypeFilter}
-            onSalaryTypeFilterChange={setSalaryTypeFilter}
-            experienceLevel={experienceLevel}
-            onExperienceLevelChange={setExperienceLevel}
-            timeFilter={timeFilter}
-            onTimeFilterChange={setTimeFilter}
-            statusFilter={statusFilter}
-            onStatusFilterChange={setStatusFilter}
-          />
+        {/* ─── Main 2-Column Marketplace Layout ─── */}
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[minmax(0,1fr)_360px] gap-6 items-start">
+          {/* Left Column: Job & Contract Feed */}
+          <main className="min-w-0">
+            {/* Filter Toolbar */}
+            <JobFilterToolbar
+              totalJobs={displayJobs.length}
+              hasActiveFilters={hasActiveFilters}
+              onResetFilters={handleResetFilters}
+              sortBy={sortBy}
+              onSortByChange={setSortBy}
+              hoursPerDay={hoursPerDay}
+              onHoursPerDayChange={setHoursPerDay}
+              budgetRange={budgetRange}
+              onBudgetRangeChange={setBudgetRange}
+              salaryTypeFilter={salaryTypeFilter}
+              onSalaryTypeFilterChange={setSalaryTypeFilter}
+              experienceLevel={experienceLevel}
+              onExperienceLevelChange={setExperienceLevel}
+              timeFilter={timeFilter}
+              onTimeFilterChange={setTimeFilter}
+              statusFilter={statusFilter}
+              onStatusFilterChange={setStatusFilter}
+            />
 
-          {/* Results Summary Header */}
-          <JobFilterSummary
-            totalJobs={displayJobs.length}
-            searchKeyword={searchKeyword}
-            onClearSearch={() => setSearchKeyword('')}
-            hoursPerDay={hoursPerDay}
-            onClearHoursPerDay={() => setHoursPerDay('all')}
-            budgetRange={budgetRange}
-            onClearBudgetRange={() => setBudgetRange('all')}
-            salaryTypeFilter={salaryTypeFilter}
-            onClearSalaryType={() => setSalaryTypeFilter('all')}
-            experienceLevel={experienceLevel}
-            onClearExperienceLevel={() => setExperienceLevel('all')}
-            statusFilter={statusFilter}
-            onClearStatusFilter={() => setStatusFilter('all')}
-            timeFilter={timeFilter}
-            onClearTimeFilter={() => setTimeFilter('all')}
-          />
+            {/* Results Summary Header */}
+            <JobFilterSummary
+              totalJobs={displayJobs.length}
+              searchKeyword={searchKeyword}
+              onClearSearch={() => setSearchKeyword('')}
+              hoursPerDay={hoursPerDay}
+              onClearHoursPerDay={() => setHoursPerDay('all')}
+              budgetRange={budgetRange}
+              onClearBudgetRange={() => setBudgetRange('all')}
+              salaryTypeFilter={salaryTypeFilter}
+              onClearSalaryType={() => setSalaryTypeFilter('all')}
+              experienceLevel={experienceLevel}
+              onClearExperienceLevel={() => setExperienceLevel('all')}
+              statusFilter={statusFilter}
+              onClearStatusFilter={() => setStatusFilter('all')}
+              timeFilter={timeFilter}
+              onClearTimeFilter={() => setTimeFilter('all')}
+            />
 
-          {/* Jobs Feed */}
-          <div>
-            {isLoading && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {[1, 2, 3].map((key) => (
-                  <div
-                    key={key}
-                    className="pro-card"
-                    style={{
-                      borderRadius: 12,
-                      padding: '24px',
-                      background: '#fff',
-                      border: '1px solid var(--border-default)',
-                    }}
-                  >
+            {/* Jobs Feed */}
+            <div>
+              {isLoading && (
+                <div className="flex flex-col gap-3.5">
+                  {[1, 2, 3].map((key) => (
                     <div
-                      style={{ display: 'flex', gap: 14, alignItems: 'center', marginBottom: 16 }}
+                      key={key}
+                      className="bg-white rounded-xl border border-slate-200/80 p-5 sm:p-6 shadow-xs animate-pulse"
                     >
-                      <div
-                        style={{
-                          width: 46,
-                          height: 46,
-                          borderRadius: '50%',
-                          background: '#F1F5F9',
-                        }}
-                      />
-                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                        <div
-                          style={{
-                            height: 16,
-                            width: '60%',
-                            background: '#F1F5F9',
-                            borderRadius: 4,
-                          }}
-                        />
-                        <div
-                          style={{
-                            height: 12,
-                            width: '35%',
-                            background: '#F1F5F9',
-                            borderRadius: 4,
-                          }}
-                        />
+                      <div className="flex gap-3 items-center mb-4">
+                        <div className="w-9 h-9 rounded-full bg-slate-200" />
+                        <div className="flex-1 space-y-2">
+                          <div className="h-4 w-1/3 bg-slate-200 rounded" />
+                          <div className="h-3 w-1/4 bg-slate-100 rounded" />
+                        </div>
+                      </div>
+                      <div className="h-5 w-3/4 bg-slate-200 rounded mb-3" />
+                      <div className="h-10 w-full bg-slate-100 rounded-lg mb-3" />
+                      <div className="space-y-2 mb-4">
+                        <div className="h-3.5 w-full bg-slate-100 rounded" />
+                        <div className="h-3.5 w-4/5 bg-slate-100 rounded" />
+                      </div>
+                      <div className="flex gap-2 mb-3">
+                        <div className="h-6 w-16 bg-slate-200 rounded" />
+                        <div className="h-6 w-20 bg-slate-200 rounded" />
+                        <div className="h-6 w-14 bg-slate-200 rounded" />
+                      </div>
+                      <div className="pt-3 border-t border-slate-100 flex justify-between">
+                        <div className="h-4 w-32 bg-slate-100 rounded" />
+                        <div className="h-4 w-28 bg-slate-200 rounded" />
                       </div>
                     </div>
-                    <div
-                      style={{
-                        height: 12,
-                        width: '100%',
-                        background: '#F8FAFC',
-                        borderRadius: 4,
-                        marginBottom: 8,
-                      }}
-                    />
-                    <div
-                      style={{
-                        height: 12,
-                        width: '80%',
-                        background: '#F8FAFC',
-                        borderRadius: 4,
-                      }}
-                    />
-                  </div>
+                  ))}
+                </div>
+              )}
+
+              {!isLoading &&
+                displayJobs.map((job) => (
+                  <JobCard
+                    key={job.id}
+                    job={job}
+                    isSaved={activeSavedJobIds.includes(job.id)}
+                    onToggleSave={() => handleToggleSave(job.id)}
+                    onClick={() => handleSelectJob(job)}
+                    onViewProfile={handleViewProfile}
+                  />
                 ))}
-              </div>
-            )}
 
-            {!isLoading &&
-              displayJobs.map((job) => (
-                <JobCard
-                  key={job.id}
-                  job={job}
-                  isSaved={activeSavedJobIds.includes(job.id)}
-                  onToggleSave={() => handleToggleSave(job.id)}
-                  onClick={() => handleSelectJob(job)}
-                  onViewProfile={handleViewProfile}
-                />
-              ))}
+              {!isLoading && displayJobs.length === 0 && (
+                <JobEmptyState onResetFilters={handleResetFilters} />
+              )}
+            </div>
+          </main>
 
-            {!isLoading && displayJobs.length === 0 && (
-              <JobEmptyState onResetFilters={handleResetFilters} />
-            )}
-          </div>
-        </div>
+          {/* Right Column: Freelance Workbench Widgets */}
+          <aside className="flex flex-col gap-4 lg:sticky lg:top-20">
+            {/* Freelancer Profile Readiness Card */}
+            <FreelancerProfileCard
+              userName={currentUserName}
+              onViewProfile={() => handleViewProfile()}
+            />
 
-        {/* Right Column: Widgets */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {/* Quick Actions Card */}
-          <QuickActionsCard
-            onCreateProject={() => setSubPage('create-project')}
-            onCreateContract={() => navigate('/workspace?sub=create-contract')}
-          />
+            {/* Quick Actions Card */}
+            <QuickActionsCard
+              onCreateProject={() => setSubPage('create-project')}
+              onCreateContract={() => navigate('/workspace?sub=create-contract')}
+            />
 
-          {/* Projects Management Status Widget */}
-          <ProjectsStatusCard
-            myProjectsCount={myProjectsCount}
-            employeeProjectsCount={employeeProjectsCount}
-            pendingProjectsCount={pendingProjectsCount}
-            onNavigateProjects={handleNavigateProjects}
-          />
+            {/* Occupify Escrow Wallet Widget */}
+            <WalletSummaryCard
+              walletBalance={walletBalance}
+              onOpenWallet={onOpenWallet ?? (() => navigate('/wallet'))}
+              onOpenFinancialHistory={
+                onOpenFinancialHistory ?? (() => navigate('/financial-history'))
+              }
+            />
 
-          {/* Occupify Wallet Widget */}
-          <WalletSummaryCard
-            walletBalance={walletBalance}
-            onOpenWallet={onOpenWallet}
-            onOpenFinancialHistory={onOpenFinancialHistory}
-          />
+            {/* Projects Management Status Widget */}
+            <ProjectsStatusCard
+              myProjectsCount={myProjectsCount}
+              employeeProjectsCount={employeeProjectsCount}
+              pendingProjectsCount={pendingProjectsCount}
+              onNavigateProjects={handleNavigateProjects}
+            />
+
+            {/* Escrow Trust & Safety Guarantee Card */}
+            <MarketplaceTrustCard />
+          </aside>
         </div>
       </div>
     </div>
@@ -409,3 +386,4 @@ export function HomePage({
 }
 
 export default HomePage
+

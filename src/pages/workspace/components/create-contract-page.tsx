@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react'
 import {
-  ArrowLeftIcon,
   BriefcaseIcon,
   CheckCircleIcon,
   CheckIcon,
@@ -141,14 +140,6 @@ export function CreateContractPage({
       {/* Top Banner */}
       <div className="py-8 !bg-gradient-to-r from-[var(--color-primary-500)] to-[#084FA0] !text-white">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
-          <button
-            type="button"
-            onClick={onBack}
-            className="mb-3 flex cursor-pointer items-center gap-1.5 text-xs font-semibold !text-white/80 transition-colors hover:!text-white"
-          >
-            <ArrowLeftIcon size={14} weight="bold" />
-            <span>Quay lại</span>
-          </button>
           <h1 className="text-2xl font-extrabold sm:text-3xl !text-white">
             {isInvite ? 'Mời hợp đồng' : 'Tạo hợp đồng mới'}
           </h1>

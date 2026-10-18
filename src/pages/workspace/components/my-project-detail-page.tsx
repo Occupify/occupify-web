@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import {
-  ArrowRightIcon,
   BriefcaseIcon,
   DownloadSimpleIcon,
   FilePdfIcon,
@@ -193,16 +192,6 @@ export function MyProjectDetailPage({
   return (
     <div className="min-h-full px-4 py-7 pb-12 !bg-[var(--bg-base)]">
       <div className="mx-auto max-w-[1128px]">
-        {/* Back button */}
-        <button
-          type="button"
-          onClick={onBack}
-          className="mb-5 inline-flex cursor-pointer items-center gap-1.5 text-[13px] font-semibold !text-[var(--text-secondary)] transition-colors hover:!text-[var(--color-primary-500)]"
-        >
-          <ArrowRightIcon size={14} className="rotate-180" />
-          <span>Quay lại</span>
-        </button>
-
         {/* Main Card */}
         <div className="overflow-hidden rounded-lg border shadow-xs !border-[var(--border-default)] !bg-[var(--bg-elevated)]">
           {/* Header */}
@@ -843,7 +832,7 @@ export function MyProjectDetailPage({
                 onClick={() => setCloseRecruitConfirm(false)}
                 className="cursor-pointer rounded-full border px-5 py-2 text-sm font-semibold !border-[var(--border-default)] !text-[var(--text-secondary)] hover:!bg-[var(--bg-subtle)]"
               >
-                Quay lại
+                Hủy
               </button>
               <button
                 type="button"

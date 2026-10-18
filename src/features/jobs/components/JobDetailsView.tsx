@@ -111,110 +111,19 @@ export function JobDetailsView({
   return (
     <div style={{ background: 'var(--bg-base)', minHeight: '100%', paddingBottom: 64 }}>
       <div style={{ maxWidth: 1128, margin: '0 auto', padding: '24px 16px' }}>
-        {/* ── Top Navigation & Quick Action Bar ── */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: 12,
-            marginBottom: 20,
-          }}
-        >
-          {/* Back Button */}
-          <button
-            type="button"
-            onClick={onBack}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              background: '#fff',
-              border: '1px solid var(--border-default)',
-              borderRadius: 8,
-              padding: '8px 16px',
-              fontSize: 13.5,
-              fontWeight: 600,
-              color: 'var(--color-primary-500)',
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-              boxShadow: 'var(--shadow-xs)',
-              transition: 'all 150ms ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--color-primary-50)'
-              e.currentTarget.style.borderColor = 'var(--color-primary-200)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#fff'
-              e.currentTarget.style.borderColor = 'var(--border-default)'
-            }}
-          >
-            <ArrowLeftIcon size={16} weight="bold" />
-            <span>Quay lại trang chủ</span>
-          </button>
-
-          {/* Quick Share & Save Actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            {/* Share Button */}
+        {/* Back Navigation Bar */}
+        {onBack && (
+          <div style={{ marginBottom: 16 }}>
             <button
               type="button"
-              onClick={handleShareProject}
-              title="Sao chép liên kết chia sẻ dự án"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '8px 14px',
-                borderRadius: 8,
-                border: '1px solid var(--border-default)',
-                background: '#fff',
-                color: 'var(--text-secondary)',
-                fontWeight: 600,
-                fontSize: 13,
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-                transition: 'all 150ms ease',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-base)')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = '#fff')}
+              onClick={onBack}
+              className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-700 hover:text-[#0A66C2] bg-white hover:bg-slate-50 border border-slate-200/90 px-3.5 py-2 rounded-xl transition-all shadow-2xs cursor-pointer group"
             >
-              <ShareNetworkIcon size={16} weight="bold" />
-              <span>Chia sẻ</span>
-            </button>
-
-            {/* Bookmark / Save Button */}
-            <button
-              type="button"
-              onClick={onToggleSave}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '8px 16px',
-                borderRadius: 8,
-                border: `1px solid ${isSaved ? 'var(--color-primary-200)' : 'var(--border-default)'}`,
-                background: isSaved ? 'var(--color-primary-50)' : '#fff',
-                color: isSaved ? 'var(--color-primary-500)' : 'var(--text-secondary)',
-                fontWeight: 600,
-                fontSize: 13,
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-                transition: 'all 150ms ease',
-              }}
-              onMouseEnter={(e) => {
-                if (!isSaved) e.currentTarget.style.background = 'var(--bg-base)'
-              }}
-              onMouseLeave={(e) => {
-                if (!isSaved) e.currentTarget.style.background = '#fff'
-              }}
-            >
-              <BookmarkIcon size={16} weight={isSaved ? 'fill' : 'regular'} />
-              <span>{isSaved ? 'Đã lưu dự án' : 'Lưu dự án'}</span>
+              <ArrowLeftIcon size={16} weight="bold" className="group-hover:-translate-x-0.5 transition-transform text-slate-500 group-hover:text-[#0A66C2]" />
+              <span>Quay lại danh sách việc làm</span>
             </button>
           </div>
-        </div>
+        )}
 
         {/* ── 2-Column Responsive Layout ── */}
         <div
@@ -227,7 +136,7 @@ export function JobDetailsView({
           <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
             {/* 1. Header Card with Structured Information Box */}
             <div style={{ ...cardStyle, padding: '26px 28px' }}>
-              {/* Top row: Status & Tags */}
+              {/* Top row: Status & Tags & Actions */}
               <div
                 style={{
                   display: 'flex',
@@ -284,19 +193,78 @@ export function JobDetailsView({
                   ))}
                 </div>
 
-                {/* Sub-meta: Posted Time */}
-                <span
-                  style={{
-                    fontSize: 12.5,
-                    color: 'var(--text-tertiary)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 4,
-                  }}
-                >
-                  <ClockIcon size={14} />
-                  Đăng {job.postedAgo}
-                </span>
+                {/* Sub-meta: Posted Time & Quick Actions */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                  <span
+                    style={{
+                      fontSize: 12.5,
+                      color: 'var(--text-tertiary)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 4,
+                    }}
+                  >
+                    <ClockIcon size={14} />
+                    Đăng {job.postedAgo}
+                  </span>
+
+                  {/* Share Button */}
+                  <button
+                    type="button"
+                    onClick={handleShareProject}
+                    title="Sao chép liên kết chia sẻ dự án"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 5,
+                      padding: '5px 12px',
+                      borderRadius: 8,
+                      border: '1px solid var(--border-default)',
+                      background: '#fff',
+                      color: 'var(--text-secondary)',
+                      fontWeight: 600,
+                      fontSize: 12.5,
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                      transition: 'all 150ms ease',
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-subtle)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = '#fff')}
+                  >
+                    <ShareNetworkIcon size={15} weight="bold" />
+                    <span>Chia sẻ</span>
+                  </button>
+
+                  {/* Bookmark / Save Button */}
+                  <button
+                    type="button"
+                    onClick={onToggleSave}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 5,
+                      padding: '5px 12px',
+                      borderRadius: 8,
+                      border: `1px solid ${isSaved ? '#93C5FD' : 'var(--border-default)'}`,
+                      background: isSaved ? '#EFF6FF' : '#fff',
+                      color: isSaved ? '#0A66C2' : 'var(--text-secondary)',
+                      fontWeight: 600,
+                      fontSize: 12.5,
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                      transition: 'all 150ms ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isSaved) e.currentTarget.style.background = 'var(--bg-subtle)'
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isSaved) e.currentTarget.style.background = '#fff'
+                    }}
+                  >
+                    <BookmarkIcon size={15} weight={isSaved ? 'fill' : 'regular'} />
+                    <span>{isSaved ? 'Đã lưu' : 'Lưu dự án'}</span>
+                  </button>
+                </div>
               </div>
 
               {/* Title */}

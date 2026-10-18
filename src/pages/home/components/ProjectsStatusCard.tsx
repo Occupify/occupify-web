@@ -1,4 +1,4 @@
-import { ArrowRightIcon } from '@phosphor-icons/react'
+import { ArrowRightIcon, BriefcaseMetalIcon } from '@phosphor-icons/react'
 
 export interface ProjectsStatusCardProps {
   myProjectsCount?: number
@@ -14,111 +14,45 @@ export function ProjectsStatusCard({
   onNavigateProjects,
 }: ProjectsStatusCardProps) {
   return (
-    <div
-      className="pro-card"
-      style={{
-        borderRadius: 12,
-        border: '1px solid var(--border-default)',
-        boxShadow: 'var(--shadow-card)',
-        padding: '20px',
-        background: '#fff',
-      }}
-    >
-      <div
-        style={{
-          fontSize: 15,
-          fontWeight: 800,
-          color: '#0F172A',
-          marginBottom: 14,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          letterSpacing: '-0.01em',
-        }}
-      >
-        <span>Quản lý dự án</span>
-        <span
-          style={{
-            fontSize: 11.5,
-            background: '#EFF6FF',
-            color: '#0A66C2',
-            fontWeight: 700,
-            padding: '2px 8px',
-            borderRadius: 6,
-            border: '1px solid #DBEAFE',
-          }}
-        >
+    <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs p-5">
+      <div className="text-[15px] font-extrabold text-slate-900 mb-3.5 flex items-center justify-between tracking-tight">
+        <div className="flex items-center gap-2">
+          <BriefcaseMetalIcon size={18} weight="fill" className="text-[#0A66C2]" />
+          <span>Bàn Làm Việc & Hợp Đồng</span>
+        </div>
+        <span className="text-[11px] bg-sky-50 text-[#0A66C2] font-bold px-2 py-0.5 rounded border border-sky-200">
           Active
         </span>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '9px 12px',
-            background: '#F8FAFC',
-            borderRadius: 8,
-            border: '1px solid #F1F5F9',
-          }}
-        >
-          <span style={{ fontSize: 13, color: '#475569' }}>Dự án bạn quản lý</span>
-          <span
-            style={{
-              fontSize: 13,
-              fontWeight: 700,
-              color: '#0F172A',
-            }}
-          >
+      <div className="flex flex-col gap-2">
+        {/* Managed Projects */}
+        <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-100 text-xs sm:text-[13px]">
+          <span className="text-slate-600 font-medium">
+            Dự án đã đăng (Khách hàng)
+          </span>
+          <span className="font-extrabold text-slate-900">
             {myProjectsCount} dự án
           </span>
         </div>
 
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '9px 12px',
-            background: '#F8FAFC',
-            borderRadius: 8,
-            border: '1px solid #F1F5F9',
-          }}
-        >
-          <span style={{ fontSize: 13, color: '#475569' }}>Dự án đang thực hiện</span>
-          <span
-            style={{
-              fontSize: 13,
-              fontWeight: 700,
-              color: '#057642',
-            }}
-          >
+        {/* Ongoing Freelance Contracts */}
+        <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-100 text-xs sm:text-[13px]">
+          <span className="text-slate-600 font-medium">
+            Hợp đồng đang thực hiện
+          </span>
+          <span className="font-extrabold text-emerald-700">
             {employeeProjectsCount} hợp đồng
           </span>
         </div>
 
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '9px 12px',
-            background: '#F8FAFC',
-            borderRadius: 8,
-            border: '1px solid #F1F5F9',
-          }}
-        >
-          <span style={{ fontSize: 13, color: '#475569' }}>Đề xuất / Lời mời chờ</span>
-          <span
-            style={{
-              fontSize: 13,
-              fontWeight: 700,
-              color: '#D97706',
-            }}
-          >
-            {pendingProjectsCount} chờ duyệt
+        {/* Pending Proposals */}
+        <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-100 text-xs sm:text-[13px]">
+          <span className="text-slate-600 font-medium">
+            Báo giá / Lời mời chờ duyệt
+          </span>
+          <span className="font-extrabold text-amber-700">
+            {pendingProjectsCount} chờ phản hồi
           </span>
         </div>
       </div>
@@ -126,37 +60,14 @@ export function ProjectsStatusCard({
       <button
         type="button"
         onClick={onNavigateProjects}
-        style={{
-          width: '100%',
-          marginTop: 14,
-          background: '#fff',
-          border: '1px solid var(--border-default)',
-          borderRadius: 8,
-          padding: '9px 16px',
-          fontSize: 13,
-          fontWeight: 600,
-          color: '#0A66C2',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 6,
-          transition: 'all 150ms ease',
-        }}
-        onMouseEnter={(e) => {
-          const el = e.currentTarget as HTMLElement
-          el.style.background = '#EFF6FF'
-          el.style.borderColor = '#93C5FD'
-        }}
-        onMouseLeave={(e) => {
-          const el = e.currentTarget as HTMLElement
-          el.style.background = '#fff'
-          el.style.borderColor = 'var(--border-default)'
-        }}
+        className="w-full mt-3.5 bg-white hover:bg-sky-50/60 border border-slate-300 hover:border-sky-300 rounded-lg py-2 px-3 text-xs sm:text-[13px] font-bold text-[#0A66C2] flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs"
       >
-        <span>Vào trang Quản lý dự án</span>
-        <ArrowRightIcon size={13} weight="bold" />
+        <span>Vào Bàn Quản lý Hợp đồng</span>
+        <ArrowRightIcon size={14} weight="bold" />
       </button>
     </div>
   )
 }
+
+export default ProjectsStatusCard
+

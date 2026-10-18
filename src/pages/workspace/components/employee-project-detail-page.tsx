@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowLeftIcon, BriefcaseIcon, FileTextIcon } from '@phosphor-icons/react'
+import { BriefcaseIcon, FileTextIcon } from '@phosphor-icons/react'
 import { Avatar } from '@/components/ui'
 import type { MyProject } from '@/features/projects'
 import { CancelModal } from '@/features/projects'
@@ -21,15 +21,6 @@ export function EmployeeProjectDetailPage({
   return (
     <div className="min-h-full px-4 py-7 pb-12 !bg-[var(--bg-base)]">
       <div className="mx-auto max-w-3xl">
-        <button
-          type="button"
-          onClick={onBack}
-          className="mb-5 flex cursor-pointer items-center gap-1.5 py-1 text-xs font-semibold !text-[var(--text-secondary)] transition-colors hover:!text-[var(--color-primary-500)]"
-        >
-          <ArrowLeftIcon size={14} weight="bold" />
-          <span>Quay lại</span>
-        </button>
-
         <div className="overflow-hidden rounded-lg border !border-[var(--border-default)] !bg-[var(--bg-elevated)] shadow-sm">
           {/* Header */}
           <div className="border-b p-5 sm:px-6 !border-[var(--border-subtle)]">
