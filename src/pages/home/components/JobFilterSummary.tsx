@@ -92,225 +92,129 @@ export function JobFilterSummary({
     statusFilter !== 'all'
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: 14,
-        padding: '0 4px',
-        flexWrap: 'wrap',
-        gap: 8,
-      }}
-    >
-      <div
-        style={{
-          fontSize: 13,
-          color: '#64748B',
-          display: 'flex',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: 6,
-        }}
-      >
+    <div className="flex items-center justify-between mb-3.5 px-1 flex-wrap gap-2 text-xs sm:text-[13px]">
+      <div className="flex items-center flex-wrap gap-2 text-slate-600">
         <span>
-          Tìm thấy <strong style={{ color: '#0F172A', fontWeight: 700 }}>{totalJobs}</strong> dự án
-          phù hợp
+          Tìm thấy <strong className="text-slate-900 font-bold">{totalJobs}</strong> dự án phù hợp
         </span>
 
         {/* Search Keyword Tag */}
         {searchKeyword && (
-          <span
-            className="pro-tag"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 5,
-              background: '#EFF6FF',
-              color: '#0A66C2',
-              padding: '3px 10px',
-              borderRadius: 6,
-              border: '1px solid #DBEAFE',
-              fontSize: 12,
-              fontWeight: 600,
-            }}
-          >
+          <span className="inline-flex items-center gap-1.5 bg-sky-50 text-[#0A66C2] px-2.5 py-1 rounded-md border border-sky-200 text-xs font-semibold">
             "{searchKeyword}"
-            <XIcon
-              size={12}
-              style={{ cursor: 'pointer' }}
+            <button
+              type="button"
               onClick={onClearSearch}
               aria-label="Xóa từ khóa tìm kiếm"
-            />
+              className="hover:text-sky-900 transition-colors cursor-pointer"
+            >
+              <XIcon size={12} weight="bold" />
+            </button>
           </span>
         )}
 
         {/* Giờ làm / ngày Tag */}
         {hoursPerDay !== 'all' && (
-          <span
-            className="pro-tag"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 5,
-              background: '#F0FDF4',
-              color: '#15803D',
-              padding: '3px 10px',
-              borderRadius: 6,
-              border: '1px solid #BBF7D0',
-              fontSize: 12,
-              fontWeight: 600,
-            }}
-          >
+          <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded-md border border-emerald-200 text-xs font-semibold">
             ⏱️ {getHoursPerDayLabel()}
-            <XIcon
-              size={12}
-              style={{ cursor: 'pointer' }}
+            <button
+              type="button"
               onClick={onClearHoursPerDay}
               aria-label="Bỏ lọc giờ làm"
-            />
+              className="hover:text-emerald-950 transition-colors cursor-pointer"
+            >
+              <XIcon size={12} weight="bold" />
+            </button>
           </span>
         )}
 
         {/* Ngân sách Tag */}
         {budgetRange !== 'all' && (
-          <span
-            className="pro-tag"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 5,
-              background: '#F8FAFC',
-              color: '#334155',
-              padding: '3px 10px',
-              borderRadius: 6,
-              border: '1px solid #E2E8F0',
-              fontSize: 12,
-              fontWeight: 600,
-            }}
-          >
+          <span className="inline-flex items-center gap-1.5 bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md border border-slate-200 text-xs font-semibold">
             💰 {getBudgetRangeLabel()}
-            <XIcon
-              size={12}
-              style={{ cursor: 'pointer' }}
+            <button
+              type="button"
               onClick={onClearBudgetRange}
               aria-label="Bỏ lọc ngân sách"
-            />
+              className="hover:text-slate-900 transition-colors cursor-pointer"
+            >
+              <XIcon size={12} weight="bold" />
+            </button>
           </span>
         )}
 
         {/* Hình thức làm việc Tag */}
         {salaryTypeFilter !== 'all' && (
-          <span
-            className="pro-tag"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 5,
-              background: '#F8FAFC',
-              color: '#334155',
-              padding: '3px 10px',
-              borderRadius: 6,
-              border: '1px solid #E2E8F0',
-              fontSize: 12,
-              fontWeight: 600,
-            }}
-          >
+          <span className="inline-flex items-center gap-1.5 bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md border border-slate-200 text-xs font-semibold">
             💼 {getSalaryTypeLabel()}
-            <XIcon
-              size={12}
-              style={{ cursor: 'pointer' }}
+            <button
+              type="button"
               onClick={onClearSalaryType}
               aria-label="Bỏ lọc hình thức"
-            />
+              className="hover:text-slate-900 transition-colors cursor-pointer"
+            >
+              <XIcon size={12} weight="bold" />
+            </button>
           </span>
         )}
 
         {/* Cấp độ kinh nghiệm Tag */}
         {experienceLevel !== 'all' && (
-          <span
-            className="pro-tag"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 5,
-              background: '#F8FAFC',
-              color: '#334155',
-              padding: '3px 10px',
-              borderRadius: 6,
-              border: '1px solid #E2E8F0',
-              fontSize: 12,
-              fontWeight: 600,
-            }}
-          >
+          <span className="inline-flex items-center gap-1.5 bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md border border-slate-200 text-xs font-semibold">
             🎯 {getExperienceLevelLabel()}
-            <XIcon
-              size={12}
-              style={{ cursor: 'pointer' }}
+            <button
+              type="button"
               onClick={onClearExperienceLevel}
               aria-label="Bỏ lọc cấp độ"
-            />
+              className="hover:text-slate-900 transition-colors cursor-pointer"
+            >
+              <XIcon size={12} weight="bold" />
+            </button>
           </span>
         )}
 
         {/* Thời gian đăng Tag */}
         {timeFilter !== 'all' && (
-          <span
-            className="pro-tag"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 5,
-              background: '#FEF9C3',
-              color: '#854D0E',
-              padding: '3px 10px',
-              borderRadius: 6,
-              border: '1px solid #FDE047',
-              fontSize: 12,
-              fontWeight: 600,
-            }}
-          >
+          <span className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-800 px-2.5 py-1 rounded-md border border-amber-200 text-xs font-semibold">
             📅 {getTimeFilterLabel()}
-            <XIcon
-              size={12}
-              style={{ cursor: 'pointer' }}
+            <button
+              type="button"
               onClick={onClearTimeFilter}
               aria-label="Bỏ lọc thời gian"
-            />
+              className="hover:text-amber-950 transition-colors cursor-pointer"
+            >
+              <XIcon size={12} weight="bold" />
+            </button>
           </span>
         )}
 
         {/* Trạng thái Tag */}
         {statusFilter !== 'all' && (
           <span
-            className="pro-tag"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 5,
-              background: statusFilter === 'OPEN' ? '#ECFDF5' : '#F1F5F9',
-              color: statusFilter === 'OPEN' ? '#059669' : '#475569',
-              padding: '3px 10px',
-              borderRadius: 6,
-              border: `1px solid ${statusFilter === 'OPEN' ? '#A7F3D0' : '#CBD5E1'}`,
-              fontSize: 12,
-              fontWeight: 600,
-            }}
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold border ${
+              statusFilter === 'OPEN'
+                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                : 'bg-slate-100 text-slate-600 border-slate-200'
+            }`}
           >
             {statusFilter === 'OPEN' ? '🟢 Đang mở tuyển' : '⚪ Đã đóng tuyển'}
-            <XIcon
-              size={12}
-              style={{ cursor: 'pointer' }}
+            <button
+              type="button"
               onClick={onClearStatusFilter}
               aria-label="Bỏ lọc trạng thái"
-            />
+              className="hover:text-slate-900 transition-colors cursor-pointer"
+            >
+              <XIcon size={12} weight="bold" />
+            </button>
           </span>
         )}
       </div>
 
       {hasAnyFilterActive && (
-        <span style={{ fontSize: 12, color: '#94A3B8' }}>Đang áp dụng bộ lọc nâng cao</span>
+        <span className="text-xs text-slate-400 font-medium">Đang áp dụng bộ lọc nâng cao</span>
       )}
     </div>
   )
 }
+
+export default JobFilterSummary

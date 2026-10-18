@@ -1,4 +1,4 @@
-import { WalletIcon, ArrowRightIcon } from '@phosphor-icons/react'
+import { WalletIcon, ArrowRightIcon, ShieldCheckIcon } from '@phosphor-icons/react'
 import { formatVND } from '@/utils'
 
 export interface WalletSummaryCardProps {
@@ -13,84 +13,40 @@ export function WalletSummaryCard({
   onOpenFinancialHistory,
 }: WalletSummaryCardProps) {
   return (
-    <div
-      className="pro-card"
-      style={{
-        borderRadius: 12,
-        border: '1px solid var(--border-default)',
-        boxShadow: 'var(--shadow-card)',
-        padding: '20px',
-        background: '#fff',
-      }}
-    >
-      <div
-        style={{
-          fontSize: 15,
-          fontWeight: 800,
-          color: '#0F172A',
-          marginBottom: 14,
-          letterSpacing: '-0.01em',
-        }}
-      >
-        Ví tài khoản Occupify
+    <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs p-5">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-3.5">
+        <div className="flex items-center gap-2">
+          <WalletIcon size={18} weight="fill" className="text-[#0A66C2]" />
+          <span className="text-[15px] font-extrabold text-slate-900 tracking-tight">
+            Ví Ký Quỹ Escrow
+          </span>
+        </div>
+        <span className="text-[11px] bg-emerald-50 text-emerald-800 font-bold px-2 py-0.5 rounded border border-emerald-200 inline-flex items-center gap-1">
+          <ShieldCheckIcon size={12} weight="fill" className="text-emerald-600" />
+          <span>Bảo chứng</span>
+        </span>
       </div>
 
-      <div
-        style={{
-          background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
-          borderRadius: 10,
-          padding: '18px 20px',
-          color: '#fff',
-          marginBottom: 14,
-          border: '1px solid rgba(255, 255, 255, 0.08)',
-          boxShadow: '0 4px 12px rgba(15, 23, 42, 0.15)',
-        }}
-      >
-        <div
-          style={{
-            fontSize: 12,
-            color: '#94A3B8',
-            marginBottom: 6,
-            fontWeight: 500,
-          }}
-        >
-          Số dư khả dụng
+      {/* Balance Card with deep slate finish */}
+      <div className="bg-slate-900 rounded-xl p-4 text-white mb-3.5 border border-slate-800 shadow-sm">
+        <div className="text-[11px] text-slate-400 mb-1.5 font-bold uppercase tracking-wider">
+          Số dư khả dụng / Sẵn sàng rút
         </div>
-        <div
-          style={{
-            fontFamily: 'Plus Jakarta Sans, sans-serif',
-            fontSize: 23,
-            fontWeight: 800,
-            letterSpacing: '-0.025em',
-            color: '#FFFFFF',
-          }}
-        >
+        <div className="font-heading text-2xl font-extrabold tracking-tight text-white">
           {formatVND(walletBalance)}
         </div>
+        <div className="text-[11.5px] text-sky-300 mt-2 flex items-center gap-1.5">
+          <span>🔒 Tiền ký quỹ đảm bảo nhận đủ sau nghiệm thu</span>
+        </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 10 }}>
+      {/* Buttons */}
+      <div className="flex gap-2.5">
         <button
           type="button"
           onClick={onOpenWallet}
-          style={{
-            flex: 1,
-            background: '#0A66C2',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 8,
-            padding: '9px 12px',
-            fontSize: 13,
-            fontWeight: 600,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 6,
-            transition: 'background 150ms ease',
-          }}
-          onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = '#084fa0')}
-          onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = '#0A66C2')}
+          className="flex-1 bg-[#0A66C2] hover:bg-[#084fa0] active:bg-[#06407f] text-white rounded-lg py-2 px-3 text-xs sm:text-[13px] font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
         >
           <WalletIcon size={15} weight="bold" />
           <span>Ví của tôi</span>
@@ -99,32 +55,7 @@ export function WalletSummaryCard({
         <button
           type="button"
           onClick={onOpenFinancialHistory}
-          style={{
-            flex: 1,
-            background: '#F8FAFC',
-            color: '#0F172A',
-            border: '1px solid var(--border-default)',
-            borderRadius: 8,
-            padding: '9px 12px',
-            fontSize: 13,
-            fontWeight: 600,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 5,
-            transition: 'all 150ms ease',
-          }}
-          onMouseEnter={(e) => {
-            const el = e.currentTarget as HTMLElement
-            el.style.background = '#F1F5F9'
-            el.style.borderColor = '#CBD5E1'
-          }}
-          onMouseLeave={(e) => {
-            const el = e.currentTarget as HTMLElement
-            el.style.background = '#F8FAFC'
-            el.style.borderColor = 'var(--border-default)'
-          }}
+          className="flex-1 bg-slate-50 hover:bg-slate-100 text-slate-800 border border-slate-300 hover:border-slate-400 rounded-lg py-2 px-3 text-xs sm:text-[13px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs"
         >
           <span>Thu chi</span>
           <ArrowRightIcon size={13} weight="bold" />
@@ -133,3 +64,5 @@ export function WalletSummaryCard({
     </div>
   )
 }
+
+export default WalletSummaryCard

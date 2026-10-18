@@ -1,5 +1,6 @@
 export * from './toast'
 export * from './toast-container'
 export * from './use-notification'
+export * from './route-error-boundary'
 export { toast, useToastStore } from '@/stores/toast'
 export type { ToastItem, ToastType, ToastOptions } from '@/stores/toast'
