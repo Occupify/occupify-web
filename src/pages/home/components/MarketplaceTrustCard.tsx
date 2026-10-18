@@ -8,9 +8,7 @@ export function MarketplaceTrustCard() {
           <ShieldCheckIcon size={18} weight="fill" />
         </div>
         <div>
-          <div className="text-sm font-extrabold text-emerald-950">
-            Bảo Chứng Thanh Toán Escrow
-          </div>
+          <div className="text-sm font-extrabold text-emerald-950">Bảo Chứng Thanh Toán Escrow</div>
           <div className="text-[11.5px] text-emerald-700 font-medium">
             An toàn tuyệt đối 100% cho 2 bên
           </div>
@@ -21,21 +19,24 @@ export function MarketplaceTrustCard() {
         <div className="flex items-start gap-2">
           <CheckCircleIcon size={16} weight="fill" className="text-emerald-600 mt-0.5 shrink-0" />
           <span>
-            <strong className="text-slate-900 font-bold">Ký quỹ trước khi làm:</strong> Khách hàng khóa ngân sách vào Escrow trước khi bạn bắt đầu code.
+            <strong className="text-slate-900 font-bold">Ký quỹ trước khi làm:</strong> Khách hàng
+            khóa ngân sách vào Escrow trước khi bạn bắt đầu code.
           </span>
         </div>
 
         <div className="flex items-start gap-2">
           <CheckCircleIcon size={16} weight="fill" className="text-emerald-600 mt-0.5 shrink-0" />
           <span>
-            <strong className="text-slate-900 font-bold">Nghiệm thu theo Milestone:</strong> Bàn giao mã nguồn từng mốc, nhận thanh toán tức thì.
+            <strong className="text-slate-900 font-bold">Nghiệm thu theo Milestone:</strong> Bàn
+            giao mã nguồn từng mốc, nhận thanh toán tức thì.
           </span>
         </div>
 
         <div className="flex items-start gap-2">
           <CheckCircleIcon size={16} weight="fill" className="text-emerald-600 mt-0.5 shrink-0" />
           <span>
-            <strong className="text-slate-900 font-bold">Trọng tài bảo vệ công bằng:</strong> Đội ngũ Occupify can thiệp giải quyết tranh chấp 24/7.
+            <strong className="text-slate-900 font-bold">Trọng tài bảo vệ công bằng:</strong> Đội
+            ngũ Occupify can thiệp giải quyết tranh chấp 24/7.
           </span>
         </div>
       </div>
@@ -44,4 +45,3 @@ export function MarketplaceTrustCard() {
 }
 
 export default MarketplaceTrustCard
-

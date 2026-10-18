@@ -1,10 +1,5 @@
 import { useEffect, useState } from 'react'
-import {
-  SparkleIcon,
-  TrendUpIcon,
-  ArrowLeftIcon,
-  ShieldCheckIcon,
-} from '@phosphor-icons/react'
+import { SparkleIcon, TrendUpIcon, ArrowLeftIcon, ShieldCheckIcon } from '@phosphor-icons/react'
 import {
   CashflowLineChart,
   FinancialFilterToolbar,

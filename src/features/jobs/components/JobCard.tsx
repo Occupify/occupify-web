@@ -285,4 +285,3 @@ export function JobCard({
 }
 
 export default JobCard
-

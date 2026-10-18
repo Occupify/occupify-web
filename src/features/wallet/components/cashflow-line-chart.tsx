@@ -107,10 +107,22 @@ export function CashflowLineChart({ data }: CashflowLineChartProps) {
               <stop offset="100%" stopColor="#F43F5E" stopOpacity="0.0" />
             </linearGradient>
             <filter id="shadowIn" x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor="#10B981" floodOpacity="0.25" />
+              <feDropShadow
+                dx="0"
+                dy="2"
+                stdDeviation="2.5"
+                floodColor="#10B981"
+                floodOpacity="0.25"
+              />
             </filter>
             <filter id="shadowOut" x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor="#F43F5E" floodOpacity="0.25" />
+              <feDropShadow
+                dx="0"
+                dy="2"
+                stdDeviation="2.5"
+                floodColor="#F43F5E"
+                floodOpacity="0.25"
+              />
             </filter>
           </defs>
 
@@ -209,11 +221,7 @@ export function CashflowLineChart({ data }: CashflowLineChartProps) {
             const x = padLeft + (i / Math.max(1, data.length - 1)) * plotW
             const isHovered = hoveredIndex === i
             return (
-              <g
-                key={d.month}
-                className="cursor-pointer"
-                onMouseEnter={() => setHoveredIndex(i)}
-              >
+              <g key={d.month} className="cursor-pointer" onMouseEnter={() => setHoveredIndex(i)}>
                 {/* Transparent hit area */}
                 <rect
                   x={x - plotW / Math.max(1, data.length - 1) / 2}

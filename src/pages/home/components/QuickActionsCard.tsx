@@ -1,4 +1,9 @@
-import { BriefcaseMetalIcon, FolderPlusIcon, FileTextIcon, ArrowRightIcon } from '@phosphor-icons/react'
+import {
+  BriefcaseMetalIcon,
+  FolderPlusIcon,
+  FileTextIcon,
+  ArrowRightIcon,
+} from '@phosphor-icons/react'
 
 export interface QuickActionsCardProps {
   onCreateProject: () => void
@@ -33,7 +38,10 @@ export function QuickActionsCard({ onCreateProject, onCreateContract }: QuickAct
               </div>
             </div>
           </div>
-          <ArrowRightIcon size={14} className="text-slate-400 group-hover:text-[#0A66C2] group-hover:translate-x-0.5 transition-all shrink-0" />
+          <ArrowRightIcon
+            size={14}
+            className="text-slate-400 group-hover:text-[#0A66C2] group-hover:translate-x-0.5 transition-all shrink-0"
+          />
         </button>
 
         {/* Create Contract Button */}
@@ -55,7 +63,10 @@ export function QuickActionsCard({ onCreateProject, onCreateContract }: QuickAct
               </div>
             </div>
           </div>
-          <ArrowRightIcon size={14} className="text-slate-400 group-hover:text-emerald-700 group-hover:translate-x-0.5 transition-all shrink-0" />
+          <ArrowRightIcon
+            size={14}
+            className="text-slate-400 group-hover:text-emerald-700 group-hover:translate-x-0.5 transition-all shrink-0"
+          />
         </button>
       </div>
     </div>
@@ -63,4 +74,3 @@ export function QuickActionsCard({ onCreateProject, onCreateContract }: QuickAct
 }
 
 export default QuickActionsCard
-

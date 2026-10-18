@@ -256,7 +256,9 @@ export function JobFilterToolbar({
             </label>
             <select
               value={experienceLevel}
-              onChange={(e) => onExperienceLevelChange(e.target.value as 'all' | JobExperienceLevel)}
+              onChange={(e) =>
+                onExperienceLevelChange(e.target.value as 'all' | JobExperienceLevel)
+              }
               className={`w-full py-1.5 px-2.5 rounded-lg text-xs font-medium border outline-none cursor-pointer transition-colors ${
                 experienceLevel !== 'all'
                   ? 'bg-sky-50/70 border-sky-400 text-[#0A66C2] font-semibold'
@@ -326,4 +328,3 @@ export function JobFilterToolbar({
 }
 
 export default JobFilterToolbar
-

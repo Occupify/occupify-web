@@ -218,4 +218,3 @@ export function JobFilterSummary({
 }
 
 export default JobFilterSummary
-

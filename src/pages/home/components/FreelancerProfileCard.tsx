@@ -47,9 +47,7 @@ export function FreelancerProfileCard({ userName, onViewProfile }: FreelancerPro
           <CoinsIcon size={16} weight="bold" className="text-[#0A66C2]" />
           <span className="font-semibold">Lượt báo giá khả dụng</span>
         </div>
-        <span className="text-xs font-extrabold text-sky-950">
-          {connects} Connects
-        </span>
+        <span className="text-xs font-extrabold text-sky-950">{connects} Connects</span>
       </div>
 
       {/* Button to Profile */}
@@ -67,4 +65,3 @@ export function FreelancerProfileCard({ userName, onViewProfile }: FreelancerPro
 }
 
 export default FreelancerProfileCard
-

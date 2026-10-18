@@ -49,10 +49,7 @@ export function FinancialTransactionsTable({
               </tr>
             ) : (
               paginatedItems.map((item) => (
-                <tr
-                  key={item.id}
-                  className="hover:bg-slate-50/70 transition-colors group text-sm"
-                >
+                <tr key={item.id} className="hover:bg-slate-50/70 transition-colors group text-sm">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-md bg-sky-50 text-[#0A66C2] border border-sky-100/80 shadow-2xs">
                       {item.contractCode}
@@ -62,9 +59,7 @@ export function FinancialTransactionsTable({
                     <div className="font-bold text-slate-900 group-hover:text-[#0A66C2] transition-colors">
                       {item.contractName}
                     </div>
-                    <div className="text-xs text-slate-500 font-medium mt-0.5">
-                      {item.category}
-                    </div>
+                    <div className="text-xs text-slate-500 font-medium mt-0.5">{item.category}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {item.type === 'in' ? (

@@ -41,13 +41,9 @@ export function RouteErrorBoundary() {
           {errorStatus}
         </div>
 
-        <h1 className="text-xl font-bold text-[rgba(0,0,0,0.90)] mb-2">
-          Không thể tải nội dung
-        </h1>
+        <h1 className="text-xl font-bold text-[rgba(0,0,0,0.90)] mb-2">Không thể tải nội dung</h1>
 
-        <p className="text-sm text-[rgba(0,0,0,0.60)] mb-6 leading-relaxed">
-          {errorMessage}
-        </p>
+        <p className="text-sm text-[rgba(0,0,0,0.60)] mb-6 leading-relaxed">{errorMessage}</p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Button

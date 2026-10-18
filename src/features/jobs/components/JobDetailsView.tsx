@@ -119,7 +119,11 @@ export function JobDetailsView({
               onClick={onBack}
               className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-700 hover:text-[#0A66C2] bg-white hover:bg-slate-50 border border-slate-200/90 px-3.5 py-2 rounded-xl transition-all shadow-2xs cursor-pointer group"
             >
-              <ArrowLeftIcon size={16} weight="bold" className="group-hover:-translate-x-0.5 transition-transform text-slate-500 group-hover:text-[#0A66C2]" />
+              <ArrowLeftIcon
+                size={16}
+                weight="bold"
+                className="group-hover:-translate-x-0.5 transition-transform text-slate-500 group-hover:text-[#0A66C2]"
+              />
               <span>Quay lại danh sách việc làm</span>
             </button>
           </div>

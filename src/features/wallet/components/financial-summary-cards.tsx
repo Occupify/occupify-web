@@ -1,4 +1,9 @@
-import { TrendDownIcon, TrendUpIcon, ArrowUpRightIcon, ArrowDownRightIcon } from '@phosphor-icons/react'
+import {
+  TrendDownIcon,
+  TrendUpIcon,
+  ArrowUpRightIcon,
+  ArrowDownRightIcon,
+} from '@phosphor-icons/react'
 import { formatVND } from '@/utils'
 
 export interface FinancialSummaryCardsProps {

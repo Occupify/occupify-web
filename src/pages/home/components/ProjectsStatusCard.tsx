@@ -28,32 +28,20 @@ export function ProjectsStatusCard({
       <div className="flex flex-col gap-2">
         {/* Managed Projects */}
         <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-100 text-xs sm:text-[13px]">
-          <span className="text-slate-600 font-medium">
-            Dự án đã đăng (Khách hàng)
-          </span>
-          <span className="font-extrabold text-slate-900">
-            {myProjectsCount} dự án
-          </span>
+          <span className="text-slate-600 font-medium">Dự án đã đăng (Khách hàng)</span>
+          <span className="font-extrabold text-slate-900">{myProjectsCount} dự án</span>
         </div>
 
         {/* Ongoing Freelance Contracts */}
         <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-100 text-xs sm:text-[13px]">
-          <span className="text-slate-600 font-medium">
-            Hợp đồng đang thực hiện
-          </span>
-          <span className="font-extrabold text-emerald-700">
-            {employeeProjectsCount} hợp đồng
-          </span>
+          <span className="text-slate-600 font-medium">Hợp đồng đang thực hiện</span>
+          <span className="font-extrabold text-emerald-700">{employeeProjectsCount} hợp đồng</span>
         </div>
 
         {/* Pending Proposals */}
         <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-100 text-xs sm:text-[13px]">
-          <span className="text-slate-600 font-medium">
-            Báo giá / Lời mời chờ duyệt
-          </span>
-          <span className="font-extrabold text-amber-700">
-            {pendingProjectsCount} chờ phản hồi
-          </span>
+          <span className="text-slate-600 font-medium">Báo giá / Lời mời chờ duyệt</span>
+          <span className="font-extrabold text-amber-700">{pendingProjectsCount} chờ phản hồi</span>
         </div>
       </div>
 
@@ -70,4 +58,3 @@ export function ProjectsStatusCard({
 }
 
 export default ProjectsStatusCard
-

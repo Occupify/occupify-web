@@ -53,8 +53,7 @@ export function HomeHeroBanner({
       <div
         className="absolute inset-0 opacity-[0.035] pointer-events-none"
         style={{
-          backgroundImage:
-            'radial-gradient(circle at 1px 1px, #0A66C2 1px, transparent 0)',
+          backgroundImage: 'radial-gradient(circle at 1px 1px, #0A66C2 1px, transparent 0)',
           backgroundSize: '24px 24px',
         }}
       />
@@ -71,7 +70,9 @@ export function HomeHeroBanner({
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
           <BriefcaseMetalIcon size={14} weight="bold" className="text-[#0A66C2]" />
-          <span className="tracking-wide">SÀN GIAO DỊCH VIỆC LÀM FREELANCE & DỰ ÁN HỢP ĐỒNG SỐ 1</span>
+          <span className="tracking-wide">
+            SÀN GIAO DỊCH VIỆC LÀM FREELANCE & DỰ ÁN HỢP ĐỒNG SỐ 1
+          </span>
         </div>
 
         {/* Headline */}
@@ -83,8 +84,8 @@ export function HomeHeroBanner({
 
         {/* Subtitle */}
         <p className="text-sm sm:text-base text-slate-600 max-w-3xl leading-relaxed mb-6 font-normal">
-          Tiếp cận hàng trăm dự án công nghệ và thiết kế chất lượng cao, gửi báo giá cạnh tranh, ký kết
-          hợp đồng điện tử bảo chứng an toàn và nhận thanh toán bảo đảm 100% qua Escrow.
+          Tiếp cận hàng trăm dự án công nghệ và thiết kế chất lượng cao, gửi báo giá cạnh tranh, ký
+          kết hợp đồng điện tử bảo chứng an toàn và nhận thanh toán bảo đảm 100% qua Escrow.
         </p>
 
         {/* Quick Search Form - Pure white elevated box that pops distinctly */}
@@ -121,9 +122,7 @@ export function HomeHeroBanner({
 
         {/* Quick Skill Chips Bar */}
         <div className="flex items-center gap-2 flex-wrap mb-6">
-          <span className="text-xs font-bold text-slate-600 mr-1">
-            Kỹ năng đang hot:
-          </span>
+          <span className="text-xs font-bold text-slate-600 mr-1">Kỹ năng đang hot:</span>
           {POPULAR_FREELANCE_TAGS.map((tag) => {
             const isActive = searchKeyword.toLowerCase().includes(tag.query.toLowerCase())
             return (
@@ -149,36 +148,28 @@ export function HomeHeroBanner({
             <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-200/70">
               <ShieldCheckIcon size={18} weight="fill" className="text-emerald-600" />
             </div>
-            <span className="text-xs font-bold text-slate-800">
-              100% Escrow Bảo chứng
-            </span>
+            <span className="text-xs font-bold text-slate-800">100% Escrow Bảo chứng</span>
           </div>
 
           <div className="flex items-center gap-2.5 bg-white/70 backdrop-blur-xs rounded-xl p-2.5 sm:px-3 border border-sky-200/60 shadow-2xs">
             <div className="w-8 h-8 rounded-lg bg-sky-50 text-sky-700 flex items-center justify-center shrink-0 border border-sky-200/70">
               <FileTextIcon size={18} weight="fill" className="text-[#0A66C2]" />
             </div>
-            <span className="text-xs font-bold text-slate-800">
-              Hợp đồng số ký kết an toàn
-            </span>
+            <span className="text-xs font-bold text-slate-800">Hợp đồng số ký kết an toàn</span>
           </div>
 
           <div className="flex items-center gap-2.5 bg-white/70 backdrop-blur-xs rounded-xl p-2.5 sm:px-3 border border-sky-200/60 shadow-2xs">
             <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-800 flex items-center justify-center shrink-0 border border-amber-200/70">
               <ClockIcon size={18} weight="fill" className="text-amber-600" />
             </div>
-            <span className="text-xs font-bold text-slate-800">
-              Phản hồi nhanh dưới 4h
-            </span>
+            <span className="text-xs font-bold text-slate-800">Phản hồi nhanh dưới 4h</span>
           </div>
 
           <div className="flex items-center gap-2.5 bg-white/70 backdrop-blur-xs rounded-xl p-2.5 sm:px-3 border border-sky-200/60 shadow-2xs">
             <div className="w-8 h-8 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center shrink-0 border border-purple-200/70">
               <CoinsIcon size={18} weight="fill" className="text-purple-600" />
             </div>
-            <span className="text-xs font-bold text-slate-800">
-              0% Phí ẩn cho Freelancer
-            </span>
+            <span className="text-xs font-bold text-slate-800">0% Phí ẩn cho Freelancer</span>
           </div>
         </div>
       </div>
@@ -187,6 +178,3 @@ export function HomeHeroBanner({
 }
 
 export default HomeHeroBanner
-
-
-

@@ -66,4 +66,3 @@ export function WalletSummaryCard({
 }
 
 export default WalletSummaryCard
-
