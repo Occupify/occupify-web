@@ -1,7 +1,5 @@
 import { useState } from 'react'
 import { GoogleLogin, type CredentialResponse } from '@react-oauth/google'
-import { env } from '@/config/env'
-import { toast } from '@/stores'
 
 export interface GoogleButtonProps {
   onSuccess?: (credentialResponse: CredentialResponse) => void
@@ -19,21 +17,6 @@ export function GoogleButton({
   disabled = false,
 }: GoogleButtonProps) {
   const [hov, setHov] = useState(false)
-  const isClientIdConfigured = Boolean(
-    env.googleClientId &&
-      env.googleClientId.trim().length > 0 &&
-      !env.googleClientId.includes('your_google_client_id'),
-  )
-
-  const handleFallbackClick = () => {
-    if (!isClientIdConfigured) {
-      toast.error('Vui lòng cấu hình VITE_GOOGLE_CLIENT_ID trong file .env để đăng nhập Google.', {
-        title: 'Chưa cấu hình Google Client ID',
-      })
-      return
-    }
-    onClick?.()
-  }
 
   return (
     <div
@@ -47,7 +30,7 @@ export function GoogleButton({
       <button
         type="button"
         disabled={disabled}
-        onClick={handleFallbackClick}
+        onClick={onClick}
         style={{
           width: '100%',
           display: 'flex',
@@ -95,7 +78,7 @@ export function GoogleButton({
       </button>
 
       {/* Invisible GoogleLogin overlay: perfectly intercepts clicks and triggers Google's popup flow */}
-      {isClientIdConfigured && onSuccess && !disabled && (
+      {onSuccess && !disabled && (
         <div
           style={{
             position: 'absolute',
