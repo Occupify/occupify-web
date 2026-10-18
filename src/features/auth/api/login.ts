@@ -26,3 +26,16 @@ export async function loginApi(credentials: LoginCredentials): Promise<AuthRespo
   const validated = authResponseEnvelopeSchema.parse(raw)
   return validated.data
 }
+
+/**
+ * Authenticates with Google ID token against the occupify-identity service via API Gateway.
+ * Endpoint: POST /auth/google
+ */
+export async function googleLoginApi(idToken: string): Promise<AuthResponseData> {
+  const raw = await apiClient.post<SingleResponse<AuthResponseData>>('/auth/google', {
+    idToken,
+  })
+
+  const validated = authResponseEnvelopeSchema.parse(raw)
+  return validated.data
+}
