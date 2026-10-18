@@ -9,10 +9,10 @@ export interface SingleResponse<T> {
   data: T
 }
 
-export interface CreatedResponse<T> {
+export interface CreatedResponse<T = void> {
   statusCode: number
   message: string
-  data: T
+  data?: T
 }
 
 export interface SuccessResponse {

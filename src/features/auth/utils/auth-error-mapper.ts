@@ -1,4 +1,4 @@
-import { ApiError } from '@/types'
+import { ApiError } from '../../../types/api.ts'
 
 /**
  * Complete mapping of backend ErrorCodes from occupify-identity & occupify-gateway
@@ -101,6 +101,12 @@ export function getAuthErrorMessage(
   if (err instanceof Error) {
     if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
       return 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra đường truyền Internet.'
+    }
+    if (
+      err.name === 'ZodError' ||
+      (err.message.trim().startsWith('[') && err.message.includes('expected'))
+    ) {
+      return fallbackMessage
     }
     return err.message
   }
