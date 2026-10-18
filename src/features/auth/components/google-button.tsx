@@ -94,12 +94,7 @@ export function GoogleButton({
           onMouseEnter={() => setHov(true)}
           onMouseLeave={() => setHov(false)}
         >
-          <GoogleLogin
-            onSuccess={onSuccess}
-            onError={onError}
-            useOneTap={false}
-            width="400"
-          />
+          <GoogleLogin onSuccess={onSuccess} onError={onError} useOneTap={false} width="400" />
         </div>
       )}
     </div>

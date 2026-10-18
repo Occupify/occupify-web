@@ -132,11 +132,7 @@ export function AuthPanel({
           <div style={{ flex: 1, height: 1, background: '#E2E8F0' }} />
         </div>
 
-        <GoogleButton
-          onSuccess={onGoogleSuccess}
-          onClick={onGoogle}
-          label="Tiếp tục với Google"
-        />
+        <GoogleButton onSuccess={onGoogleSuccess} onClick={onGoogle} label="Tiếp tục với Google" />
 
         <p
           style={{
