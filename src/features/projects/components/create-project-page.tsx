@@ -1,6 +1,5 @@
 import * as React from 'react'
 import {
-  ArrowLeftIcon,
   CheckIcon,
   ClipboardTextIcon,
   FolderPlusIcon,
@@ -130,34 +129,6 @@ export function CreateProjectPage({ onBack, onSubmit, initialData }: CreateProje
         }}
       >
         <div style={{ maxWidth: 880, margin: '0 auto', padding: '0 20px' }}>
-          <button
-            type="button"
-            onClick={onBack}
-            style={{
-              background: 'rgba(255,255,255,0.14)',
-              border: '1px solid rgba(255,255,255,0.28)',
-              borderRadius: 8,
-              padding: '6px 14px',
-              color: '#fff',
-              fontSize: 13,
-              fontWeight: 600,
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              marginBottom: 14,
-              transition: 'background 150ms ease',
-            }}
-            onMouseEnter={(e) =>
-              ((e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.24)')
-            }
-            onMouseLeave={(e) =>
-              ((e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.14)')
-            }
-          >
-            <ArrowLeftIcon size={14} weight="bold" />
-            <span>Quay lại</span>
-          </button>
           <h1
             style={{
               color: '#fff',

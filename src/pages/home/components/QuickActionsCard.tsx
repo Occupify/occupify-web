@@ -1,4 +1,9 @@
-import { SparkleIcon, FolderPlusIcon, FileTextIcon, ArrowRightIcon } from '@phosphor-icons/react'
+import {
+  BriefcaseMetalIcon,
+  FolderPlusIcon,
+  FileTextIcon,
+  ArrowRightIcon,
+} from '@phosphor-icons/react'
 
 export interface QuickActionsCardProps {
   onCreateProject: () => void
@@ -7,155 +12,65 @@ export interface QuickActionsCardProps {
 
 export function QuickActionsCard({ onCreateProject, onCreateContract }: QuickActionsCardProps) {
   return (
-    <div
-      className="pro-card"
-      style={{
-        borderRadius: 12,
-        border: '1px solid var(--border-default)',
-        boxShadow: 'var(--shadow-card)',
-        padding: '20px',
-        background: '#fff',
-      }}
-    >
-      <div
-        style={{
-          fontSize: 15,
-          fontWeight: 800,
-          color: '#0F172A',
-          marginBottom: 16,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          letterSpacing: '-0.01em',
-        }}
-      >
-        <SparkleIcon size={16} color="#0A66C2" weight="fill" />
-        <span>Hành động nhanh</span>
+    <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs p-5">
+      <div className="text-[15px] font-extrabold text-slate-900 mb-3.5 flex items-center gap-2 tracking-tight">
+        <BriefcaseMetalIcon size={18} className="text-[#0A66C2]" weight="fill" />
+        <span>Khởi tạo & Giao việc</span>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div className="flex flex-col gap-2.5">
         {/* Create Project Button */}
         <button
           type="button"
           onClick={onCreateProject}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 12,
-            width: '100%',
-            padding: '12px 14px',
-            borderRadius: 10,
-            border: '1px solid var(--border-default)',
-            background: '#fff',
-            color: '#0F172A',
-            cursor: 'pointer',
-            textAlign: 'left',
-            transition: 'all 150ms ease',
-            boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
-          }}
-          onMouseEnter={(e) => {
-            const el = e.currentTarget as HTMLElement
-            el.style.borderColor = '#0A66C2'
-            el.style.background = '#F8FAFC'
-            el.style.transform = 'translateY(-1px)'
-          }}
-          onMouseLeave={(e) => {
-            const el = e.currentTarget as HTMLElement
-            el.style.borderColor = 'var(--border-default)'
-            el.style.background = '#fff'
-            el.style.transform = 'none'
-          }}
+          className="group flex items-center justify-between gap-3 w-full p-3 rounded-xl border border-slate-200 hover:border-[#0A66C2] bg-white hover:bg-slate-50/80 transition-all cursor-pointer text-left shadow-2xs hover:shadow-xs"
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 8,
-                background: '#EFF6FF',
-                color: '#0A66C2',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              <FolderPlusIcon size={19} weight="bold" />
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 rounded-lg bg-sky-50 text-[#0A66C2] flex items-center justify-center shrink-0 border border-sky-100">
+              <FolderPlusIcon size={18} weight="bold" />
             </div>
-            <div>
-              <div style={{ fontSize: 13.5, fontWeight: 700, color: '#0F172A' }}>
-                + Đăng tin tuyển dụng / Dự án
+            <div className="min-w-0">
+              <div className="text-[13px] font-bold text-slate-900 group-hover:text-[#0A66C2] transition-colors truncate">
+                Đăng dự án tìm Freelancer
               </div>
-              <div style={{ fontSize: 11.5, color: '#64748B', marginTop: 1 }}>
-                Tìm nhân sự hoặc quản trị team
+              <div className="text-[11px] text-slate-500 mt-0.5 truncate">
+                Nhận báo giá từ các chuyên gia hàng đầu
               </div>
             </div>
           </div>
-          <ArrowRightIcon size={14} color="#94A3B8" />
+          <ArrowRightIcon
+            size={14}
+            className="text-slate-400 group-hover:text-[#0A66C2] group-hover:translate-x-0.5 transition-all shrink-0"
+          />
         </button>
 
         {/* Create Contract Button */}
         <button
           type="button"
           onClick={onCreateContract}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 12,
-            width: '100%',
-            padding: '12px 14px',
-            borderRadius: 10,
-            border: '1px solid var(--border-default)',
-            background: '#fff',
-            color: '#0F172A',
-            cursor: 'pointer',
-            textAlign: 'left',
-            transition: 'all 150ms ease',
-            boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
-          }}
-          onMouseEnter={(e) => {
-            const el = e.currentTarget as HTMLElement
-            el.style.borderColor = '#059669'
-            el.style.background = '#F8FAFC'
-            el.style.transform = 'translateY(-1px)'
-          }}
-          onMouseLeave={(e) => {
-            const el = e.currentTarget as HTMLElement
-            el.style.borderColor = 'var(--border-default)'
-            el.style.background = '#fff'
-            el.style.transform = 'none'
-          }}
+          className="group flex items-center justify-between gap-3 w-full p-3 rounded-xl border border-slate-200 hover:border-emerald-600 bg-white hover:bg-slate-50/80 transition-all cursor-pointer text-left shadow-2xs hover:shadow-xs"
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 8,
-                background: '#ECFDF5',
-                color: '#059669',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              <FileTextIcon size={19} weight="bold" />
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-100">
+              <FileTextIcon size={18} weight="bold" />
             </div>
-            <div>
-              <div style={{ fontSize: 13.5, fontWeight: 700, color: '#0F172A' }}>
-                + Soạn thảo hợp đồng
+            <div className="min-w-0">
+              <div className="text-[13px] font-bold text-slate-900 group-hover:text-emerald-700 transition-colors truncate">
+                Soạn hợp đồng Escrow
               </div>
-              <div style={{ fontSize: 11.5, color: '#64748B', marginTop: 1 }}>
-                Mời freelancer & thiết lập điều khoản giao việc
+              <div className="text-[11px] text-slate-500 mt-0.5 truncate">
+                Ký kết bảo chứng & phân rã mốc bàn giao
               </div>
             </div>
           </div>
-          <ArrowRightIcon size={14} color="#94A3B8" />
+          <ArrowRightIcon
+            size={14}
+            className="text-slate-400 group-hover:text-emerald-700 group-hover:translate-x-0.5 transition-all shrink-0"
+          />
         </button>
       </div>
     </div>
   )
 }
+
+export default QuickActionsCard

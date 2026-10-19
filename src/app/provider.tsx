@@ -1,8 +1,10 @@
 import React, { Suspense, useEffect } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 import { ToastContainer } from '@/components/feedback'
 import { toast } from '@/stores'
 import { ApiError } from '@/types'
+import { env } from '@/config/env'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,11 +39,13 @@ export function AppProvider({ children }: AppProviderProps) {
   }, [])
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <Suspense fallback={<div style={{ padding: '20px' }}>Loading...</div>}>
-        {children}
-        <ToastContainer position="bottom-right" />
-      </Suspense>
-    </QueryClientProvider>
+    <GoogleOAuthProvider clientId={env.googleClientId || ''}>
+      <QueryClientProvider client={queryClient}>
+        <Suspense fallback={<div style={{ padding: '20px' }}>Loading...</div>}>
+          {children}
+          <ToastContainer position="bottom-right" />
+        </Suspense>
+      </QueryClientProvider>
+    </GoogleOAuthProvider>
   )
 }

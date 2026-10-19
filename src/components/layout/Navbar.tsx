@@ -356,7 +356,11 @@ export function Navbar({
                   type="button"
                   onClick={() => {
                     setMenuOpen(false)
-                    onOpenWallet?.()
+                    if (onOpenWallet) {
+                      onOpenWallet()
+                    } else {
+                      navigate('/wallet')
+                    }
                   }}
                   style={{
                     display: 'flex',
@@ -391,7 +395,11 @@ export function Navbar({
                   type="button"
                   onClick={() => {
                     setMenuOpen(false)
-                    onOpenFinancialHistory?.()
+                    if (onOpenFinancialHistory) {
+                      onOpenFinancialHistory()
+                    } else {
+                      navigate('/financial-history')
+                    }
                   }}
                   style={{
                     display: 'flex',

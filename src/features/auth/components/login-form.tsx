@@ -1,4 +1,5 @@
 import * as React from 'react'
+import type { CredentialResponse } from '@react-oauth/google'
 import { AuthInput } from './auth-input'
 import { GoogleButton } from './google-button'
 import { useLogin, useGoogleLogin } from '../hooks'
@@ -43,9 +44,14 @@ export function LoginForm({ onSuccess, onGoogle, onSignUp }: LoginFormProps) {
     }
   }
 
-  const handleGoogle = async () => {
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+    if (!credentialResponse.credential) {
+      setError('Không nhận được thông tin xác thực từ Google.')
+      return
+    }
     try {
-      await googleLoginMutation.mutateAsync()
+      setError(null)
+      await googleLoginMutation.mutateAsync(credentialResponse.credential)
       if (onGoogle) {
         onGoogle()
       } else if (onSuccess) {
@@ -54,6 +60,10 @@ export function LoginForm({ onSuccess, onGoogle, onSignUp }: LoginFormProps) {
     } catch (err: unknown) {
       setError(getAuthErrorMessage(err, 'Đăng nhập bằng Google không thành công.'))
     }
+  }
+
+  const handleGoogleError = () => {
+    setError('Đăng nhập bằng Google không thành công hoặc đã bị hủy.')
   }
 
   const isLoading = loginMutation.isPending || googleLoginMutation.isPending
@@ -219,7 +229,12 @@ export function LoginForm({ onSuccess, onGoogle, onSignUp }: LoginFormProps) {
         <div style={{ flex: 1, height: 1, background: '#E2E8F0' }} />
       </div>
 
-      <GoogleButton onClick={handleGoogle} label="Tiếp tục với Google" />
+      <GoogleButton
+        onSuccess={handleGoogleSuccess}
+        onError={handleGoogleError}
+        label="Tiếp tục với Google"
+        disabled={isLoading}
+      />
 
       {/* Sign-up link */}
       <p

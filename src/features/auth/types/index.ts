@@ -13,7 +13,7 @@ export interface AuthUser {
   status: string
   createdAt?: string
   fullName?: string
-  avatarUrl?: string
+  avatarUrl?: string | null
 }
 
 export interface UserProfile extends AuthUser {

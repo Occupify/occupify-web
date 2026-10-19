@@ -1,0 +1,87 @@
+name: CD - Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: cd-production
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build Frontend Bundle
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build production bundle
+        env:
+          VITE_APP_NAME: Occupify
+          VITE_APP_ENV: production
+          VITE_APP_PORT: '3000'
+          VITE_API_BASE_URL: http://140.245.47.21
+        run: pnpm run build
+
+      - name: Upload compiled bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-bundle
+          path: dist/
+          retention-days: 1
+  deploy:
+    name: Deploy to Production VM
+    needs: build
+    runs-on: self-hosted
+
+    steps:
+      - name: Download compiled bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-bundle
+          path: ./temp-dist
+
+      - name: Atomic Deploy & Release Rotation
+        run: |
+          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+          APP_DIR="/var/www/occupify-web"
+          RELEASE_DIR="$APP_DIR/releases/$TIMESTAMP"
+          CURRENT_LINK="$APP_DIR/current"
+
+          echo "Creating new release directory: $RELEASE_DIR"
+          mkdir -p "$RELEASE_DIR"
+
+          echo "Moving compiled assets to release directory..."
+          cp -r ./temp-dist/* "$RELEASE_DIR/"
+          rm -rf ./temp-dist
+
+          echo "Carrying forward previous hashed chunks (Anti-ChunkLoadError)..."
+          if [ -L "$CURRENT_LINK" ] && [ -d "$CURRENT_LINK/assets" ]; then
+              cp -rn "$CURRENT_LINK/assets"/* "$RELEASE_DIR/assets/" 2>/dev/null || true
+          fi
+
+          echo "Atomically switching symlink to new release..."
+          ln -sfn "$RELEASE_DIR" "$CURRENT_LINK"
+
+          echo "Pruning old releases (keeping latest 5)..."
+          cd "$APP_DIR/releases" && ls -1tr | head -n -5 | xargs -d '\n' rm -rf -- 2>/dev/null || true
+
+          echo "Release $TIMESTAMP deployed successfully!"

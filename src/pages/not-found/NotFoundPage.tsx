@@ -13,7 +13,7 @@ export function NotFoundPage() {
       <h1 style={{ fontSize: '32px', fontWeight: 'bold' }}>404</h1>
       <p style={{ color: '#64748B', margin: '8px 0 16px' }}>Trang không tồn tại.</p>
       <Link to="/" style={{ color: '#0A66C2', textDecoration: 'underline' }}>
-        Quay lại trang chủ
+        Khám phá Trang chủ Occupify
       </Link>
     </div>
   )

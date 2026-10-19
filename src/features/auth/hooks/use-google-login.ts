@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { MOCK_AUTH_TOKENS } from '../api/login'
+import { googleLoginApi } from '../api/login'
 import { useAuthStore } from '@/stores'
 import { AUTH_QUERY_KEYS } from './use-current-user'
-import type { AuthTokens } from '../types'
+import type { AuthResponseData } from '../types'
 
 /**
  * Mutation hook for Google authentication.
@@ -13,13 +13,10 @@ export function useGoogleLogin() {
   const queryClient = useQueryClient()
   const setTokens = useAuthStore((state) => state.setTokens)
 
-  return useMutation<AuthTokens, Error, void>({
-    mutationFn: async () => {
-      // Prototype placeholder; will integrate with backend OAuth endpoint when ready
-      return MOCK_AUTH_TOKENS
-    },
-    onSuccess: (tokens) => {
-      setTokens(tokens.accessToken, tokens.refreshToken)
+  return useMutation<AuthResponseData, Error, string>({
+    mutationFn: (idToken: string) => googleLoginApi(idToken),
+    onSuccess: (data) => {
+      setTokens(data.accessToken, data.refreshToken, data.user)
       queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.all })
     },
   })

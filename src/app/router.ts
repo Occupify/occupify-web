@@ -1,6 +1,7 @@
 import { createElement, lazy } from 'react'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { UserLayout } from '@/components/layout'
+import { RouteErrorBoundary } from '@/components/feedback'
 
 const LandingPage = lazy(() => import('@/pages/landing'))
 const LoginPage = lazy(() => import('@/pages/login'))
@@ -13,28 +14,35 @@ const SavedPage = lazy(() => import('@/pages/saved'))
 const NotificationsPage = lazy(() => import('@/pages/notifications'))
 const ProfilePage = lazy(() => import('@/pages/profile'))
 const AdminPage = lazy(() => import('@/pages/admin'))
+const MyWalletPage = lazy(() => import('@/pages/wallet'))
+const FinancialHistoryPage = lazy(() => import('@/pages/financial-history'))
 
 export const router = createBrowserRouter([
   // Standalone public entry / authentication views
   {
     path: '/',
     Component: LandingPage,
+    ErrorBoundary: RouteErrorBoundary,
   },
   {
     path: '/admin',
     Component: AdminPage,
+    ErrorBoundary: RouteErrorBoundary,
   },
   {
     path: '/login',
     Component: LoginPage,
+    ErrorBoundary: RouteErrorBoundary,
   },
   {
     path: '/signup',
     Component: SignUpPage,
+    ErrorBoundary: RouteErrorBoundary,
   },
   // Main authenticated application routes with persistent UserLayout & Navigation Bar
   {
     element: createElement(UserLayout),
+    ErrorBoundary: RouteErrorBoundary,
     children: [
       {
         path: 'home',
@@ -47,6 +55,14 @@ export const router = createBrowserRouter([
       {
         path: 'profile',
         Component: ProfilePage,
+      },
+      {
+        path: 'wallet',
+        Component: MyWalletPage,
+      },
+      {
+        path: 'financial-history',
+        Component: FinancialHistoryPage,
       },
       {
         path: 'workspace',
@@ -78,5 +94,6 @@ export const router = createBrowserRouter([
   {
     path: '/design',
     Component: DesignPage,
+    ErrorBoundary: RouteErrorBoundary,
   },
 ])

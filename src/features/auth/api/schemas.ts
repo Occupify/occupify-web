@@ -6,6 +6,8 @@ export const authUserSchema = z.object({
   role: z.string(),
   status: z.string(),
   createdAt: z.string().optional(),
+  fullName: z.string().optional(),
+  avatarUrl: z.string().optional().nullable(),
 })
 
 export const authResponseDataSchema = z.object({
@@ -27,10 +29,22 @@ export const authResponseEnvelopeSchema = z.object({
   data: authResponseDataSchema,
 })
 
+export const createdResponseEnvelopeSchema = z.object({
+  statusCode: z.number(),
+  message: z.string(),
+  data: z.any().optional().nullable(),
+})
+
+export const registerResponseEnvelopeSchema = z.object({
+  statusCode: z.number(),
+  message: z.string(),
+  data: authUserSchema.optional().nullable(),
+})
+
 export const userResponseEnvelopeSchema = z.object({
   statusCode: z.number(),
   message: z.string(),
-  data: authUserSchema,
+  data: authUserSchema.optional().nullable(),
 })
 
 export const successResponseEnvelopeSchema = z.object({

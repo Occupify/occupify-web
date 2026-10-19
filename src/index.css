@@ -17,29 +17,29 @@
   --color-primary-900: #021f3d;
 
   /* =========================================================================
-     Surfaces & Canvas (Warm Beige signature vs cold enterprise gray)
+     Surfaces & Canvas (Clean Crisp Modern Slate - Freelance Marketplace)
      ========================================================================= */
-  --bg-base: #f4f2ee; /* Canvas warm beige */
-  --bg-subtle: #fafaf8; /* Subtle sidebar / light section */
+  --bg-base: #f8fafc; /* Clean crisp modern slate */
+  --bg-subtle: #f1f5f9; /* Subtle sidebar / light section */
   --bg-elevated: #ffffff; /* Cards, modals, dropdown panels */
-  --bg-overlay: rgba(0, 0, 0, 0.55); /* Modal scrim backdrop */
+  --bg-overlay: rgba(15, 23, 42, 0.6); /* Modal scrim backdrop */
 
   /* =========================================================================
      Text - High Contrast & Hierarchy
      ========================================================================= */
-  --text-primary: rgba(0, 0, 0, 0.9);
-  --text-secondary: rgba(0, 0, 0, 0.6);
-  --text-tertiary: rgba(0, 0, 0, 0.45);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #94a3b8;
   --text-link: #0a66c2;
   --text-on-primary: #ffffff;
-  --text-disabled: rgba(0, 0, 0, 0.3);
+  --text-disabled: #cbd5e1;
 
   /* =========================================================================
      Borders
      ========================================================================= */
-  --border-default: rgba(0, 0, 0, 0.08); /* Card separators, dividers */
-  --border-subtle: rgba(0, 0, 0, 0.04); /* Low-emphasis separators */
-  --border-strong: rgba(0, 0, 0, 0.15); /* Input borders, modals */
+  --border-default: #e2e8f0; /* Card separators, dividers */
+  --border-subtle: #f1f5f9; /* Low-emphasis separators */
+  --border-strong: #cbd5e1; /* Input borders, modals */
   --border-focus: #0a66c2; /* Focus ring */
 
   /* =========================================================================

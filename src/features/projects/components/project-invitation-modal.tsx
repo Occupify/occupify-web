@@ -209,7 +209,7 @@ export function ProjectInvitationModal({
                   onClick={() => setShowRejectForm(false)}
                   className="cursor-pointer text-xs font-semibold !text-[var(--text-secondary)] hover:!text-[var(--text-primary)]"
                 >
-                  Quay lại
+                  Hủy
                 </button>
                 <button
                   type="button"
