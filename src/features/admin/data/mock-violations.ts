@@ -8,8 +8,7 @@ export const ADMIN_VIOLATIONS_DATA: AdminViolation[] = [
     category: 'Tài khoản',
     time: '14/09/2026 14:15',
     status: 'Chờ xử lý',
-    reason:
-      'Tài khoản liên tục spam tin nhắn quảng cáo không liên quan vào các dự án và nhóm.',
+    reason: 'Tài khoản liên tục spam tin nhắn quảng cáo không liên quan vào các dự án và nhóm.',
     evidence:
       'Tài khoản @tiendung_vn đã gửi 150+ tin nhắn spam trong 48 giờ cho nhiều freelancer và client. Nội dung là quảng cáo dịch vụ bên ngoài platform.',
   },
@@ -20,8 +19,7 @@ export const ADMIN_VIOLATIONS_DATA: AdminViolation[] = [
     category: 'Dự án',
     time: '13/09/2026 11:00',
     status: 'Đã giải quyết',
-    reason:
-      'Client từ chối thanh toán sau khi nhận kết quả, vi phạm điều khoản hợp đồng.',
+    reason: 'Client từ chối thanh toán sau khi nhận kết quả, vi phạm điều khoản hợp đồng.',
     evidence:
       'Hợp đồng #HD-8431 đã bị hủy đơn phương bởi client sau khi freelancer giao sản phẩm hoàn chỉnh. Client không cung cấp lý do hợp lệ.',
   },
@@ -32,8 +30,7 @@ export const ADMIN_VIOLATIONS_DATA: AdminViolation[] = [
     category: 'Tài khoản',
     time: '10/09/2026 16:30',
     status: 'Chờ xử lý',
-    reason:
-      'Tài khoản sử dụng portfolio người khác để đăng ký dự án, vi phạm bản quyền.',
+    reason: 'Tài khoản sử dụng portfolio người khác để đăng ký dự án, vi phạm bản quyền.',
     evidence:
       'Người dùng @lananh_designer đã tải lên 12 ảnh thiết kế của Dribbble user khác và tuyên bố là sản phẩm của mình khi nộp hồ sơ cho 5 dự án thiết kế khác nhau.',
   },

@@ -8,11 +8,7 @@ interface ProjectDetailModalProps {
   onDeleteClick: (project: AdminProject) => void
 }
 
-export function ProjectDetailModal({
-  project,
-  onClose,
-  onDeleteClick,
-}: ProjectDetailModalProps) {
+export function ProjectDetailModal({ project, onClose, onDeleteClick }: ProjectDetailModalProps) {
   if (!project) return null
 
   return (

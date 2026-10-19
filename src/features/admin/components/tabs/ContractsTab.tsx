@@ -54,18 +54,14 @@ export function ContractsTab({
           <div className="text-xs font-semibold text-black/55 uppercase tracking-wide">
             Đang thực hiện
           </div>
-          <div className="mt-1.5 text-[26px] font-extrabold text-[#057642]">
-            {inProgressCount}
-          </div>
+          <div className="mt-1.5 text-[26px] font-extrabold text-[#057642]">{inProgressCount}</div>
         </div>
 
         <div className="rounded-xl border border-black/8 bg-white p-4 shadow-xs">
           <div className="text-xs font-semibold text-black/55 uppercase tracking-wide">
             Hoàn thành giải ngân
           </div>
-          <div className="mt-1.5 text-[26px] font-extrabold text-[#137333]">
-            {completedCount}
-          </div>
+          <div className="mt-1.5 text-[26px] font-extrabold text-[#137333]">{completedCount}</div>
         </div>
       </div>
 
@@ -163,9 +159,7 @@ export function ContractsTab({
                         >
                           {c.freelancer.initials}
                         </div>
-                        <span className="font-semibold text-black/80">
-                          {c.freelancer.name}
-                        </span>
+                        <span className="font-semibold text-black/80">{c.freelancer.name}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3 font-bold text-[#057642]">{c.payment}</td>

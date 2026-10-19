@@ -91,11 +91,7 @@ export function AdminSidebar({
                   : 'text-black/70 hover:bg-[#FAFAF8] hover:text-black/90'
               }`}
             >
-              <Icon
-                size={18}
-                weight={isActive ? 'fill' : 'regular'}
-                className="shrink-0"
-              />
+              <Icon size={18} weight={isActive ? 'fill' : 'regular'} className="shrink-0" />
               <span className="flex-1 truncate">{label}</span>
               {badge !== null && badge > 0 && (
                 <span
@@ -116,12 +112,8 @@ export function AdminSidebar({
             AD
           </div>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-bold text-black/90">
-              Quản trị viên
-            </div>
-            <div className="truncate text-[11px] text-black/45">
-              admin@occupify.vn
-            </div>
+            <div className="truncate text-sm font-bold text-black/90">Quản trị viên</div>
+            <div className="truncate text-[11px] text-black/45">admin@occupify.vn</div>
           </div>
         </div>
 

@@ -6,13 +6,7 @@ import {
   ADMIN_CONTRACTS_DATA,
   ADMIN_VIOLATIONS_DATA,
 } from '../data'
-import type {
-  AdminUser,
-  AdminProject,
-  AdminContract,
-  AdminViolation,
-  AdminTabId,
-} from '../types'
+import type { AdminUser, AdminProject, AdminContract, AdminViolation, AdminTabId } from '../types'
 
 const ROWS_PER_PAGE = 8
 
@@ -29,20 +23,29 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null)
   const [deleteReason, setDeleteReason] = useState('')
 
-  const setActiveNav = useCallback((tab: AdminTabId) => {
-    setActiveNavState(tab)
-    setUserCurrentPage(1)
-  }, [setUserCurrentPage])
+  const setActiveNav = useCallback(
+    (tab: AdminTabId) => {
+      setActiveNavState(tab)
+      setUserCurrentPage(1)
+    },
+    [setUserCurrentPage],
+  )
 
-  const setUserSearch = useCallback((val: string) => {
-    setUserSearchState(val)
-    setUserCurrentPage(1)
-  }, [setUserCurrentPage])
+  const setUserSearch = useCallback(
+    (val: string) => {
+      setUserSearchState(val)
+      setUserCurrentPage(1)
+    },
+    [setUserCurrentPage],
+  )
 
-  const setUserStatusFilter = useCallback((val: string) => {
-    setUserStatusFilterState(val)
-    setUserCurrentPage(1)
-  }, [setUserCurrentPage])
+  const setUserStatusFilter = useCallback(
+    (val: string) => {
+      setUserStatusFilterState(val)
+      setUserCurrentPage(1)
+    },
+    [setUserCurrentPage],
+  )
 
   const flaggedUsersCount = useMemo(
     () => users.filter((u) => u.status === 'Bị gắn cờ').length,
@@ -117,8 +120,7 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
         !userSearch.trim() ||
         u.name.toLowerCase().includes(userSearch.toLowerCase()) ||
         u.email.toLowerCase().includes(userSearch.toLowerCase())
-      const matchStatus =
-        userStatusFilter === 'Tất cả' || u.status === userStatusFilter
+      const matchStatus = userStatusFilter === 'Tất cả' || u.status === userStatusFilter
       return matchSearch && matchStatus
     })
   }, [users, userSearch, userStatusFilter])
@@ -138,8 +140,7 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
   const [projectSearch, setProjectSearch] = useState('')
   const [projectStatusFilter, setProjectStatusFilter] = useState('Tất cả')
   const [projectDetail, setProjectDetail] = useState<AdminProject | null>(null)
-  const [projectDeleteTarget, setProjectDeleteTarget] =
-    useState<AdminProject | null>(null)
+  const [projectDeleteTarget, setProjectDeleteTarget] = useState<AdminProject | null>(null)
   const [projectDeleteReason, setProjectDeleteReason] = useState('')
 
   const hiringProjectsCount = useMemo(
@@ -169,11 +170,8 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
     const q = projectSearch.toLowerCase().trim()
     return projects.filter((p) => {
       const matchQ =
-        !q ||
-        p.title.toLowerCase().includes(q) ||
-        p.owner.name.toLowerCase().includes(q)
-      const matchS =
-        projectStatusFilter === 'Tất cả' || p.status === projectStatusFilter
+        !q || p.title.toLowerCase().includes(q) || p.owner.name.toLowerCase().includes(q)
+      const matchS = projectStatusFilter === 'Tất cả' || p.status === projectStatusFilter
       return matchQ && matchS
     })
   }, [projects, projectSearch, projectStatusFilter])
@@ -182,8 +180,7 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
   const [contracts] = useState<AdminContract[]>(ADMIN_CONTRACTS_DATA)
   const [contractSearch, setContractSearch] = useState('')
   const [contractStatusFilter, setContractStatusFilter] = useState('Tất cả')
-  const [selectedContractDetail, setSelectedContractDetail] =
-    useState<AdminContract | null>(null)
+  const [selectedContractDetail, setSelectedContractDetail] = useState<AdminContract | null>(null)
 
   const totalContractsCount = useMemo(() => contracts.length, [contracts])
   const inProgressContractsCount = useMemo(
@@ -204,22 +201,17 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
         c.project.toLowerCase().includes(q) ||
         c.client.name.toLowerCase().includes(q) ||
         c.freelancer.name.toLowerCase().includes(q)
-      const matchS =
-        contractStatusFilter === 'Tất cả' || c.status === contractStatusFilter
+      const matchS = contractStatusFilter === 'Tất cả' || c.status === contractStatusFilter
       return matchQ && matchS
     })
   }, [contracts, contractSearch, contractStatusFilter])
 
   // ── 4. VIOLATIONS DOMAIN ────────────────────────────────────────────────────
-  const [violations, setViolations] =
-    useState<AdminViolation[]>(ADMIN_VIOLATIONS_DATA)
+  const [violations, setViolations] = useState<AdminViolation[]>(ADMIN_VIOLATIONS_DATA)
   const [violationSearch, setViolationSearch] = useState('')
-  const [violationCategoryFilter, setViolationCategoryFilter] =
-    useState('Tất cả')
+  const [violationCategoryFilter, setViolationCategoryFilter] = useState('Tất cả')
   const [violationStatusFilter, setViolationStatusFilter] = useState('Tất cả')
-  const [evidenceTarget, setEvidenceTarget] = useState<AdminViolation | null>(
-    null,
-  )
+  const [evidenceTarget, setEvidenceTarget] = useState<AdminViolation | null>(null)
 
   const pendingViolationsCount = useMemo(
     () => violations.filter((v) => v.status === 'Chờ xử lý').length,
@@ -227,17 +219,13 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
   )
 
   const handleRejectViolation = useCallback((id: string) => {
-    setViolations((prev) =>
-      prev.map((v) => (v.id === id ? { ...v, status: 'Đã bác bỏ' } : v)),
-    )
+    setViolations((prev) => prev.map((v) => (v.id === id ? { ...v, status: 'Đã bác bỏ' } : v)))
     setEvidenceTarget(null)
     toast.success('Đã bác bỏ báo cáo vi phạm!')
   }, [])
 
   const handleResolveViolation = useCallback((id: string) => {
-    setViolations((prev) =>
-      prev.map((v) => (v.id === id ? { ...v, status: 'Đã giải quyết' } : v)),
-    )
+    setViolations((prev) => prev.map((v) => (v.id === id ? { ...v, status: 'Đã giải quyết' } : v)))
     setEvidenceTarget(null)
     toast.success('Đã xử lý vi phạm thành công!')
   }, [])
@@ -251,18 +239,11 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
         v.reporter.name.toLowerCase().includes(q) ||
         v.target.toLowerCase().includes(q)
       const matchCat =
-        violationCategoryFilter === 'Tất cả' ||
-        v.category === violationCategoryFilter
-      const matchStatus =
-        violationStatusFilter === 'Tất cả' || v.status === violationStatusFilter
+        violationCategoryFilter === 'Tất cả' || v.category === violationCategoryFilter
+      const matchStatus = violationStatusFilter === 'Tất cả' || v.status === violationStatusFilter
       return matchQ && matchCat && matchStatus
     })
-  }, [
-    violations,
-    violationSearch,
-    violationCategoryFilter,
-    violationStatusFilter,
-  ])
+  }, [violations, violationSearch, violationCategoryFilter, violationStatusFilter])
 
   return {
     // Nav

@@ -36,8 +36,8 @@ export function ProjectDeleteModal({
             <h3 className="text-lg font-bold text-black/90">Xác nhận gỡ bỏ dự án</h3>
             <p className="mt-1 text-xs leading-relaxed text-black/60">
               Bạn đang gỡ dự án{' '}
-              <strong className="text-black/90 font-bold">"{project.title}"</strong>{' '}
-              khỏi nền tảng do vi phạm.
+              <strong className="text-black/90 font-bold">"{project.title}"</strong> khỏi nền tảng
+              do vi phạm.
             </p>
           </div>
         </div>

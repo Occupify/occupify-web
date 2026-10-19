@@ -1,4 +1,3 @@
-
 interface AdminPaginationProps {
   currentPage: number
   totalPages: number

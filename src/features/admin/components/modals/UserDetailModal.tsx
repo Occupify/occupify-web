@@ -119,17 +119,13 @@ export function UserDetailModal({
                 <div className="text-[10.5px] font-bold uppercase tracking-wider text-[#166534]">
                   Tiền vào
                 </div>
-                <div className="mt-0.5 text-sm font-extrabold text-[#15803D]">
-                  {user.moneyIn}
-                </div>
+                <div className="mt-0.5 text-sm font-extrabold text-[#15803D]">{user.moneyIn}</div>
               </div>
               <div className="rounded-lg border border-[#FEE2E2] bg-[#FEF2F2] p-2.5">
                 <div className="text-[10.5px] font-bold uppercase tracking-wider text-[#991B1B]">
                   Tiền ra
                 </div>
-                <div className="mt-0.5 text-sm font-extrabold text-[#B91C1C]">
-                  {user.moneyOut}
-                </div>
+                <div className="mt-0.5 text-sm font-extrabold text-[#B91C1C]">{user.moneyOut}</div>
               </div>
             </div>
 
@@ -167,9 +163,7 @@ export function UserDetailModal({
                     key={item.id}
                     className="flex flex-col gap-1.5 rounded-lg border border-black/6 bg-white p-3 shadow-xs"
                   >
-                    <div className="text-xs font-bold text-black/90 line-clamp-2">
-                      {item.title}
-                    </div>
+                    <div className="text-xs font-bold text-black/90 line-clamp-2">{item.title}</div>
                     <div className="flex items-center justify-between text-[11px]">
                       <span className="text-black/45">{item.date}</span>
                       <span
@@ -205,9 +199,7 @@ export function UserDetailModal({
               type="button"
               onClick={() => onToggleLock(user.id)}
               className={`rounded-full px-5 py-2 text-xs font-bold text-white transition-colors ${
-                isLocked
-                  ? 'bg-[#057642] hover:bg-[#046237]'
-                  : 'bg-[#B06000] hover:bg-[#965200]'
+                isLocked ? 'bg-[#057642] hover:bg-[#046237]' : 'bg-[#B06000] hover:bg-[#965200]'
               }`}
             >
               {isLocked ? 'Mở khóa tài khoản' : 'Khóa tài khoản'}

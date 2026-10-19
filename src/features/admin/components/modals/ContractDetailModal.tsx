@@ -7,10 +7,7 @@ interface ContractDetailModalProps {
   onClose: () => void
 }
 
-export function ContractDetailModal({
-  contract,
-  onClose,
-}: ContractDetailModalProps) {
+export function ContractDetailModal({ contract, onClose }: ContractDetailModalProps) {
   if (!contract) return null
 
   return (

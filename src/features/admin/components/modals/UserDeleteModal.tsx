@@ -36,7 +36,8 @@ export function UserDeleteModal({
             <h3 className="text-lg font-bold text-black/90">Xác nhận xóa tài khoản</h3>
             <p className="mt-1 text-xs leading-relaxed text-black/60">
               Bạn đang xóa vĩnh viễn tài khoản của{' '}
-              <strong className="text-black/90 font-bold">{user.name}</strong>. Hành động này không thể hoàn tác.
+              <strong className="text-black/90 font-bold">{user.name}</strong>. Hành động này không
+              thể hoàn tác.
             </p>
           </div>
         </div>

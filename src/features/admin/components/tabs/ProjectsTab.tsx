@@ -38,11 +38,10 @@ export function ProjectsTab({
     <div>
       {/* Page Header */}
       <div className="mb-5">
-        <h1 className="text-2xl font-extrabold tracking-[-0.02em] text-black/90">
-          Quản lý dự án
-        </h1>
+        <h1 className="text-2xl font-extrabold tracking-[-0.02em] text-black/90">Quản lý dự án</h1>
         <p className="mt-1 text-sm text-black/60">
-          Kiểm duyệt dự án đăng tuyển, kiểm tra danh sách người tham gia và loại bỏ các dự án vi phạm chính sách
+          Kiểm duyệt dự án đăng tuyển, kiểm tra danh sách người tham gia và loại bỏ các dự án vi
+          phạm chính sách
         </p>
       </div>
 
@@ -134,9 +133,7 @@ export function ProjectsTab({
                         >
                           {p.owner.initials}
                         </div>
-                        <span className="font-semibold text-black/80 truncate">
-                          {p.owner.name}
-                        </span>
+                        <span className="font-semibold text-black/80 truncate">{p.owner.name}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3">

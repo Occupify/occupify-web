@@ -73,9 +73,7 @@ export function ViolationDetailModal({
 
           {/* Reason highlight */}
           <div className="rounded-lg border border-[#F2C94C]/40 bg-[#FFF4D6] p-3.5 text-[#915907]">
-            <span className="font-bold text-[11.5px] uppercase tracking-wide">
-              Lý do báo cáo:
-            </span>
+            <span className="font-bold text-[11.5px] uppercase tracking-wide">Lý do báo cáo:</span>
             <p className="mt-1 leading-relaxed">{violation.reason}</p>
           </div>
 
