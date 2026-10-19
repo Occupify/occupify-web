@@ -50,7 +50,7 @@ jobs:
   deploy:
     name: Deploy to Production VM
     needs: build
-    runs-on: self-hosted
+    runs-on: [self-hosted, web]
 
     steps:
       - name: Download compiled bundle
