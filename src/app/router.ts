@@ -12,12 +12,17 @@ const WorkspacePage = lazy(() => import('@/pages/workspace'))
 const SavedPage = lazy(() => import('@/pages/saved'))
 const NotificationsPage = lazy(() => import('@/pages/notifications'))
 const ProfilePage = lazy(() => import('@/pages/profile'))
+const AdminPage = lazy(() => import('@/pages/admin'))
 
 export const router = createBrowserRouter([
   // Standalone public entry / authentication views
   {
     path: '/',
     Component: LandingPage,
+  },
+  {
+    path: '/admin',
+    Component: AdminPage,
   },
   {
     path: '/login',
