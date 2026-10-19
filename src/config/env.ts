@@ -9,6 +9,7 @@ export const env = {
     'development' | 'staging' | 'production',
   appPort: Number(getEnvVar('VITE_APP_PORT', '3000')),
   apiBaseUrl: getEnvVar('VITE_API_BASE_URL', 'http://localhost:8180'),
+  googleClientId: getEnvVar('VITE_GOOGLE_CLIENT_ID', ''),
 } as const
 
 export type ConfigEnv = typeof env

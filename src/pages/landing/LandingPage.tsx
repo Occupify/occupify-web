@@ -1,6 +1,10 @@
 import * as React from 'react'
 import { useNavigate } from 'react-router-dom'
+import type { CredentialResponse } from '@react-oauth/google'
 import { BrandPanel, AuthPanel } from './components'
+import { useGoogleLogin } from '@/features/auth/hooks'
+import { getAuthErrorMessage } from '@/features/auth/utils'
+import { toast } from '@/stores'
 
 export interface LandingPageProps {
   onLogin?: () => void
@@ -17,6 +21,7 @@ export interface LandingPageProps {
  */
 export function LandingPage({ onLogin, onSignUp, onGoogle, onAdmin }: LandingPageProps) {
   const navigate = useNavigate()
+  const googleLoginMutation = useGoogleLogin()
 
   const handleLogin = React.useCallback(() => {
     if (onLogin) {
@@ -41,6 +46,26 @@ export function LandingPage({ onLogin, onSignUp, onGoogle, onAdmin }: LandingPag
       navigate('/home')
     }
   }, [onGoogle, navigate])
+
+  const handleGoogleSuccess = React.useCallback(
+    async (credentialResponse: CredentialResponse) => {
+      if (!credentialResponse.credential) {
+        toast.error('Không nhận được thông tin xác thực từ Google.')
+        return
+      }
+      try {
+        await googleLoginMutation.mutateAsync(credentialResponse.credential)
+        if (onGoogle) {
+          onGoogle()
+        } else {
+          navigate('/home')
+        }
+      } catch (err: unknown) {
+        toast.error(getAuthErrorMessage(err, 'Đăng nhập bằng Google không thành công.'))
+      }
+    },
+    [googleLoginMutation, onGoogle, navigate],
+  )
 
   const handleAdmin = React.useCallback(() => {
     if (onAdmin) {
@@ -69,6 +94,7 @@ export function LandingPage({ onLogin, onSignUp, onGoogle, onAdmin }: LandingPag
         onLogin={handleLogin}
         onSignUp={handleSignUp}
         onGoogle={handleGoogle}
+        onGoogleSuccess={handleGoogleSuccess}
         onAdmin={handleAdmin}
       />
     </div>

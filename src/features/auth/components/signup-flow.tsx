@@ -1,4 +1,5 @@
 import * as React from 'react'
+import type { CredentialResponse } from '@react-oauth/google'
 import { CheckFatIcon } from '@phosphor-icons/react'
 import { AuthInput } from './auth-input'
 import { GoogleButton } from './google-button'
@@ -147,18 +148,30 @@ export function SignUpFlow({
     }
   }, [onSuccess])
 
-  const handleGoogle = React.useCallback(async () => {
-    try {
-      await googleLoginMutation.mutateAsync()
-      if (onGoogle) {
-        onGoogle()
-      } else if (onSuccess) {
-        onSuccess()
+  const handleGoogleSuccess = React.useCallback(
+    async (credentialResponse: CredentialResponse) => {
+      if (!credentialResponse.credential) {
+        setRegisterError('Không nhận được thông tin xác thực từ Google.')
+        return
       }
-    } catch (err: unknown) {
-      setRegisterError(getAuthErrorMessage(err, 'Đăng ký bằng Google không thành công.'))
-    }
-  }, [googleLoginMutation, onGoogle, onSuccess])
+      try {
+        setRegisterError('')
+        await googleLoginMutation.mutateAsync(credentialResponse.credential)
+        if (onGoogle) {
+          onGoogle()
+        } else if (onSuccess) {
+          onSuccess()
+        }
+      } catch (err: unknown) {
+        setRegisterError(getAuthErrorMessage(err, 'Đăng ký bằng Google không thành công.'))
+      }
+    },
+    [googleLoginMutation, onGoogle, onSuccess],
+  )
+
+  const handleGoogleError = React.useCallback(() => {
+    setRegisterError('Đăng ký bằng Google không thành công hoặc đã bị hủy.')
+  }, [])
 
   const handleOtpChange = (idx: number, val: string) => {
     if (!/^\d?$/.test(val)) return
@@ -334,7 +347,12 @@ export function SignUpFlow({
             </span>
             <div style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.12)' }} />
           </div>
-          <GoogleButton onClick={handleGoogle} label="Đăng ký với Google" />
+          <GoogleButton
+            onSuccess={handleGoogleSuccess}
+            onError={handleGoogleError}
+            label="Đăng ký với Google"
+            disabled={registerMutation.isPending || googleLoginMutation.isPending}
+          />
 
           {onLogin && (
             <p
