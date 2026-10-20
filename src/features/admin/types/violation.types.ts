@@ -14,4 +14,8 @@ export interface AdminViolation {
   status: ViolationStatus
   reason: string
   evidence: string
+  evidenceImage?: string
+  actionTaken?: string
+  resolveNote?: string
+  resolvedAt?: string
 }
