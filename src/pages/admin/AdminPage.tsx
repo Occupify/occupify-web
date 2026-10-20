@@ -12,6 +12,7 @@ import {
   ProjectDeleteModal,
   ContractDetailModal,
   ViolationDetailModal,
+  ViolationActionModal,
   useAdminPortal,
 } from '@/features/admin'
 import type { AdminTabId } from '@/features/admin'
@@ -168,7 +169,21 @@ export function AdminPage() {
         violation={portal.evidenceTarget}
         onClose={() => portal.setEvidenceTarget(null)}
         onReject={portal.handleRejectViolation}
-        onResolve={portal.handleResolveViolation}
+        onResolveClick={portal.handleStartResolveViolation}
+      />
+
+      <ViolationActionModal
+        violation={portal.sanctionTarget}
+        action={portal.sanctionAction}
+        onActionChange={portal.setSanctionAction}
+        reason={portal.sanctionReason}
+        onReasonChange={portal.setSanctionReason}
+        notifyTarget={portal.notifyTargetUser}
+        onNotifyTargetChange={portal.setNotifyTargetUser}
+        notifyReporter={portal.notifyReporter}
+        onNotifyReporterChange={portal.setNotifyReporter}
+        onClose={() => portal.setSanctionTarget(null)}
+        onConfirm={portal.handleConfirmSanction}
       />
     </div>
   )

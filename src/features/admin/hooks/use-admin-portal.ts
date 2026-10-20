@@ -213,6 +213,13 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
   const [violationStatusFilter, setViolationStatusFilter] = useState('Tất cả')
   const [evidenceTarget, setEvidenceTarget] = useState<AdminViolation | null>(null)
 
+  // Sanction Modal States
+  const [sanctionTarget, setSanctionTarget] = useState<AdminViolation | null>(null)
+  const [sanctionAction, setSanctionAction] = useState<string>('')
+  const [sanctionReason, setSanctionReason] = useState<string>('')
+  const [notifyTargetUser, setNotifyTargetUser] = useState<boolean>(true)
+  const [notifyReporter, setNotifyReporter] = useState<boolean>(true)
+
   const pendingViolationsCount = useMemo(
     () => violations.filter((v) => v.status === 'Chờ xử lý').length,
     [violations],
@@ -223,6 +230,95 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
     setEvidenceTarget(null)
     toast.success('Đã bác bỏ báo cáo vi phạm!')
   }, [])
+
+  const handleStartResolveViolation = useCallback((v: AdminViolation) => {
+    setSanctionTarget(v)
+    setSanctionAction(
+      v.category === 'Tài khoản' ? 'Khóa tài khoản vĩnh viễn' : 'Gỡ bỏ dự án vi phạm',
+    )
+    setSanctionReason('')
+    setNotifyTargetUser(true)
+    setNotifyReporter(true)
+    setEvidenceTarget(null)
+  }, [])
+
+  const handleConfirmSanction = useCallback(() => {
+    if (!sanctionTarget || !sanctionReason.trim()) return
+
+    const nowStr = `${new Date().toLocaleDateString('vi-VN')} ${new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}`
+    const targetId = sanctionTarget.id
+    const targetCategory = sanctionTarget.category
+    const targetName = sanctionTarget.target
+    const chosenAction = sanctionAction
+    const note = sanctionReason.trim()
+
+    // 1. Cập nhật trạng thái và thông tin chế tài của báo cáo
+    setViolations((prev) =>
+      prev.map((v) =>
+        v.id === targetId
+          ? {
+              ...v,
+              status: 'Đã giải quyết',
+              actionTaken: chosenAction,
+              resolveNote: note,
+              resolvedAt: nowStr,
+            }
+          : v,
+      ),
+    )
+
+    // 2. Đồng bộ hóa chế tài thực tế sang Người dùng hoặc Dự án
+    if (targetCategory === 'Tài khoản') {
+      const cleanTarget = targetName
+        .replace(/^Tài khoản:\s*/i, '')
+        .replace('@', '')
+        .toLowerCase()
+        .trim()
+
+      if (
+        chosenAction === 'Khóa tài khoản vĩnh viễn' ||
+        chosenAction === 'Tạm khóa tài khoản 7 ngày'
+      ) {
+        setUsers((prev) =>
+          prev.map((u) => {
+            const match =
+              u.name.toLowerCase().includes(cleanTarget) ||
+              u.email.toLowerCase().includes(cleanTarget)
+            return match ? { ...u, status: 'Bị khóa' } : u
+          }),
+        )
+      } else if (chosenAction === 'Xóa tài khoản khỏi nền tảng') {
+        setUsers((prev) =>
+          prev.filter(
+            (u) =>
+              !u.name.toLowerCase().includes(cleanTarget) &&
+              !u.email.toLowerCase().includes(cleanTarget),
+          ),
+        )
+      } else if (chosenAction === 'Cảnh cáo người dùng') {
+        setUsers((prev) =>
+          prev.map((u) => {
+            const match =
+              u.name.toLowerCase().includes(cleanTarget) ||
+              u.email.toLowerCase().includes(cleanTarget)
+            return match && u.status === 'Hoạt động' ? { ...u, status: 'Bị gắn cờ' } : u
+          }),
+        )
+      }
+    } else if (targetCategory === 'Dự án') {
+      const cleanProject = targetName
+        .replace(/^Dự án:\s*/i, '')
+        .toLowerCase()
+        .trim()
+      if (chosenAction.includes('Gỡ')) {
+        setProjects((prev) => prev.filter((p) => !p.title.toLowerCase().includes(cleanProject)))
+      }
+    }
+
+    setSanctionTarget(null)
+    setSanctionReason('')
+    toast.success(`Đã áp dụng chế tài "${chosenAction}" và xử lý vi phạm thành công!`)
+  }, [sanctionTarget, sanctionReason, sanctionAction])
 
   const handleResolveViolation = useCallback((id: string) => {
     setViolations((prev) => prev.map((v) => (v.id === id ? { ...v, status: 'Đã giải quyết' } : v)))
@@ -318,7 +414,19 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
     pendingViolationsCount,
     evidenceTarget,
     setEvidenceTarget,
+    sanctionTarget,
+    setSanctionTarget,
+    sanctionAction,
+    setSanctionAction,
+    sanctionReason,
+    setSanctionReason,
+    notifyTargetUser,
+    setNotifyTargetUser,
+    notifyReporter,
+    setNotifyReporter,
     handleRejectViolation,
+    handleStartResolveViolation,
+    handleConfirmSanction,
     handleResolveViolation,
   }
 }
