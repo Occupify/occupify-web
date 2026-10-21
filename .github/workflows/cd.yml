@@ -28,7 +28,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -37,8 +37,8 @@ jobs:
         env:
           VITE_APP_NAME: Occupify
           VITE_APP_ENV: production
-          VITE_APP_PORT: '3000'
-          VITE_API_BASE_URL: http://140.245.47.21
+          VITE_APP_PORT: "3000"
+          VITE_API_BASE_URL: "http://140.245.47.21"
         run: pnpm run build
 
       - name: Upload compiled bundle artifact
