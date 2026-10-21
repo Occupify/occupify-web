@@ -39,6 +39,7 @@ jobs:
           VITE_APP_ENV: production
           VITE_APP_PORT: "3000"
           VITE_API_BASE_URL: "http://140.245.47.21"
+          VITE_GOOGLE_CLIENT_ID: "520237679556-qgh94dbc3f1agf73kqfc1asol5h60n2n.apps.googleusercontent.com"
         run: pnpm run build
 
       - name: Upload compiled bundle artifact
