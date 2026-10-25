@@ -7,7 +7,7 @@ import { CancelModal } from '@/features/projects'
 interface EmployeeProjectDetailPageProps {
   project: MyProject
   onBack: () => void
-  onCancelContract?: (projectId: number, reason: string) => void
+  onCancelContract?: (projectId: number | string, reason: string) => void
 }
 
 export function EmployeeProjectDetailPage({

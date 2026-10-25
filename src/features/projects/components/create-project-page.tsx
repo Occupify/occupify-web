@@ -4,23 +4,13 @@ import {
   ClipboardTextIcon,
   FolderPlusIcon,
   XIcon,
-  ClockIcon,
-  UsersIcon,
   CalendarBlankIcon,
-  CurrencyDollarIcon,
   SparkleIcon,
 } from '@phosphor-icons/react'
 import { toast } from '@/components/feedback'
 import type { JobExperienceLevel } from '@/features/jobs/types'
 import type { CreateProjectFormData } from '../types'
-import {
-  CY_PERIODS,
-  PREDEFINED_PROJECT_FIELDS,
-  EXPERIENCE_LEVEL_OPTIONS,
-  HOURS_PER_DAY_OPTIONS,
-  DURATION_OPTIONS,
-  CONTRACT_DURATION_OPTIONS,
-} from '../api/project-form-options'
+import { PREDEFINED_PROJECT_FIELDS, EXPERIENCE_LEVEL_OPTIONS } from '../api/project-form-options'
 
 export interface CreateProjectPageProps {
   onBack: () => void
@@ -35,17 +25,9 @@ export function CreateProjectPage({ onBack, onSubmit, initialData }: CreateProje
     initialData?.tags ?? [PREDEFINED_PROJECT_FIELDS[0]],
   )
   const [customTagInput, setCustomTagInput] = React.useState('')
-  const [startPrice, setStartPrice] = React.useState(initialData?.startPrice ?? '')
-  const [period, setPeriod] = React.useState(initialData?.period ?? CY_PERIODS[2]) // Default: Hàng tháng
-  const [contractDuration, setContractDuration] = React.useState(
-    initialData?.contractDuration ?? CONTRACT_DURATION_OPTIONS[2], // Default: 3 tháng
-  )
   const [experienceLevel, setExperienceLevel] = React.useState<JobExperienceLevel>(
     initialData?.experienceLevel ?? 'intermediate',
   )
-  const [hoursPerDay, setHoursPerDay] = React.useState<number>(initialData?.hoursPerDay ?? 4)
-  const [openPositions, setOpenPositions] = React.useState<number>(initialData?.openPositions ?? 1)
-  const [duration, setDuration] = React.useState(initialData?.duration ?? DURATION_OPTIONS[1]) // Default: 1 - 3 tháng
   const [dueDate, setDueDate] = React.useState(initialData?.dueDate ?? '')
   const [bidCloseDate, setBidCloseDate] = React.useState(initialData?.bidCloseDate ?? '')
   const [isSubmitting, setIsSubmitting] = React.useState(false)
@@ -64,8 +46,6 @@ export function CreateProjectPage({ onBack, onSubmit, initialData }: CreateProje
     }
   }
 
-  const numericPrice = Number(startPrice.replace(/[^0-9]/g, ''))
-
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault()
 
@@ -79,18 +59,8 @@ export function CreateProjectPage({ onBack, onSubmit, initialData }: CreateProje
       return
     }
 
-    if (selectedFields.length === 0) {
-      toast.error('Vui lòng chọn hoặc thêm ít nhất một lĩnh vực / kỹ năng')
-      return
-    }
-
-    if (!startPrice || isNaN(numericPrice) || numericPrice <= 0) {
-      toast.error('Vui lòng nhập mức ngân sách hợp lệ (lớn hơn 0 VNĐ)')
-      return
-    }
-
     if (bidCloseDate && dueDate && bidCloseDate > dueDate) {
-      toast.error('Hạn chót ứng tuyển không được sau ngày hoàn thành dự kiến (Due date)')
+      toast.error('Hạn chót ứng tuyển không được sau ngày hoàn thành dự kiến')
       return
     }
 
@@ -99,17 +69,10 @@ export function CreateProjectPage({ onBack, onSubmit, initialData }: CreateProje
       await onSubmit({
         name: name.trim(),
         description: description.trim(),
-        tags: selectedFields,
-        startPrice: String(numericPrice),
-        period,
         dueDate: dueDate ? dueDate : undefined,
-        bidCloseDate: bidCloseDate || undefined,
-        contractDuration: period !== 'Cố định' ? contractDuration : undefined,
-        isPublic: true,
+        bidCloseDate: bidCloseDate ? bidCloseDate : undefined,
         experienceLevel,
-        hoursPerDay,
-        openPositions: Math.max(1, openPositions),
-        duration: duration || undefined,
+        tags: selectedFields.length > 0 ? selectedFields : undefined,
       })
     } catch {
       // Error handled by parent handler
@@ -415,178 +378,7 @@ export function CreateProjectPage({ onBack, onSubmit, initialData }: CreateProje
               </div>
             </div>
 
-            {/* 4. Ngân sách, Chu kỳ & Thời hạn hợp đồng */}
-            <div
-              style={{
-                marginBottom: 24,
-                padding: '16px',
-                borderRadius: 10,
-                background: '#F8FAFC',
-                border: '1px solid #E2E8F0',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                <CurrencyDollarIcon size={18} color="#0A66C2" weight="bold" />
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#0F172A' }}>
-                  Ngân sách & Hình thức thanh toán
-                </span>
-              </div>
-
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-                  gap: 16,
-                }}
-              >
-                <div>
-                  <label
-                    style={{
-                      display: 'block',
-                      fontSize: 13,
-                      fontWeight: 600,
-                      color: '#334155',
-                      marginBottom: 6,
-                    }}
-                  >
-                    Mức ngân sách dự kiến (VNĐ) *
-                  </label>
-                  <input
-                    type="number"
-                    value={startPrice}
-                    onChange={(e) => setStartPrice(e.target.value)}
-                    placeholder="VD: 30000000"
-                    style={{
-                      width: '100%',
-                      padding: '9px 12px',
-                      borderRadius: 8,
-                      border: '1px solid #CBD5E1',
-                      fontSize: 14,
-                      background: '#fff',
-                      outline: 'none',
-                    }}
-                    required
-                  />
-                  {numericPrice > 0 && (
-                    <div style={{ fontSize: 12, color: '#059669', fontWeight: 600, marginTop: 4 }}>
-                      ≈ {numericPrice.toLocaleString('vi-VN')} VNĐ
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <label
-                    style={{
-                      display: 'block',
-                      fontSize: 13,
-                      fontWeight: 600,
-                      color: '#334155',
-                      marginBottom: 6,
-                    }}
-                  >
-                    Chu kỳ thanh toán (Hình thức trả lương) *
-                  </label>
-                  <select
-                    value={period}
-                    onChange={(e) => setPeriod(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '9px 12px',
-                      borderRadius: 8,
-                      border: '1px solid #CBD5E1',
-                      fontSize: 14,
-                      background: '#fff',
-                      color: '#0F172A',
-                      cursor: 'pointer',
-                      outline: 'none',
-                    }}
-                  >
-                    {CY_PERIODS.map((p) => (
-                      <option key={p} value={p}>
-                        {p}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Thời hạn hợp đồng: Hiển thị với các hình thức trả lương theo chu kỳ (Theo giờ, Hàng tuần, Hàng tháng) */}
-              {period !== 'Cố định' ? (
-                <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px dashed #CBD5E1' }}>
-                  <label
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 6,
-                      fontSize: 13,
-                      fontWeight: 700,
-                      color: '#1E293B',
-                      marginBottom: 4,
-                    }}
-                  >
-                    <ClockIcon size={16} color="#0A66C2" weight="bold" />
-                    <span>Thời hạn hợp đồng (Rất cần thiết cho các job freelance)</span>
-                    <span style={{ color: '#0A66C2', fontSize: 12, fontWeight: 600 }}>*</span>
-                  </label>
-                  <p style={{ fontSize: 12, color: '#64748B', margin: '0 0 10px' }}>
-                    Xác định khoảng thời gian hợp tác dự kiến giữa doanh nghiệp và freelancer theo
-                    chu kỳ đã chọn ({period.toLowerCase()}).
-                  </p>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                    {CONTRACT_DURATION_OPTIONS.map((d) => {
-                      const isSelected = contractDuration === d
-                      return (
-                        <button
-                          type="button"
-                          key={d}
-                          onClick={() => setContractDuration(d)}
-                          style={{
-                            padding: '6px 14px',
-                            borderRadius: 8,
-                            border: `1.5px solid ${isSelected ? '#0A66C2' : '#CBD5E1'}`,
-                            background: isSelected ? '#EFF6FF' : '#fff',
-                            color: isSelected ? '#0A66C2' : '#475569',
-                            fontSize: 12.5,
-                            fontWeight: isSelected ? 700 : 500,
-                            cursor: 'pointer',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 5,
-                            transition: 'all 120ms ease',
-                          }}
-                        >
-                          {isSelected && <CheckIcon size={13} weight="bold" />}
-                          <span>{d}</span>
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-              ) : (
-                <div
-                  style={{
-                    marginTop: 14,
-                    padding: '10px 14px',
-                    borderRadius: 8,
-                    background: '#F1F5F9',
-                    border: '1px solid #E2E8F0',
-                    fontSize: 12.5,
-                    color: '#64748B',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                  }}
-                >
-                  <SparkleIcon size={16} color="#64748B" weight="fill" />
-                  <span>
-                    <strong>Dự án trả lương trọn gói (Cố định):</strong> Không cần thời hạn hợp
-                    đồng. Thù lao sẽ được nghiệm thu và giải ngân theo kết quả bàn giao sản phẩm.
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* 5. Cấp độ kinh nghiệm, Thời gian làm việc, Số lượng tuyển (Khớp 100% Home Page) */}
+            {/* 4. Cấp độ kinh nghiệm yêu cầu */}
             <div
               style={{
                 marginBottom: 24,
@@ -599,12 +391,11 @@ export function CreateProjectPage({ onBack, onSubmit, initialData }: CreateProje
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                 <SparkleIcon size={18} color="#0A66C2" weight="bold" />
                 <span style={{ fontSize: 14, fontWeight: 700, color: '#0F172A' }}>
-                  Yêu cầu ứng viên & Thời gian làm việc (Hiển thị trên thẻ việc Home Page)
+                  Yêu cầu cấp độ kinh nghiệm
                 </span>
               </div>
 
-              {/* Cấp độ kinh nghiệm */}
-              <div style={{ marginBottom: 16 }}>
+              <div>
                 <label
                   style={{
                     display: 'block',
@@ -614,7 +405,7 @@ export function CreateProjectPage({ onBack, onSubmit, initialData }: CreateProje
                     marginBottom: 8,
                   }}
                 >
-                  Cấp độ kinh nghiệm yêu cầu:
+                  Cấp độ kinh nghiệm phù hợp:
                 </label>
                 <div
                   style={{
@@ -665,89 +456,9 @@ export function CreateProjectPage({ onBack, onSubmit, initialData }: CreateProje
                   })}
                 </div>
               </div>
-
-              {/* Thời gian làm việc mỗi ngày & Số lượng tuyển */}
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-                  gap: 16,
-                }}
-              >
-                <div>
-                  <label
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 6,
-                      fontSize: 13,
-                      fontWeight: 600,
-                      color: '#334155',
-                      marginBottom: 6,
-                    }}
-                  >
-                    <ClockIcon size={15} color="#0A66C2" />
-                    <span>Thời gian làm việc yêu cầu mỗi ngày</span>
-                  </label>
-                  <select
-                    value={hoursPerDay}
-                    onChange={(e) => setHoursPerDay(Number(e.target.value))}
-                    style={{
-                      width: '100%',
-                      padding: '9px 12px',
-                      borderRadius: 8,
-                      border: '1px solid #CBD5E1',
-                      fontSize: 13.5,
-                      background: '#fff',
-                      color: '#0F172A',
-                      cursor: 'pointer',
-                      outline: 'none',
-                    }}
-                  >
-                    {HOURS_PER_DAY_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label} ({opt.badge})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 6,
-                      fontSize: 13,
-                      fontWeight: 600,
-                      color: '#334155',
-                      marginBottom: 6,
-                    }}
-                  >
-                    <UsersIcon size={15} color="#0A66C2" />
-                    <span>Số lượng nhân sự cần tuyển</span>
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={20}
-                    value={openPositions}
-                    onChange={(e) => setOpenPositions(Math.max(1, Number(e.target.value)))}
-                    style={{
-                      width: '100%',
-                      padding: '9px 12px',
-                      borderRadius: 8,
-                      border: '1px solid #CBD5E1',
-                      fontSize: 13.5,
-                      background: '#fff',
-                      outline: 'none',
-                    }}
-                  />
-                </div>
-              </div>
             </div>
 
-            {/* 6. Kế hoạch thời hạn & Hạn chót ứng tuyển */}
+            {/* 6. Thời gian dự án & Hạn chót ứng tuyển */}
             <div
               style={{
                 marginBottom: 24,
@@ -760,14 +471,14 @@ export function CreateProjectPage({ onBack, onSubmit, initialData }: CreateProje
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                 <CalendarBlankIcon size={18} color="#0A66C2" weight="bold" />
                 <span style={{ fontSize: 14, fontWeight: 700, color: '#0F172A' }}>
-                  Kế hoạch thời hạn & Hạn nộp hồ sơ
+                  Thời gian hoàn thành dự án & Hạn chót ứng tuyển
                 </span>
               </div>
 
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
                   gap: 16,
                 }}
               >
@@ -781,43 +492,7 @@ export function CreateProjectPage({ onBack, onSubmit, initialData }: CreateProje
                       marginBottom: 6,
                     }}
                   >
-                    Thời hạn dự án ước tính (Tùy chọn)
-                  </label>
-                  <select
-                    value={duration}
-                    onChange={(e) => setDuration(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '9px 12px',
-                      borderRadius: 8,
-                      border: '1px solid #CBD5E1',
-                      fontSize: 13.5,
-                      background: '#fff',
-                      color: '#0F172A',
-                      cursor: 'pointer',
-                      outline: 'none',
-                    }}
-                  >
-                    <option value="">Linh hoạt / Chưa xác định</option>
-                    {DURATION_OPTIONS.map((d) => (
-                      <option key={d} value={d}>
-                        {d}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label
-                    style={{
-                      display: 'block',
-                      fontSize: 13,
-                      fontWeight: 600,
-                      color: '#334155',
-                      marginBottom: 6,
-                    }}
-                  >
-                    Ngày hoàn thành dự kiến (Tùy chọn)
+                    Thời gian hoàn thành dự án (Tùy chọn)
                   </label>
                   <input
                     type="date"
@@ -846,7 +521,7 @@ export function CreateProjectPage({ onBack, onSubmit, initialData }: CreateProje
                       marginBottom: 6,
                     }}
                   >
-                    Hạn chót ứng tuyển
+                    Hạn chót ứng tuyển (Tùy chọn)
                   </label>
                   <input
                     type="date"

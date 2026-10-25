@@ -14,7 +14,7 @@ export function ProjectListCard({
   projects,
   emptyText,
   onSelect,
-  hidePeriod = false,
+  hidePeriod: _hidePeriod = false,
 }: ProjectListCardProps) {
   return (
     <div className="mb-2 overflow-hidden rounded-lg border !border-[var(--border-default)] !bg-[var(--bg-elevated)] shadow-xs">
@@ -43,8 +43,9 @@ export function ProjectListCard({
                   {proj.name}
                 </div>
                 <div className="mt-0.5 text-xs !text-[var(--text-secondary)]">
-                  {proj.members.length} thành viên
-                  {!hidePeriod && proj.period ? ` · ${proj.period}` : ''}
+                  {proj.members.length} thành viên · Thời gian hoàn thành dự án:{' '}
+                  {proj.dueDate || 'Linh hoạt'}
+                  {proj.bidCloseDate ? ` · Hạn ứng tuyển: ${proj.bidCloseDate}` : ''}
                 </div>
               </div>
               <ArrowRightIcon size={15} className="shrink-0 text-black/30" />

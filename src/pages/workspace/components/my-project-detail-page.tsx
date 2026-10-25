@@ -14,8 +14,13 @@ import {
 } from '@phosphor-icons/react'
 import { Avatar } from '@/components/ui'
 import { toast } from '@/components/feedback'
-import { CancelModal } from '@/features/projects'
-import type { ApplicantProposal, MyProject, ProjectMember } from '@/features/projects'
+import { CancelModal, EditProjectModal } from '@/features/projects'
+import type {
+  ApplicantProposal,
+  MyProject,
+  ProjectMember,
+  UpdateProjectPayload,
+} from '@/features/projects'
 
 interface MyProjectDetailPageProps {
   project: MyProject
@@ -28,8 +33,12 @@ interface MyProjectDetailPageProps {
     jobDescription?: string,
     mode?: 'create' | 'invite',
   ) => void
-  onCancelProject?: (projectId: number, reason?: string) => void
-  onUpdateMembers?: (projectId: number, members: ProjectMember[]) => void
+  onCancelProject?: (projectId: number | string, reason?: string) => void
+  onUpdateProject?: (
+    projectId: number | string,
+    payload: UpdateProjectPayload,
+  ) => Promise<void> | void
+  onUpdateMembers?: (projectId: number | string, members: ProjectMember[]) => void
 }
 
 export function MyProjectDetailPage({
@@ -37,12 +46,14 @@ export function MyProjectDetailPage({
   onBack,
   onCreateContract,
   onCancelProject,
+  onUpdateProject,
   onUpdateMembers,
 }: MyProjectDetailPageProps) {
   const [members, setMembers] = useState<ProjectMember[]>(project.members || [])
   const [cancelTarget, setCancelTarget] = useState<string | null>(null)
   const [closeRecruitConfirm, setCloseRecruitConfirm] = useState(false)
   const [recruitmentClosed, setRecruitmentClosed] = useState(false)
+  const [isEditingProject, setIsEditingProject] = useState(false)
   const [contractDetailMember, setContractDetailMember] = useState<ProjectMember | null>(null)
   const [isEditingContract, setIsEditingContract] = useState(false)
 
@@ -201,35 +212,53 @@ export function MyProjectDetailPage({
                 {project.name}
               </h1>
               <p className="mt-1.5 text-sm !text-[var(--text-secondary)]">
-                {members.length} thành viên · {project.period}
+                {members.length} thành viên · Thời gian hoàn thành dự án:{' '}
+                {project.dueDate || 'Linh hoạt'}
+                {project.bidCloseDate ? ` · Hạn chót ứng tuyển: ${project.bidCloseDate}` : ''}
               </p>
             </div>
 
             <div className="flex shrink-0 items-center gap-2.5">
-              <button
-                type="button"
-                onClick={() => setCloseRecruitConfirm(true)}
-                className="cursor-pointer rounded-full border px-5 py-2 text-sm font-semibold transition-colors !border-[#C03A2B] !text-[#C03A2B] hover:!bg-[#FBE2E2]"
-              >
-                {recruitmentClosed ? 'Đã đóng tuyển dụng' : 'Đóng tuyển dụng'}
-              </button>
-
-              {members.length === 0 ? (
-                <button
-                  type="button"
-                  onClick={() => setCancelTarget('project')}
-                  className="cursor-pointer rounded-full border px-5 py-2 text-sm font-semibold transition-colors !border-[#C03A2B] !text-[#C03A2B] hover:!bg-[#FBE2E2]"
-                >
-                  Hủy dự án
-                </button>
+              {project.status === 'CLOSED' ? (
+                <span className="rounded-full border border-gray-300 bg-gray-100 px-4 py-1.5 text-xs font-bold text-gray-600">
+                  Dự án đã đóng
+                </span>
               ) : (
-                <div
-                  title="Cần hủy tất cả hợp đồng với nhân sự trong dự án trước khi có thể hủy dự án này"
-                  className="inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[13px] font-semibold !border-[var(--border-default)] !bg-[var(--bg-subtle)] !text-[var(--text-tertiary)]"
-                >
-                  <LockIcon size={14} />
-                  <span>Không thể hủy khi còn nhân sự ({members.length})</span>
-                </div>
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingProject(true)}
+                    className="cursor-pointer rounded-full border border-[var(--border-default)] px-4 py-2 text-sm font-semibold transition-colors hover:bg-[var(--bg-subtle)] !text-[var(--text-primary)]"
+                  >
+                    Chỉnh sửa
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setCloseRecruitConfirm(true)}
+                    className="cursor-pointer rounded-full border px-5 py-2 text-sm font-semibold transition-colors !border-[#C03A2B] !text-[#C03A2B] hover:!bg-[#FBE2E2]"
+                  >
+                    {recruitmentClosed ? 'Đã đóng tuyển dụng' : 'Đóng tuyển dụng'}
+                  </button>
+
+                  {members.length === 0 ? (
+                    <button
+                      type="button"
+                      onClick={() => setCancelTarget('project')}
+                      className="cursor-pointer rounded-full border px-5 py-2 text-sm font-semibold transition-colors !border-[#C03A2B] !text-[#C03A2B] hover:!bg-[#FBE2E2]"
+                    >
+                      Hủy dự án
+                    </button>
+                  ) : (
+                    <div
+                      title="Cần hủy tất cả hợp đồng với nhân sự trong dự án trước khi có thể hủy dự án này"
+                      className="inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[13px] font-semibold !border-[var(--border-default)] !bg-[var(--bg-subtle)] !text-[var(--text-tertiary)]"
+                    >
+                      <LockIcon size={14} />
+                      <span>Không thể hủy khi còn nhân sự ({members.length})</span>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -1167,6 +1196,20 @@ export function MyProjectDetailPage({
           }
           onClose={() => setCancelTarget(null)}
           onConfirm={handleConfirmCancel}
+        />
+      )}
+
+      {/* Edit Project Modal */}
+      {isEditingProject && (
+        <EditProjectModal
+          open={isEditingProject}
+          onClose={() => setIsEditingProject(false)}
+          project={project}
+          onSave={async (payload) => {
+            if (onUpdateProject) {
+              await onUpdateProject(project.id, payload)
+            }
+          }}
         />
       )}
     </div>

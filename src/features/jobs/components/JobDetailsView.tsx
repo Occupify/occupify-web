@@ -491,6 +491,33 @@ export function JobDetailsView({
                       </div>
                     </div>
                   )}
+
+                  {/* Field 7: Hạn chót ứng tuyển / Bid close date */}
+                  {job.bidCloseDate && (
+                    <div>
+                      <div
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 700,
+                          textTransform: 'uppercase',
+                          color: 'var(--text-tertiary)',
+                          letterSpacing: '0.04em',
+                        }}
+                      >
+                        Hạn chót ứng tuyển
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 13.5,
+                          fontWeight: 700,
+                          color: '#D97706',
+                          marginTop: 3,
+                        }}
+                      >
+                        {job.bidCloseDate}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

@@ -26,6 +26,18 @@ export interface ErrorResponse {
   errorCode?: string
 }
 
+export interface PageResponse<T> {
+  statusCode: number
+  message: string
+  data: T[]
+  paging: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+  }
+}
+
 export type ApiResponse<T> = SingleResponse<T> | CreatedResponse<T>
 
 export class ApiError extends Error {

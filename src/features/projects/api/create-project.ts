@@ -1,27 +1,67 @@
-import type { CreateProjectFormData, MyProject } from '../types'
+import { apiClient } from '@/lib/api-client'
+import type { CreatedResponse } from '@/types'
+import type {
+  CreateProjectFormData,
+  CreateProjectPayload,
+  MyProject,
+  ProjectDetail,
+} from '../types'
+import { toBackendExperienceLevel, toBackendPeriod, toMyProject } from '../types'
 import { getInternalStores, setInternalStores } from './get-projects'
-import { createJob } from '@/features/jobs/api'
-import type { JobSalaryType } from '@/features/jobs/types'
 
 export async function createProject(formData: CreateProjectFormData): Promise<MyProject> {
-  await new Promise((resolve) => setTimeout(resolve, 100))
+  const cleanPrice = formData.startPrice ? Number(formData.startPrice.replace(/[^0-9]/g, '')) : 0
+  const formattedSalary = cleanPrice > 0 ? `${cleanPrice.toLocaleString('vi-VN')} ₫` : 'Thỏa thuận'
 
-  const cleanPrice = Number(formData.startPrice.replace(/[^0-9]/g, ''))
-  const formattedSalary = `${cleanPrice.toLocaleString('vi-VN')} ₫`
+  const payload: CreateProjectPayload = {
+    title: formData.name.trim(),
+    description: formData.description.trim(),
+    startPrice: cleanPrice > 0 ? cleanPrice : undefined,
+    period: formData.period ? toBackendPeriod(formData.period) : 'FIXED',
+    dueDate: formData.dueDate ? formData.dueDate : undefined,
+    experienceLevel: toBackendExperienceLevel(formData.experienceLevel),
+  }
 
-  const newProject: MyProject = {
-    id: Date.now(),
-    name: formData.name,
-    description: formData.description,
-    owner: 'Tôi (Chủ dự án)',
-    period: formData.period || 'Hàng tháng',
-    dueDate: formData.dueDate,
-    contractDuration: formData.contractDuration,
-    tags: formData.tags,
-    members: [],
-    recruitingRoles:
-      formData.roles ||
-      formData.tags.map((tag: string, idx: number) => ({
+  let createdProject: MyProject
+
+  try {
+    const res = await apiClient.post<CreatedResponse<ProjectDetail>>('/projects', payload)
+    if (res.data) {
+      createdProject = toMyProject(res.data)
+      if (formData.dueDate) createdProject.dueDate = formData.dueDate
+      if (formData.bidCloseDate) createdProject.bidCloseDate = formData.bidCloseDate
+      if (!createdProject.tags || createdProject.tags.length === 0) {
+        createdProject.tags = formData.tags || []
+      }
+      if (!createdProject.recruitingRoles || createdProject.recruitingRoles.length === 0) {
+        createdProject.recruitingRoles = (formData.tags || ['Chuyên môn']).map(
+          (tag: string, idx: number) => ({
+            id: `role-${Date.now()}-${idx}`,
+            title: tag.includes('Developer') || tag.includes('Design') ? tag : `${tag} Specialist`,
+            skills: [tag],
+            salaryRange: formattedSalary,
+            slotsTotal: 1,
+            slotsFilled: 0,
+            status: 'recruiting' as const,
+          }),
+        )
+      }
+    } else {
+      throw new Error('No data returned from server')
+    }
+  } catch {
+    // Fallback to local store for offline/unauthenticated mock development
+    createdProject = {
+      id: `local-${Date.now()}`,
+      name: formData.name,
+      description: formData.description,
+      owner: 'Tôi (Chủ dự án)',
+      period: formData.period || 'Hàng tháng',
+      dueDate: formData.dueDate,
+      bidCloseDate: formData.bidCloseDate,
+      tags: formData.tags || [],
+      members: [],
+      recruitingRoles: (formData.tags || ['Chuyên môn']).map((tag: string, idx: number) => ({
         id: `role-${Date.now()}-${idx}`,
         title: tag.includes('Developer') || tag.includes('Design') ? tag : `${tag} Specialist`,
         skills: [tag],
@@ -30,65 +70,11 @@ export async function createProject(formData: CreateProjectFormData): Promise<My
         slotsFilled: 0,
         status: 'recruiting' as const,
       })),
+    }
   }
 
   const { myProjects } = getInternalStores()
-  setInternalStores({ myProjects: [newProject, ...myProjects] })
+  setInternalStores({ myProjects: [createdProject, ...myProjects] })
 
-  // Synchronize public project with Home Page job feed
-  if (formData.isPublic !== false) {
-    let salaryType: JobSalaryType = 'monthly'
-    let periodLabel = '/ tháng'
-    if (formData.period === 'Theo giờ') {
-      salaryType = 'hourly'
-      periodLabel = '/ giờ'
-    } else if (formData.period === 'Theo tuần' || formData.period === 'Hàng tuần') {
-      salaryType = 'weekly'
-      periodLabel = '/ tuần'
-    } else if (formData.period === 'Cố định') {
-      salaryType = 'fixed'
-      periodLabel = '/ dự án'
-    }
-
-    const formattedBudget =
-      cleanPrice > 0 ? `${cleanPrice.toLocaleString('vi-VN')} ₫ ${periodLabel}` : undefined
-
-    // Determine displayed duration: prioritize contract duration for non-fixed jobs
-    const displayDuration =
-      formData.period !== 'Cố định' && formData.contractDuration
-        ? `HĐ: ${formData.contractDuration}`
-        : formData.dueDate
-          ? `Hạn: ${formData.dueDate}`
-          : formData.duration || (formData.period === 'Cố định' ? 'Theo dự án' : 'Linh hoạt')
-
-    await createJob({
-      title: formData.name,
-      description: formData.description,
-      skills: formData.tags,
-      budget: formattedBudget,
-      salaryValue: cleanPrice,
-      salaryType,
-      experienceLevel: formData.experienceLevel || 'intermediate',
-      duration: displayDuration,
-      hoursPerDay: formData.hoursPerDay || 4,
-      openPositions: formData.openPositions || 1,
-      status: 'OPEN',
-      roles: newProject.recruitingRoles?.map((r) => ({
-        id: r.id,
-        title: r.title,
-        minBudget: cleanPrice,
-        maxBudget: cleanPrice,
-        budgetDisplay: r.salaryRange || formattedSalary,
-        salaryType,
-        salaryTypeLabel: periodLabel,
-        slotsTotal: r.slotsTotal || 1,
-        slotsFilled: 0,
-        status: 'recruiting' as const,
-        jd: `Đảm nhận vai trò ${r.title} cho dự án ${formData.name}`,
-        skills: r.skills || formData.tags,
-      })),
-    })
-  }
-
-  return newProject
+  return createdProject
 }

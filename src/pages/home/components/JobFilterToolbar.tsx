@@ -1,6 +1,5 @@
 import {
   BriefcaseMetalIcon,
-  ClockIcon,
   CalendarBlankIcon,
   WalletIcon,
   XIcon,
@@ -23,15 +22,15 @@ import {
 } from '@/features/jobs'
 
 export interface JobFilterToolbarProps {
-  totalJobs: number
+  totalJobs?: number
   hasActiveFilters: boolean
   onResetFilters: () => void
 
   sortBy: JobSortBy
   onSortByChange: (val: JobSortBy) => void
 
-  hoursPerDay: JobHoursPerDay
-  onHoursPerDayChange: (val: JobHoursPerDay) => void
+  hoursPerDay?: JobHoursPerDay
+  onHoursPerDayChange?: (val: JobHoursPerDay) => void
 
   budgetRange: JobBudgetRange
   onBudgetRangeChange: (val: JobBudgetRange) => void
@@ -50,13 +49,10 @@ export interface JobFilterToolbarProps {
 }
 
 export function JobFilterToolbar({
-  totalJobs,
   hasActiveFilters,
   onResetFilters,
   sortBy,
   onSortByChange,
-  hoursPerDay,
-  onHoursPerDayChange,
   budgetRange,
   onBudgetRangeChange,
   salaryTypeFilter,
@@ -69,13 +65,6 @@ export function JobFilterToolbar({
   onStatusFilterChange,
 }: JobFilterToolbarProps) {
   const { data: filterMeta } = useJobFilters()
-
-  const hoursOptions = filterMeta?.hoursPerDay || [
-    { value: 'all' as const, label: 'Tất cả thời lượng' },
-    { value: 'under-4h' as const, label: 'Dưới 4h / ngày (Part-time)' },
-    { value: '4h-8h' as const, label: '4h – 8h / ngày (Bán toàn thời gian)' },
-    { value: 'above-8h' as const, label: 'Trên 8h / ngày (Toàn thời gian)' },
-  ]
 
   const budgetOptions = filterMeta?.budgetRanges || [
     { value: 'all' as const, label: 'Tất cả ngân sách' },
@@ -148,13 +137,8 @@ export function JobFilterToolbar({
           })}
         </div>
 
-        {/* Total live count & Reset */}
+        {/* Filter Reset Button */}
         <div className="flex items-center gap-2.5 shrink-0">
-          <div className="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200/80 px-2.5 py-1 rounded-md text-xs font-bold text-emerald-800">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            <span>{totalJobs} dự án mở</span>
-          </div>
-
           {hasActiveFilters && (
             <button
               type="button"
@@ -175,32 +159,8 @@ export function JobFilterToolbar({
           <span>Bộ lọc thị trường</span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
-          {/* 1. Hours per day */}
-          <div>
-            <label className="flex items-center gap-1 text-[11px] font-bold text-slate-500 mb-1">
-              <ClockIcon size={12} className="text-[#0A66C2]" weight="bold" />
-              <span>Giờ làm / ngày</span>
-            </label>
-            <select
-              value={hoursPerDay}
-              onChange={(e) => onHoursPerDayChange(e.target.value as JobHoursPerDay)}
-              className={`w-full py-1.5 px-2.5 rounded-lg text-xs font-medium border outline-none cursor-pointer transition-colors ${
-                hoursPerDay !== 'all'
-                  ? 'bg-sky-50/70 border-sky-400 text-[#0A66C2] font-semibold'
-                  : 'bg-white border-slate-200 text-slate-800 hover:border-slate-300'
-              }`}
-              aria-label="Lọc theo số giờ làm việc trên ngày"
-            >
-              {hoursOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* 2. Budget range */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+          {/* 1. Budget range */}
           <div>
             <label className="flex items-center gap-1 text-[11px] font-bold text-slate-500 mb-1">
               <WalletIcon size={12} className="text-[#0A66C2]" weight="bold" />

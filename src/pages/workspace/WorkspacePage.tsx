@@ -9,11 +9,13 @@ import {
   XIcon,
 } from '@phosphor-icons/react'
 import { toast } from '@/components/feedback'
+import { useCurrentUser } from '@/features/auth'
 import {
   PendingProjectCard,
   ProjectInvitationModal,
   ProjectListCard,
   useProjects,
+  useProjectDetail,
 } from '@/features/projects'
 import type {
   CreateContractFormData,
@@ -21,6 +23,7 @@ import type {
   MyProject,
   PendingProject,
   ProjectMember,
+  UpdateProjectPayload,
 } from '@/features/projects'
 import {
   CreateContractPage,
@@ -38,19 +41,22 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
 
+  const { data: currentUser } = useCurrentUser()
+
   const {
     myProjects,
     employeeProjects,
     pending,
     isLoading,
     createProject,
+    updateProject,
     createContract,
     cancelMyProject,
     cancelEmployeeProject,
     updateMyProjectMembers,
     acceptInvitation,
     rejectInvitation,
-  } = useProjects()
+  } = useProjects(currentUser?.id)
 
   const [selectedInvitation, setSelectedInvitation] = useState<PendingProject | null>(null)
   const [contractContext, setContractContext] = useState<{
@@ -67,11 +73,13 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
   const myProjectId = searchParams.get('project')
   const empProjectId = searchParams.get('contract')
 
+  const { data: remoteMyProject } = useProjectDetail(myProjectId ?? undefined)
+
   const viewingMyProject = myProjectId
-    ? (myProjects.find((p) => p.id === Number(myProjectId)) ?? null)
+    ? (remoteMyProject ?? myProjects.find((p) => String(p.id) === String(myProjectId)) ?? null)
     : null
   const viewingEmpProject = empProjectId
-    ? (employeeProjects.find((p) => p.id === Number(empProjectId)) ?? null)
+    ? (employeeProjects.find((p) => String(p.id) === String(empProjectId)) ?? null)
     : null
 
   const handleBack = () => {
@@ -124,9 +132,9 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
     }
   }
 
-  const handleCancelEmployeeProject = async (projectId: number, reason?: string) => {
+  const handleCancelEmployeeProject = async (projectId: number | string, reason?: string) => {
     try {
-      const proj = employeeProjects.find((p) => p.id === projectId)
+      const proj = employeeProjects.find((p) => String(p.id) === String(projectId))
       await cancelEmployeeProject({ projectId, reason })
       setSearchParams({}, { replace: true })
       toast.info(`Đã hủy hợp đồng tham gia dự án "${proj?.name || ''}".`)
@@ -135,19 +143,28 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
     }
   }
 
-  const handleCancelMyProject = async (projectId: number, reason?: string) => {
+  const handleCancelMyProject = async (projectId: number | string, reason?: string) => {
     try {
-      const proj = myProjects.find((p) => p.id === projectId)
+      const proj = myProjects.find((p) => String(p.id) === String(projectId))
       await cancelMyProject({ projectId, reason })
       setSearchParams({}, { replace: true })
-      toast.info(`Đã hủy dự án "${proj?.name || ''}".`)
+      toast.info(`Đã đóng/hủy dự án "${proj?.name || ''}".`)
     } catch {
-      toast.error('Có lỗi xảy ra khi hủy dự án.')
+      toast.error('Có lỗi xảy ra khi đóng dự án.')
+    }
+  }
+
+  const handleUpdateProject = async (projectId: number | string, payload: UpdateProjectPayload) => {
+    try {
+      await updateProject({ id: projectId, payload })
+      toast.success('Dự án đã được cập nhật thành công!')
+    } catch {
+      toast.error('Có lỗi xảy ra khi cập nhật dự án.')
     }
   }
 
   const handleUpdateMyProjectMembers = async (
-    projectId: number,
+    projectId: number | string,
     updatedMembers: ProjectMember[],
   ) => {
     try {
@@ -244,6 +261,7 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
         project={viewingMyProject}
         onBack={handleBack}
         onCancelProject={handleCancelMyProject}
+        onUpdateProject={handleUpdateProject}
         onUpdateMembers={handleUpdateMyProjectMembers}
         onCreateContract={(
           roleTitle,
