@@ -10,10 +10,7 @@ import {
 import { toast } from '@/components/feedback'
 import type { JobExperienceLevel } from '@/features/jobs/types'
 import type { CreateProjectFormData } from '../types'
-import {
-  PREDEFINED_PROJECT_FIELDS,
-  EXPERIENCE_LEVEL_OPTIONS,
-} from '../api/project-form-options'
+import { PREDEFINED_PROJECT_FIELDS, EXPERIENCE_LEVEL_OPTIONS } from '../api/project-form-options'
 
 export interface CreateProjectPageProps {
   onBack: () => void

@@ -3,12 +3,8 @@ import type { SingleResponse } from '@/types'
 import type { ProjectDetail } from '../types'
 import { getInternalStores, setInternalStores } from './get-projects'
 
-export async function closeProject(
-  projectId: string | number,
-): Promise<ProjectDetail> {
-  const res = await apiClient.patch<SingleResponse<ProjectDetail>>(
-    `/projects/${projectId}/close`,
-  )
+export async function closeProject(projectId: string | number): Promise<ProjectDetail> {
+  const res = await apiClient.patch<SingleResponse<ProjectDetail>>(`/projects/${projectId}/close`)
   return res.data
 }
 

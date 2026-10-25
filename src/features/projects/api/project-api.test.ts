@@ -6,7 +6,12 @@ import {
   fromBackendPeriod,
   toMyProject,
 } from '../types/index.ts'
-import type { MyProject, ProjectDetail, ProjectSummary, UpdateProjectPayload } from '../types/index.ts'
+import type {
+  MyProject,
+  ProjectDetail,
+  ProjectSummary,
+  UpdateProjectPayload,
+} from '../types/index.ts'
 
 test('toBackendPeriod maps Vietnamese period labels correctly', () => {
   assert.equal(toBackendPeriod('Theo giờ'), 'HOURLY')
@@ -52,7 +57,10 @@ test('toMyProject converts backend ProjectDetail payload properly', () => {
         description: 'Triển khai RabbitMQ và WebSockets',
         budget: 25000000,
         headcount: 1,
-        skills: [{ id: 's1', name: 'Java' }, { id: 's2', name: 'RabbitMQ' }],
+        skills: [
+          { id: 's1', name: 'Java' },
+          { id: 's2', name: 'RabbitMQ' },
+        ],
       },
     ],
     createdAt: '2026-10-24T12:00:00Z',
@@ -188,4 +196,3 @@ test('MyProject and UpdateProjectPayload support bidCloseDate and dueDate', () =
   assert.equal(updatePayload.dueDate, '2027-01-15')
   assert.equal(updatePayload.bidCloseDate, '2026-12-15')
 })
-

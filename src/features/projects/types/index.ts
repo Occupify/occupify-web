@@ -310,5 +310,3 @@ export function toMyProject(detail: ProjectDetail | ProjectSummary): MyProject {
     recruitingRoles,
   }
 }
-
-

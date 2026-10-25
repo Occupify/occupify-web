@@ -8,11 +8,7 @@ import type {
   ProjectSummary,
 } from '../types'
 import { toMyProject } from '../types'
-import {
-  MY_PROJECTS_DATA,
-  EMPLOYEE_PROJECTS_DATA,
-  PENDING_PROJECTS_DATA,
-} from '../../mock-data'
+import { MY_PROJECTS_DATA, EMPLOYEE_PROJECTS_DATA, PENDING_PROJECTS_DATA } from '../../mock-data'
 
 const CUSTOM_PROJECTS_KEY = 'occupify_custom_projects'
 

@@ -23,7 +23,7 @@ function EditProjectForm({ project, onClose, onSave }: EditProjectFormProps) {
   const [bidCloseDate, setBidCloseDate] = React.useState(project.bidCloseDate || '')
   const [isSaving, setIsSaving] = React.useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault()
     if (!title.trim()) {
       toast.error('Vui lòng nhập tên dự án')

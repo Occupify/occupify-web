@@ -132,10 +132,7 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
     }
   }
 
-  const handleCancelEmployeeProject = async (
-    projectId: number | string,
-    reason?: string,
-  ) => {
+  const handleCancelEmployeeProject = async (projectId: number | string, reason?: string) => {
     try {
       const proj = employeeProjects.find((p) => String(p.id) === String(projectId))
       await cancelEmployeeProject({ projectId, reason })
@@ -157,10 +154,7 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
     }
   }
 
-  const handleUpdateProject = async (
-    projectId: number | string,
-    payload: UpdateProjectPayload,
-  ) => {
+  const handleUpdateProject = async (projectId: number | string, payload: UpdateProjectPayload) => {
     try {
       await updateProject({ id: projectId, payload })
       toast.success('Dự án đã được cập nhật thành công!')

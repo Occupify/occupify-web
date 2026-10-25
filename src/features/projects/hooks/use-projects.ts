@@ -59,13 +59,8 @@ export function useProjects(employerId?: string) {
   })
 
   const updateProjectMutation = useMutation({
-    mutationFn: ({
-      id,
-      payload,
-    }: {
-      id: string | number
-      payload: UpdateProjectPayload
-    }) => updateProject(id, payload),
+    mutationFn: ({ id, payload }: { id: string | number; payload: UpdateProjectPayload }) =>
+      updateProject(id, payload),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: projectKeys.all })
       queryClient.invalidateQueries({ queryKey: projectKeys.detail(variables.id) })

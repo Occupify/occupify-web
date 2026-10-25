@@ -193,7 +193,8 @@ export function JobCard({
           <div className="flex items-center gap-1.5 text-amber-700 font-semibold bg-amber-50 px-2.5 py-1 rounded border border-amber-200/80">
             <ClockIcon size={14} weight="bold" className="text-amber-600" />
             <span>
-              Hạn chót ứng tuyển: <strong className="font-bold text-amber-900">{job.bidCloseDate}</strong>
+              Hạn chót ứng tuyển:{' '}
+              <strong className="font-bold text-amber-900">{job.bidCloseDate}</strong>
             </span>
           </div>
         )}
