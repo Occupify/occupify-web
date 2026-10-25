@@ -3,7 +3,10 @@ import {
   getMyProjects,
   getEmployeeProjects,
   getPendingProjects,
+  getProjectById,
   createProject,
+  updateProject,
+  closeProject,
   createContract,
   cancelMyProject,
   cancelEmployeeProject,
@@ -11,20 +14,30 @@ import {
   acceptInvitation,
   rejectInvitation,
 } from '../api'
+import type { UpdateProjectPayload } from '../types'
 
 export const projectKeys = {
   all: ['projects'] as const,
   my: () => [...projectKeys.all, 'my'] as const,
   employee: () => [...projectKeys.all, 'employee'] as const,
   pending: () => [...projectKeys.all, 'pending'] as const,
+  detail: (id: string | number) => [...projectKeys.all, 'detail', String(id)] as const,
 }
 
-export function useProjects() {
+export function useProjectDetail(id?: string | number) {
+  return useQuery({
+    queryKey: projectKeys.detail(id ?? ''),
+    queryFn: () => (id ? getProjectById(id) : Promise.resolve(null)),
+    enabled: Boolean(id),
+  })
+}
+
+export function useProjects(employerId?: string) {
   const queryClient = useQueryClient()
 
   const myProjectsQuery = useQuery({
-    queryKey: projectKeys.my(),
-    queryFn: getMyProjects,
+    queryKey: employerId ? [...projectKeys.my(), employerId] : projectKeys.my(),
+    queryFn: () => getMyProjects(employerId),
   })
 
   const employeeProjectsQuery = useQuery({
@@ -40,8 +53,30 @@ export function useProjects() {
   const createProjectMutation = useMutation({
     mutationFn: createProject,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: projectKeys.my() })
+      queryClient.invalidateQueries({ queryKey: projectKeys.all })
       queryClient.invalidateQueries({ queryKey: ['jobs'] })
+    },
+  })
+
+  const updateProjectMutation = useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string | number
+      payload: UpdateProjectPayload
+    }) => updateProject(id, payload),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.all })
+      queryClient.invalidateQueries({ queryKey: projectKeys.detail(variables.id) })
+    },
+  })
+
+  const closeProjectMutation = useMutation({
+    mutationFn: (projectId: string | number) => closeProject(projectId),
+    onSuccess: (_data, projectId) => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.all })
+      queryClient.invalidateQueries({ queryKey: projectKeys.detail(projectId) })
     },
   })
 
@@ -53,15 +88,15 @@ export function useProjects() {
   })
 
   const cancelMyProjectMutation = useMutation({
-    mutationFn: ({ projectId, reason }: { projectId: number; reason?: string }) =>
+    mutationFn: ({ projectId, reason }: { projectId: number | string; reason?: string }) =>
       cancelMyProject(projectId, reason),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: projectKeys.my() })
+      queryClient.invalidateQueries({ queryKey: projectKeys.all })
     },
   })
 
   const cancelEmployeeProjectMutation = useMutation({
-    mutationFn: ({ projectId, reason }: { projectId: number; reason?: string }) =>
+    mutationFn: ({ projectId, reason }: { projectId: number | string; reason?: string }) =>
       cancelEmployeeProject(projectId, reason),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: projectKeys.employee() })
@@ -73,7 +108,7 @@ export function useProjects() {
       projectId,
       members,
     }: {
-      projectId: number
+      projectId: number | string
       members: Parameters<typeof updateMyProjectMembers>[1]
     }) => updateMyProjectMembers(projectId, members),
     onSuccess: () => {
@@ -103,6 +138,8 @@ export function useProjects() {
     isLoading:
       myProjectsQuery.isLoading || employeeProjectsQuery.isLoading || pendingQuery.isLoading,
     createProject: createProjectMutation.mutateAsync,
+    updateProject: updateProjectMutation.mutateAsync,
+    closeProject: closeProjectMutation.mutateAsync,
     createContract: createContractMutation.mutateAsync,
     cancelMyProject: cancelMyProjectMutation.mutateAsync,
     cancelEmployeeProject: cancelEmployeeProjectMutation.mutateAsync,
