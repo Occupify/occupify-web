@@ -1,15 +1,14 @@
 import * as React from 'react'
 import {
+  CalendarBlankIcon,
   ClockIcon,
   BookmarkIcon,
-  EyeIcon,
   PaperPlaneTiltIcon,
   UsersIcon,
   StarIcon,
   ShieldCheckIcon,
   MapPinIcon,
   ArrowRightIcon,
-  CoinsIcon,
 } from '@phosphor-icons/react'
 import { Avatar } from '@/components/ui'
 import type { JobListing } from '../types'
@@ -49,7 +48,6 @@ export function JobCard({
   }
 
   const isClosed = job.status === 'CLOSED'
-  const isHourly = job.salaryType === 'hourly'
   const isLessCompetitive = job.submitsCount < 5
 
   return (
@@ -179,41 +177,25 @@ export function JobCard({
         </div>
       </div>
 
-      {/* ─── Compensation & Scope Highlight Bar (Freelance Signature) ─── */}
-      <div className="bg-slate-50 border border-slate-200/80 rounded-lg p-2.5 sm:px-3.5 sm:py-2.5 flex items-center gap-3 sm:gap-4 flex-wrap text-xs sm:text-[13px] mb-3">
-        {/* Budget Highlight */}
-        <div className="flex items-center gap-1.5">
-          <CoinsIcon size={16} weight="bold" className="text-[#0A66C2]" />
-          <span className="font-extrabold text-slate-900 text-sm sm:text-base tracking-tight">
-            {job.budget}
-          </span>
-          <span className="text-[11px] font-semibold text-[#0A66C2] bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200">
-            {isHourly ? 'Theo giờ' : 'Cố định dự án'}
-          </span>
-        </div>
-
-        <span className="text-slate-300 hidden sm:inline">|</span>
-
-        {/* Commitment Hours */}
-        <div className="flex items-center gap-1.5 text-slate-600">
-          <ClockIcon size={14} className="text-slate-400" />
+      {/* ─── Thời gian hoàn thành dự án & Hạn chót ứng tuyển ─── */}
+      <div className="bg-slate-50 border border-slate-200/80 rounded-lg p-2.5 sm:px-3.5 sm:py-2.5 flex items-center justify-between gap-3 flex-wrap text-xs sm:text-[13px] mb-3 text-slate-700">
+        <div className="flex items-center gap-2">
+          <CalendarBlankIcon size={16} weight="bold" className="text-[#0A66C2]" />
           <span>
-            Thời lượng:{' '}
-            <strong className="text-slate-800 font-semibold">
-              {job.hoursPerDay ? `${job.hoursPerDay}h / ngày` : 'Linh hoạt'}
+            Thời gian hoàn thành dự án:{' '}
+            <strong className="font-bold text-slate-900">
+              {job.dueDate || job.duration || 'Linh hoạt / Thỏa thuận'}
             </strong>
           </span>
         </div>
 
-        {/* Project Duration */}
-        {job.duration && (
-          <>
-            <span className="text-slate-300 hidden sm:inline">|</span>
-            <div className="text-slate-600">
-              Thời hạn bàn giao:{' '}
-              <strong className="text-slate-800 font-semibold">{job.duration}</strong>
-            </div>
-          </>
+        {job.bidCloseDate && (
+          <div className="flex items-center gap-1.5 text-amber-700 font-semibold bg-amber-50 px-2.5 py-1 rounded border border-amber-200/80">
+            <ClockIcon size={14} weight="bold" className="text-amber-600" />
+            <span>
+              Hạn chót ứng tuyển: <strong className="font-bold text-amber-900">{job.bidCloseDate}</strong>
+            </span>
+          </div>
         )}
       </div>
 
@@ -261,12 +243,6 @@ export function JobCard({
               </strong>{' '}
               vị trí
             </span>
-          </div>
-
-          {/* Views count */}
-          <div className="flex items-center gap-1">
-            <EyeIcon size={14} className="text-slate-400" />
-            <span>{job.viewsCount} xem</span>
           </div>
         </div>
 

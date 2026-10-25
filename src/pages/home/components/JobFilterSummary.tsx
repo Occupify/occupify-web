@@ -14,8 +14,8 @@ export interface JobFilterSummaryProps {
   searchKeyword: string
   onClearSearch: () => void
 
-  hoursPerDay: JobHoursPerDay
-  onClearHoursPerDay: () => void
+  hoursPerDay?: JobHoursPerDay
+  onClearHoursPerDay?: () => void
 
   budgetRange: JobBudgetRange
   onClearBudgetRange: () => void
@@ -37,7 +37,7 @@ export function JobFilterSummary({
   totalJobs,
   searchKeyword,
   onClearSearch,
-  hoursPerDay,
+  hoursPerDay = 'all',
   onClearHoursPerDay,
   budgetRange,
   onClearBudgetRange,
