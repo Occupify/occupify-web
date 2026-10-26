@@ -20,6 +20,7 @@ import {
 import { useCurrentUser } from '@/features/auth'
 import { useProjects, type CreateProjectFormData } from '@/features/projects'
 import { toast } from '@/components/feedback'
+import { ApiError } from '@/types'
 import {
   HomeHeroBanner,
   JobFilterToolbar,
@@ -192,8 +193,14 @@ export function HomePage({
       await createProject(formData)
       setSubPage(null)
       toast.success(`Dự án "${formData.name}" đã được đăng tải thành công!`)
-    } catch {
-      toast.error('Có lỗi xảy ra khi tạo dự án.')
+    } catch (err: unknown) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : 'Có lỗi xảy ra khi tạo dự án.'
+      toast.error(message)
     }
   }
 

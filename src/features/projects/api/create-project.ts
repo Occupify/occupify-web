@@ -22,46 +22,20 @@ export async function createProject(formData: CreateProjectFormData): Promise<My
     experienceLevel: toBackendExperienceLevel(formData.experienceLevel),
   }
 
-  let createdProject: MyProject
+  const res = await apiClient.post<CreatedResponse<ProjectDetail>>('/projects', payload)
+  if (!res?.data) {
+    throw new Error('Máy chủ không phản hồi dữ liệu dự án')
+  }
 
-  try {
-    const res = await apiClient.post<CreatedResponse<ProjectDetail>>('/projects', payload)
-    if (res.data) {
-      createdProject = toMyProject(res.data)
-      if (formData.dueDate) createdProject.dueDate = formData.dueDate
-      if (formData.bidCloseDate) createdProject.bidCloseDate = formData.bidCloseDate
-      if (!createdProject.tags || createdProject.tags.length === 0) {
-        createdProject.tags = formData.tags || []
-      }
-      if (!createdProject.recruitingRoles || createdProject.recruitingRoles.length === 0) {
-        createdProject.recruitingRoles = (formData.tags || ['Chuyên môn']).map(
-          (tag: string, idx: number) => ({
-            id: `role-${Date.now()}-${idx}`,
-            title: tag.includes('Developer') || tag.includes('Design') ? tag : `${tag} Specialist`,
-            skills: [tag],
-            salaryRange: formattedSalary,
-            slotsTotal: 1,
-            slotsFilled: 0,
-            status: 'recruiting' as const,
-          }),
-        )
-      }
-    } else {
-      throw new Error('No data returned from server')
-    }
-  } catch {
-    // Fallback to local store for offline/unauthenticated mock development
-    createdProject = {
-      id: `local-${Date.now()}`,
-      name: formData.name,
-      description: formData.description,
-      owner: 'Tôi (Chủ dự án)',
-      period: formData.period || 'Hàng tháng',
-      dueDate: formData.dueDate,
-      bidCloseDate: formData.bidCloseDate,
-      tags: formData.tags || [],
-      members: [],
-      recruitingRoles: (formData.tags || ['Chuyên môn']).map((tag: string, idx: number) => ({
+  const createdProject = toMyProject(res.data)
+  if (formData.dueDate) createdProject.dueDate = formData.dueDate
+  if (formData.bidCloseDate) createdProject.bidCloseDate = formData.bidCloseDate
+  if (!createdProject.tags || createdProject.tags.length === 0) {
+    createdProject.tags = formData.tags || []
+  }
+  if (!createdProject.recruitingRoles || createdProject.recruitingRoles.length === 0) {
+    createdProject.recruitingRoles = (formData.tags || ['Chuyên môn']).map(
+      (tag: string, idx: number) => ({
         id: `role-${Date.now()}-${idx}`,
         title: tag.includes('Developer') || tag.includes('Design') ? tag : `${tag} Specialist`,
         skills: [tag],
@@ -69,8 +43,8 @@ export async function createProject(formData: CreateProjectFormData): Promise<My
         slotsTotal: 1,
         slotsFilled: 0,
         status: 'recruiting' as const,
-      })),
-    }
+      }),
+    )
   }
 
   const { myProjects } = getInternalStores()

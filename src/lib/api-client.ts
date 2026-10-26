@@ -63,7 +63,8 @@ async function performTokenRefresh(): Promise<string> {
   }
 
   try {
-    const refreshUrl = `${env.apiBaseUrl}/auth/refresh-token`
+    const cleanBaseUrl = env.apiBaseUrl.replace(/\/+$/, '')
+    const refreshUrl = `${cleanBaseUrl}/auth/refresh-token`
     const response = await fetch(refreshUrl, {
       method: 'POST',
       headers: {
@@ -80,9 +81,11 @@ async function performTokenRefresh(): Promise<string> {
       } catch {
         // Ignored
       }
-      clearTokens()
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('occupify:session-expired'))
+      if (response.status === 400 || response.status === 401 || response.status === 403) {
+        clearTokens()
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('occupify:session-expired'))
+        }
       }
       throw new ApiError(
         errorBody?.message || 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
@@ -94,6 +97,7 @@ async function performTokenRefresh(): Promise<string> {
     const payload = await response.json()
     const newAccessToken = payload?.data?.accessToken || payload?.accessToken
     const newRefreshToken = payload?.data?.refreshToken || payload?.refreshToken || refreshToken
+    const newUser = payload?.data?.user || payload?.user
 
     if (!newAccessToken) {
       clearTokens()
@@ -103,12 +107,14 @@ async function performTokenRefresh(): Promise<string> {
       throw new ApiError('Malformed refresh response', 500, 'AUTH_005')
     }
 
-    setTokens(newAccessToken, newRefreshToken)
+    setTokens(newAccessToken, newRefreshToken, newUser)
     return newAccessToken
   } catch (error) {
-    clearTokens()
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('occupify:session-expired'))
+    if (error instanceof ApiError && (error.statusCode === 400 || error.statusCode === 401 || error.statusCode === 403)) {
+      clearTokens()
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('occupify:session-expired'))
+      }
     }
     throw error
   }
@@ -117,7 +123,9 @@ async function performTokenRefresh(): Promise<string> {
 export async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const { params, skipAuth = false, headers: customHeaders, ...customConfig } = options
 
-  let url = endpoint.startsWith('http') ? endpoint : `${env.apiBaseUrl}${endpoint}`
+  const cleanBase = env.apiBaseUrl.replace(/\/+$/, '')
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`
+  let url = endpoint.startsWith('http') ? endpoint : `${cleanBase}${cleanEndpoint}`
 
   if (params) {
     const searchParams = new URLSearchParams()
@@ -246,6 +254,10 @@ async function handleResponse<T>(response: Response): Promise<T> {
   }
 
   return data as T
+}
+
+export async function refreshAuthToken(): Promise<string> {
+  return performTokenRefresh()
 }
 
 export const apiClient = {
