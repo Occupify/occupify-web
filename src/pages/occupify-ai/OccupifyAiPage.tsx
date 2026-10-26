@@ -54,7 +54,8 @@ export function OccupifyAiPage() {
           </h1>
 
           <p className="text-sm sm:text-base text-slate-600 mt-2 leading-relaxed">
-            Chọn một trong các công cụ trí tuệ nhân tạo dưới đây để bắt đầu trải nghiệm và tối ưu hóa quy trình của bạn.
+            Chọn một trong các công cụ trí tuệ nhân tạo dưới đây để bắt đầu trải nghiệm và tối ưu
+            hóa quy trình của bạn.
           </p>
         </div>
 

@@ -2,7 +2,10 @@ import * as React from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowLeftIcon, BriefcaseMetalIcon } from '@phosphor-icons/react'
 import { useJob, JobDetailsView, type JobListing } from '@/features/jobs'
-import { SEED_CONTRACTS, matchedContractToJobListing } from '@/pages/occupify-ai/occupify-ai-mock-data'
+import {
+  SEED_CONTRACTS,
+  matchedContractToJobListing,
+} from '@/pages/occupify-ai/occupify-ai-mock-data'
 import { toast } from '@/components/feedback'
 
 export function JobDetailPage() {
@@ -80,9 +83,12 @@ export function JobDetailPage() {
         <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 mb-4 shadow-2xs">
           <BriefcaseMetalIcon size={32} weight="duotone" />
         </div>
-        <h1 className="text-xl font-bold text-slate-900 mb-1.5">Không tìm thấy thông tin hợp đồng</h1>
+        <h1 className="text-xl font-bold text-slate-900 mb-1.5">
+          Không tìm thấy thông tin hợp đồng
+        </h1>
         <p className="text-sm text-slate-500 max-w-md mb-6 leading-relaxed">
-          Hợp đồng hoặc dự án này có thể đã kết thúc tuyển dụng, đã được gỡ xuống hoặc đường dẫn không chính xác.
+          Hợp đồng hoặc dự án này có thể đã kết thúc tuyển dụng, đã được gỡ xuống hoặc đường dẫn
+          không chính xác.
         </p>
         <button
           type="button"

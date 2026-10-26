@@ -663,10 +663,8 @@ export function JobDetailsView({
                   const isRoleFilled = role.status === 'filled'
                   const isHighlighted = Boolean(
                     (highlightRoleId && role.id === highlightRoleId) ||
-                      (highlightRoleTitle &&
-                        role.title
-                          .toLowerCase()
-                          .includes(highlightRoleTitle.toLowerCase().trim())),
+                    (highlightRoleTitle &&
+                      role.title.toLowerCase().includes(highlightRoleTitle.toLowerCase().trim())),
                   )
 
                   return (

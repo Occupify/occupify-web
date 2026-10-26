@@ -57,7 +57,8 @@ export const SEED_CONTRACTS: MatchedContractSeed[] = [
     duration: '6 tháng',
     postedAgo: '5 giờ trước',
     matchScore: 92,
-    matchReason: 'Phù hợp định hướng kiến trúc Node.js, RESTful API và quản trị cơ sở dữ liệu PostgreSQL',
+    matchReason:
+      'Phù hợp định hướng kiến trúc Node.js, RESTful API và quản trị cơ sở dữ liệu PostgreSQL',
     matchedSkills: ['Node.js', 'React', 'PostgreSQL', 'Docker'],
     otherSkills: ['NestJS', 'Redis'],
     description:
@@ -79,7 +80,8 @@ export const SEED_CONTRACTS: MatchedContractSeed[] = [
     duration: '2 tháng',
     postedAgo: '1 ngày trước',
     matchScore: 89,
-    matchReason: 'Trùng khớp năng lực thiết kế Figma, nghiên cứu người dùng và chuyển giao kỹ thuật',
+    matchReason:
+      'Trùng khớp năng lực thiết kế Figma, nghiên cứu người dùng và chuyển giao kỹ thuật',
     matchedSkills: ['Figma', 'Design System', 'UI/UX', 'User Research'],
     otherSkills: ['Prototyping', 'Design Tokens'],
     description:
@@ -182,7 +184,9 @@ export const SUGGESTED_PROMPTS = [
  * Converts a MatchedContractSeed from Occupify AI into a complete JobListing structure
  * for rendering in JobDetailsView or related views.
  */
-export function matchedContractToJobListing(seed: MatchedContractSeed): import('@/features/jobs').JobListing {
+export function matchedContractToJobListing(
+  seed: MatchedContractSeed,
+): import('@/features/jobs').JobListing {
   const numericSalary = parseInt(seed.budget.replace(/\D/g, ''), 10) || 30000000
   return {
     id: seed.id,

@@ -14,16 +14,15 @@ export function AiFeaturePlaceholderPage() {
   const navigate = useNavigate()
   const { featureId } = useParams<{ featureId: string }>()
 
-  const currentFeature =
-    AI_FEATURES.find((f) => f.id === featureId) ?? {
-      id: 'improve-cv',
-      title: 'Occupify AI Feature',
-      subtitle: 'Tính năng trí tuệ nhân tạo',
-      description: 'Công cụ hỗ trợ tối ưu hóa quy trình làm việc và phát triển sự nghiệp.',
-      iconKey: 'file-text' as const,
-      route: '/occupify-ai',
-      isAvailable: false,
-    }
+  const currentFeature = AI_FEATURES.find((f) => f.id === featureId) ?? {
+    id: 'improve-cv',
+    title: 'Occupify AI Feature',
+    subtitle: 'Tính năng trí tuệ nhân tạo',
+    description: 'Công cụ hỗ trợ tối ưu hóa quy trình làm việc và phát triển sự nghiệp.',
+    iconKey: 'file-text' as const,
+    route: '/occupify-ai',
+    isAvailable: false,
+  }
 
   const renderIcon = (iconKey: string) => {
     switch (iconKey) {
@@ -50,7 +49,10 @@ export function AiFeaturePlaceholderPage() {
             onClick={() => navigate('/occupify-ai')}
             className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-[#0A66C2] transition-colors cursor-pointer group"
           >
-            <ArrowLeftIcon size={14} className="group-hover:-translate-x-0.5 transition-transform" />
+            <ArrowLeftIcon
+              size={14}
+              className="group-hover:-translate-x-0.5 transition-transform"
+            />
             <span>Quay lại Occupify AI</span>
           </button>
         </div>
@@ -65,16 +67,13 @@ export function AiFeaturePlaceholderPage() {
             Tính năng đang được phát triển (Coming Soon)
           </span>
 
-          <h1 className="text-2xl font-extrabold text-slate-900 mb-2">
-            {currentFeature.title}
-          </h1>
+          <h1 className="text-2xl font-extrabold text-slate-900 mb-2">{currentFeature.title}</h1>
 
-          <p className="text-sm font-semibold text-[#0A66C2] mb-3">
-            {currentFeature.subtitle}
-          </p>
+          <p className="text-sm font-semibold text-[#0A66C2] mb-3">{currentFeature.subtitle}</p>
 
           <p className="text-sm text-slate-600 max-w-md mx-auto mb-8 leading-relaxed">
-            {currentFeature.description} Đội ngũ kỹ sư Occupify đang hoàn thiện mô hình và sẽ cập nhật sớm trong phiên bản tới.
+            {currentFeature.description} Đội ngũ kỹ sư Occupify đang hoàn thiện mô hình và sẽ cập
+            nhật sớm trong phiên bản tới.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">

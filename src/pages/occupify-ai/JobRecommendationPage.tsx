@@ -44,7 +44,9 @@ export function JobRecommendationPage() {
   const [isSearching, setIsSearching] = React.useState(false)
   const [hasSearched, setHasSearched] = React.useState(true) // Set true initially so seed data is immediately visible
   const [savedContractIds, setSavedContractIds] = React.useState<number[]>([101])
-  const [contractFilter, setContractFilter] = React.useState<'all' | 'remote' | 'fixed' | 'hourly'>('all')
+  const [contractFilter, setContractFilter] = React.useState<'all' | 'remote' | 'fixed' | 'hourly'>(
+    'all',
+  )
 
   // ─── AI Chat Box State ───
   const [chatMessages, setChatMessages] = React.useState<ChatMessage[]>(INITIAL_CHAT_MESSAGES)
@@ -164,7 +166,8 @@ export function JobRecommendationPage() {
 
     // Simulate AI response & filtering
     setTimeout(() => {
-      let replyText = 'Tôi đã ghi nhận yêu cầu của bạn và đang cập nhật lại danh sách hợp đồng đề xuất phù hợp nhất.'
+      let replyText =
+        'Tôi đã ghi nhận yêu cầu của bạn và đang cập nhật lại danh sách hợp đồng đề xuất phù hợp nhất.'
       const lower = text.toLowerCase()
 
       if (lower.includes('remote')) {
@@ -211,7 +214,10 @@ export function JobRecommendationPage() {
             onClick={() => navigate('/occupify-ai')}
             className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-[#0A66C2] transition-colors cursor-pointer group"
           >
-            <ArrowLeftIcon size={14} className="group-hover:-translate-x-0.5 transition-transform" />
+            <ArrowLeftIcon
+              size={14}
+              className="group-hover:-translate-x-0.5 transition-transform"
+            />
             <span>Quay lại Occupify AI</span>
           </button>
         </div>
@@ -228,7 +234,8 @@ export function JobRecommendationPage() {
               </h1>
             </div>
             <p className="text-xs sm:text-sm text-slate-600 mt-0.5 max-w-2xl">
-              Đối soát hồ sơ CV với dữ liệu các dự án đang tuyển dụng và gợi ý hợp đồng có độ khớp cao nhất.
+              Đối soát hồ sơ CV với dữ liệu các dự án đang tuyển dụng và gợi ý hợp đồng có độ khớp
+              cao nhất.
             </p>
           </div>
         </div>
@@ -267,16 +274,18 @@ export function JobRecommendationPage() {
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
-                  className={`border-2 border-dashed rounded-xl p-6 text-center transition-all cursor-pointer ${isDragging
-                    ? 'border-[#0A66C2] bg-sky-50/50'
-                    : 'border-slate-300 hover:border-[#0A66C2] bg-slate-50/60 hover:bg-sky-50/20'
-                    }`}
+                  className={`border-2 border-dashed rounded-xl p-6 text-center transition-all cursor-pointer ${
+                    isDragging
+                      ? 'border-[#0A66C2] bg-sky-50/50'
+                      : 'border-slate-300 hover:border-[#0A66C2] bg-slate-50/60 hover:bg-sky-50/20'
+                  }`}
                 >
                   <div className="w-10 h-10 rounded-full bg-sky-50 text-[#0A66C2] flex items-center justify-center mx-auto mb-2.5 border border-sky-100">
                     <UploadSimpleIcon size={20} weight="bold" />
                   </div>
                   <div className="text-xs sm:text-sm font-bold text-slate-800">
-                    Kéo thả file CV vào đây, hoặc <span className="text-[#0A66C2] underline">duyệt từ máy</span>
+                    Kéo thả file CV vào đây, hoặc{' '}
+                    <span className="text-[#0A66C2] underline">duyệt từ máy</span>
                   </div>
                   <div className="text-[11px] text-slate-400 mt-1">
                     Định dạng hỗ trợ: PDF, DOCX, DOC (Tối đa 5MB)
@@ -297,7 +306,9 @@ export function JobRecommendationPage() {
                         <span>{selectedCvFile.size}</span>
                         <span>·</span>
                         <span className="text-emerald-700 font-medium">
-                          {selectedCvFile.source === 'profile' ? 'Lấy từ hồ sơ cá nhân' : 'Tải lên từ máy'}
+                          {selectedCvFile.source === 'profile'
+                            ? 'Lấy từ hồ sơ cá nhân'
+                            : 'Tải lên từ máy'}
                         </span>
                       </div>
                     </div>
@@ -394,10 +405,11 @@ export function JobRecommendationPage() {
                         </div>
                       )}
                       <div
-                        className={`max-w-[85%] rounded-xl p-3 leading-relaxed ${isAi
-                          ? 'bg-slate-50 border border-slate-200/80 text-slate-700'
-                          : 'bg-[#0A66C2] text-white font-medium'
-                          }`}
+                        className={`max-w-[85%] rounded-xl p-3 leading-relaxed ${
+                          isAi
+                            ? 'bg-slate-50 border border-slate-200/80 text-slate-700'
+                            : 'bg-[#0A66C2] text-white font-medium'
+                        }`}
                       >
                         {msg.text}
                       </div>
@@ -467,7 +479,8 @@ export function JobRecommendationPage() {
             {/* Notice if CV is not selected yet */}
             {!selectedCvFile && !hasSearched && (
               <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800 leading-relaxed">
-                <strong>Gợi ý:</strong> Chọn CV ở cột bên trái và bấm <strong>Tìm việc</strong> để AI so khớp chính xác các kỹ năng trong CV với yêu cầu từng hợp đồng.
+                <strong>Gợi ý:</strong> Chọn CV ở cột bên trái và bấm <strong>Tìm việc</strong> để
+                AI so khớp chính xác các kỹ năng trong CV với yêu cầu từng hợp đồng.
               </div>
             )}
 
@@ -481,8 +494,6 @@ export function JobRecommendationPage() {
                     key={contract.id}
                     className="bg-white rounded-2xl border border-slate-200/90 hover:border-sky-300 shadow-xs hover:shadow-md transition-all p-5"
                   >
-
-
                     {/* Main Title & Client Details */}
                     <div className="mb-2">
                       <h3
@@ -540,10 +551,11 @@ export function JobRecommendationPage() {
                         <button
                           type="button"
                           onClick={() => handleToggleSaveContract(contract.id)}
-                          className={`p-2 rounded-lg border transition-colors cursor-pointer ${isSaved
-                            ? 'bg-sky-50 border-sky-200 text-[#0A66C2]'
-                            : 'bg-white border-slate-200 text-slate-400 hover:text-slate-600 hover:border-slate-300'
-                            }`}
+                          className={`p-2 rounded-lg border transition-colors cursor-pointer ${
+                            isSaved
+                              ? 'bg-sky-50 border-sky-200 text-[#0A66C2]'
+                              : 'bg-white border-slate-200 text-slate-400 hover:text-slate-600 hover:border-slate-300'
+                          }`}
                           title={isSaved ? 'Bỏ lưu hợp đồng' : 'Lưu hợp đồng'}
                         >
                           <BookmarkIcon size={15} weight={isSaved ? 'fill' : 'regular'} />
