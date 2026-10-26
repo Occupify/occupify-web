@@ -9,6 +9,7 @@ import {
   XIcon,
 } from '@phosphor-icons/react'
 import { toast } from '@/components/feedback'
+import { ApiError } from '@/types'
 import { useCurrentUser } from '@/features/auth'
 import {
   PendingProjectCard,
@@ -48,6 +49,9 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
     employeeProjects,
     pending,
     isLoading,
+    isError,
+    error,
+    refetch,
     createProject,
     updateProject,
     createContract,
@@ -208,8 +212,14 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
       await createProject(formData)
       setSearchParams({}, { replace: true })
       toast.success(`Dự án "${formData.name}" đã được tạo thành công!`)
-    } catch {
-      toast.error('Có lỗi xảy ra khi tạo dự án.')
+    } catch (err: unknown) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : 'Có lỗi xảy ra khi tạo dự án.'
+      toast.error(message)
     }
   }
 
@@ -475,8 +485,34 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
         </div>
       )}
 
+      {/* Error state */}
+      {!isLoading && isError && (
+        <div className="mb-6 rounded-xl border border-red-200 bg-red-50/80 p-6 text-center dark:border-red-900/30 dark:bg-red-950/20">
+          <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400">
+            <XIcon size={22} weight="bold" />
+          </div>
+          <h3 className="text-sm font-bold text-red-800 dark:text-red-300">
+            Không thể tải dữ liệu dự án từ hệ thống
+          </h3>
+          <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+            {error instanceof ApiError
+              ? error.message
+              : error instanceof Error
+                ? error.message
+                : 'Máy chủ phản hồi lỗi khi truy vấn dự án (404 / 503).'}
+          </p>
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="mt-4 inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-red-700"
+          >
+            Thử lại
+          </button>
+        </div>
+      )}
+
       {/* Content Rendering */}
-      {!isLoading && activeTab === 'all' && (
+      {!isLoading && !isError && activeTab === 'all' && (
         <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[1fr_400px]">
           {/* Left Column: Projects */}
           <div className="space-y-4">
@@ -536,7 +572,7 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
         </div>
       )}
 
-      {!isLoading && activeTab === 'owner' && (
+      {!isLoading && !isError && activeTab === 'owner' && (
         <div className="max-w-3xl">
           <ProjectListCard
             title="Các dự án của tôi"

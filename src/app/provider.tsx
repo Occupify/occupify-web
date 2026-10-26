@@ -5,6 +5,7 @@ import { ToastContainer } from '@/components/feedback'
 import { toast } from '@/stores'
 import { ApiError } from '@/types'
 import { env } from '@/config/env'
+import { useAutoRefreshToken } from '@/features/auth/hooks'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,6 +28,8 @@ interface AppProviderProps {
 }
 
 export function AppProvider({ children }: AppProviderProps) {
+  useAutoRefreshToken()
+
   useEffect(() => {
     const handleSessionExpired = () => {
       toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại để tiếp tục.', {
