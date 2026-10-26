@@ -10,6 +10,7 @@ import {
   UserIcon,
   WalletIcon,
   ReceiptIcon,
+  SparkleIcon,
 } from '@phosphor-icons/react'
 import { Avatar } from '@/components/ui'
 
@@ -36,6 +37,7 @@ export function UserNavBar({ unreadNotificationsCount }: UserNavBarProps = {}) {
   const navItems = [
     { to: '/home', label: 'Trang chủ', Icon: HouseIcon, end: false },
     { to: '/workspace', label: 'Quản lý dự án', Icon: BriefcaseMetalIcon, end: false },
+    { to: '/occupify-ai', label: 'Occupify AI', Icon: SparkleIcon, end: false },
     { to: '/saved', label: 'Mục đã lưu', Icon: BookmarkIcon, end: false },
     {
       to: '/notifications',
