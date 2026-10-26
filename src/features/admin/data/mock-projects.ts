@@ -1,0 +1,148 @@
+import type { AdminProject } from '../types'
+
+export const ADMIN_PROJECTS_DATA: AdminProject[] = [
+  {
+    id: 1,
+    title: 'Thiết kế UI/UX cho ứng dụng quản lý nội bộ',
+    owner: { name: 'Phạm Quỳnh Anh', initials: 'QA', color: '#8B5CF6' },
+    budget: '15.000.000 ₫',
+    budgetType: 'Cố định',
+    field: 'Thiết kế',
+    applicants: 12,
+    status: 'Đang tuyển',
+    date: '10/09/2026',
+    description:
+      'Cần designer có kinh nghiệm thiết kế hệ thống quản lý nội bộ cho doanh nghiệp vừa và nhỏ. Hệ thống bao gồm dashboard, báo cáo, và quản lý nhân sự.',
+    skills: ['Figma', 'UI/UX', 'Design System', 'Prototyping'],
+    applicantList: [
+      {
+        name: 'Lê Văn Đức',
+        initials: 'LĐ',
+        color: '#B06000',
+        date: '11/09/2026',
+        bid: '14.500.000 ₫',
+      },
+      {
+        name: 'Hoàng Minh Tuấn',
+        initials: 'MT',
+        color: '#D97706',
+        date: '12/09/2026',
+        bid: '15.000.000 ₫',
+      },
+    ],
+  },
+  {
+    id: 2,
+    title: 'Phát triển backend API cho hệ thống thương mại điện tử',
+    owner: { name: 'Trần Thị Hương', initials: 'TH', color: '#057642' },
+    budget: '25.000.000 ₫',
+    budgetType: 'Hàng tháng',
+    field: 'Lập trình',
+    applicants: 8,
+    status: 'Đang thực hiện',
+    date: '05/08/2026',
+    description:
+      'Cần backend developer với kinh nghiệm Node.js hoặc Golang để xây dựng hệ thống API RESTful, tích hợp cổng thanh toán, và xử lý đơn hàng.',
+    skills: ['Node.js', 'PostgreSQL', 'Redis', 'Docker'],
+    applicantList: [
+      {
+        name: 'Ngô Đức Hải',
+        initials: 'NH',
+        color: '#6366F1',
+        date: '06/08/2026',
+        bid: '24.000.000 ₫',
+      },
+    ],
+  },
+  {
+    id: 3,
+    title: 'Marketing content cho chiến dịch ra mắt sản phẩm Q4',
+    owner: { name: 'Đỗ Thị Lan Anh', initials: 'LA', color: '#0891B2' },
+    budget: '8.000.000 ₫',
+    budgetType: 'Cố định',
+    field: 'Marketing',
+    applicants: 20,
+    status: 'Đã đóng',
+    date: '01/07/2026',
+    description:
+      'Cần content writer và marketer để xây dựng chiến lược nội dung, viết bài blog, email marketing và quản lý mạng xã hội cho chiến dịch Q4.',
+    skills: ['Content Writing', 'SEO', 'Social Media', 'Email Marketing'],
+    applicantList: [
+      {
+        name: 'Bùi Thị Ngọc',
+        initials: 'BN',
+        color: '#059669',
+        date: '02/07/2026',
+        bid: '7.800.000 ₫',
+      },
+      {
+        name: 'Lý Thanh Hà',
+        initials: 'LH',
+        color: '#9333EA',
+        date: '03/07/2026',
+        bid: '8.200.000 ₫',
+      },
+    ],
+  },
+  {
+    id: 4,
+    title: 'Xây dựng hệ thống CRM cho doanh nghiệp bảo hiểm',
+    owner: { name: 'Cao Trung Kiên', initials: 'CK', color: '#16A34A' },
+    budget: '40.000.000 ₫',
+    budgetType: 'Hàng tháng',
+    field: 'Lập trình',
+    applicants: 5,
+    status: 'Đang tuyển',
+    date: '14/09/2026',
+    description:
+      'Cần team full-stack xây dựng CRM tích hợp với hệ thống bảo hiểm hiện có, bao gồm quản lý khách hàng, hợp đồng, và tự động hóa quy trình.',
+    skills: ['React', 'Django', 'PostgreSQL', 'AWS'],
+    applicantList: [],
+  },
+  {
+    id: 5,
+    title: 'Thiết kế logo và bộ nhận diện thương hiệu startup fintech',
+    owner: { name: 'Đinh Thị Thu', initials: 'DT', color: '#EC4899' },
+    budget: '6.000.000 ₫',
+    budgetType: 'Cố định',
+    field: 'Thiết kế',
+    applicants: 31,
+    status: 'Đang thực hiện',
+    date: '20/08/2026',
+    description:
+      'Cần graphic designer thiết kế logo, bảng màu, typography, và các tài liệu truyền thông cơ bản cho startup fintech mới thành lập.',
+    skills: ['Illustrator', 'Branding', 'Logo Design', 'Typography'],
+    applicantList: [
+      {
+        name: 'Nguyễn Minh Khoa',
+        initials: 'NK',
+        color: '#0A66C2',
+        date: '21/08/2026',
+        bid: '5.900.000 ₫',
+      },
+    ],
+  },
+  {
+    id: 6,
+    title: 'Data Analytics dashboard cho hệ thống logistics',
+    owner: { name: 'Vũ Tiến Dũng', initials: 'VD', color: '#C03A2B' },
+    budget: '20.000.000 ₫',
+    budgetType: 'Cố định',
+    field: 'Data / AI',
+    applicants: 9,
+    status: 'Đang tuyển',
+    date: '08/09/2026',
+    description:
+      'Cần data analyst xây dựng dashboard theo dõi hiệu suất vận chuyển, phân tích tuyến đường, và dự báo nhu cầu bằng Power BI hoặc Tableau.',
+    skills: ['Power BI', 'SQL', 'Python', 'Data Visualization'],
+    applicantList: [
+      {
+        name: 'Cao Trung Kiên',
+        initials: 'CK',
+        color: '#16A34A',
+        date: '09/09/2026',
+        bid: '19.500.000 ₫',
+      },
+    ],
+  },
+]
