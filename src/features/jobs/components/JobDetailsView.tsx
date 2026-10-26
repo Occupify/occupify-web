@@ -14,6 +14,7 @@ import {
   StarIcon,
   MapPinIcon,
   ShareNetworkIcon,
+  SparkleIcon,
 } from '@phosphor-icons/react'
 import { Avatar } from '@/components/ui'
 import { toast } from '@/components/feedback'
@@ -28,6 +29,8 @@ export interface JobDetailsViewProps {
   isSaved?: boolean
   onToggleSave?: () => void
   onApplySuccess?: (roleId: string, roleTitle: string) => void
+  highlightRoleId?: string
+  highlightRoleTitle?: string
 }
 
 export function JobDetailsView({
@@ -37,43 +40,69 @@ export function JobDetailsView({
   isSaved = false,
   onToggleSave,
   onApplySuccess,
+  highlightRoleId,
+  highlightRoleTitle,
 }: JobDetailsViewProps) {
   const [selectedRoleForApply, setSelectedRoleForApply] = React.useState<JobRoleItem | null>(null)
   const [appliedRoleIds, setAppliedRoleIds] = React.useState<string[]>([])
   const [reportModalOpen, setReportModalOpen] = React.useState(false)
 
   // Fallback to synthesize at least 1 role if job has no explicit roles list
-  const roles: JobRoleItem[] =
-    job.roles && job.roles.length > 0
-      ? job.roles
-      : [
-          {
-            id: `def-${job.id}`,
-            title: job.title,
-            minBudget: job.salaryValue ? Math.round(job.salaryValue * 0.85) : 20000000,
-            maxBudget: job.salaryValue ? Math.round(job.salaryValue * 1.15) : 35000000,
-            budgetDisplay: job.budget,
-            salaryType: job.salaryType || 'fixed',
-            salaryTypeLabel:
-              job.salaryType === 'hourly'
-                ? '/ giờ'
-                : job.salaryType === 'weekly'
-                  ? '/ tuần'
-                  : job.salaryType === 'monthly'
-                    ? '/ tháng'
-                    : '/ dự án',
-            jd: job.description,
-            requirements: [
-              'Tối thiểu 2 năm kinh nghiệm thực chiến trong các dự án tương đương',
-              'Khả năng làm việc độc lập và báo cáo tiến độ đúng hạn',
-              'Cam kết chất lượng đầu ra đạt tiêu chuẩn sản phẩm',
-            ],
-            skills: job.skills,
-            slotsTotal: job.openPositions || 1,
-            slotsFilled: job.filledPositions || 0,
-            status: job.status === 'CLOSED' ? 'filled' : 'recruiting',
-          },
-        ]
+  const roles: JobRoleItem[] = React.useMemo(
+    () =>
+      job.roles && job.roles.length > 0
+        ? job.roles
+        : [
+            {
+              id: `def-${job.id}`,
+              title: job.title,
+              minBudget: job.salaryValue ? Math.round(job.salaryValue * 0.85) : 20000000,
+              maxBudget: job.salaryValue ? Math.round(job.salaryValue * 1.15) : 35000000,
+              budgetDisplay: job.budget,
+              salaryType: job.salaryType || 'fixed',
+              salaryTypeLabel:
+                job.salaryType === 'hourly'
+                  ? '/ giờ'
+                  : job.salaryType === 'weekly'
+                    ? '/ tuần'
+                    : job.salaryType === 'monthly'
+                      ? '/ tháng'
+                      : '/ dự án',
+              jd: job.description,
+              requirements: [
+                'Tối thiểu 2 năm kinh nghiệm thực chiến trong các dự án tương đương',
+                'Khả năng làm việc độc lập và báo cáo tiến độ đúng hạn',
+                'Cam kết chất lượng đầu ra đạt tiêu chuẩn sản phẩm',
+              ],
+              skills: job.skills,
+              slotsTotal: job.openPositions || 1,
+              slotsFilled: job.filledPositions || 0,
+              status: job.status === 'CLOSED' ? 'filled' : 'recruiting',
+            },
+          ],
+    [job],
+  )
+
+  // Auto-scroll to highlighted contract role if specified
+  React.useEffect(() => {
+    if (highlightRoleId || highlightRoleTitle) {
+      const targetRole = roles.find(
+        (r) =>
+          (highlightRoleId && r.id === highlightRoleId) ||
+          (highlightRoleTitle &&
+            r.title.toLowerCase().includes(highlightRoleTitle.toLowerCase().trim())),
+      )
+      if (targetRole) {
+        const timer = setTimeout(() => {
+          const el = document.getElementById(`role-card-${targetRole.id}`)
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          }
+        }, 250)
+        return () => clearTimeout(timer)
+      }
+    }
+  }, [highlightRoleId, highlightRoleTitle, roles])
 
   const handleApplyRoleSuccess = (roleId: string, roleTitle: string) => {
     setAppliedRoleIds((prev) => (prev.includes(roleId) ? prev : [...prev, roleId]))
@@ -81,7 +110,7 @@ export function JobDetailsView({
   }
 
   const handleShareProject = () => {
-    const shareUrl = `${window.location.origin}/home?jobId=${job.id}`
+    const shareUrl = `${window.location.origin}/jobs/${job.id}`
     if (navigator?.clipboard?.writeText) {
       navigator.clipboard.writeText(shareUrl).then(
         () => toast.success('Đã sao chép liên kết dự án vào bộ nhớ tạm!'),
@@ -632,23 +661,57 @@ export function JobDetailsView({
                 {roles.map((role) => {
                   const isApplied = appliedRoleIds.includes(role.id)
                   const isRoleFilled = role.status === 'filled'
+                  const isHighlighted = Boolean(
+                    (highlightRoleId && role.id === highlightRoleId) ||
+                      (highlightRoleTitle &&
+                        role.title
+                          .toLowerCase()
+                          .includes(highlightRoleTitle.toLowerCase().trim())),
+                  )
 
                   return (
                     <div
                       key={role.id}
+                      id={`role-card-${role.id}`}
                       style={{
-                        background: '#fff',
+                        background: isHighlighted ? '#F8FAFF' : '#fff',
                         borderRadius: 12,
-                        border: isApplied
-                          ? '1.5px solid var(--color-success-border)'
-                          : '1px solid var(--border-default)',
-                        boxShadow: isApplied
-                          ? '0 2px 12px rgba(5,118,66,0.08)'
-                          : 'var(--shadow-card)',
+                        border: isHighlighted
+                          ? '2px solid #0A66C2'
+                          : isApplied
+                            ? '1.5px solid var(--color-success-border)'
+                            : '1px solid var(--border-default)',
+                        boxShadow: isHighlighted
+                          ? '0 6px 20px rgba(10, 102, 194, 0.12)'
+                          : isApplied
+                            ? '0 2px 12px rgba(5,118,66,0.08)'
+                            : 'var(--shadow-card)',
                         padding: '22px 24px',
-                        transition: 'all 150ms ease',
+                        transition: 'all 200ms ease',
                       }}
                     >
+                      {/* Highlighted recommendation banner */}
+                      {isHighlighted && (
+                        <div
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            background: '#EFF6FF',
+                            color: '#084fa0',
+                            border: '1px solid #BFDBFE',
+                            padding: '4px 10px',
+                            borderRadius: 6,
+                            fontSize: 12,
+                            fontWeight: 700,
+                            marginBottom: 12,
+                          }}
+                        >
+                          <SparkleIcon size={14} weight="fill" />
+                          <span>Vị trí hợp đồng được đề xuất theo hồ sơ của bạn</span>
+                        </div>
+                      )}
+
                       {/* Top row: Title + Slots status + Budget range */}
                       <div
                         style={{
