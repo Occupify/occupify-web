@@ -15,6 +15,10 @@ const NotificationsPage = lazy(() => import('@/pages/notifications'))
 const ProfilePage = lazy(() => import('@/pages/profile'))
 const MyWalletPage = lazy(() => import('@/pages/wallet'))
 const FinancialHistoryPage = lazy(() => import('@/pages/financial-history'))
+const OccupifyAiPage = lazy(() => import('@/pages/occupify-ai'))
+const JobRecommendationPage = lazy(() => import('@/pages/occupify-ai/JobRecommendationPage'))
+const AiFeaturePlaceholderPage = lazy(() => import('@/pages/occupify-ai/AiFeaturePlaceholderPage'))
+const JobDetailPage = lazy(() => import('@/pages/jobs'))
 
 export const router = createBrowserRouter([
   // Standalone public entry / authentication views
@@ -63,8 +67,32 @@ export const router = createBrowserRouter([
         Component: WorkspacePage,
       },
       {
+        path: 'occupify-ai',
+        Component: OccupifyAiPage,
+      },
+      {
+        path: 'occupify-ai/job-recommendation',
+        Component: JobRecommendationPage,
+      },
+      {
+        path: 'occupify-ai/:featureId',
+        Component: AiFeaturePlaceholderPage,
+      },
+      {
+        path: 'ai',
+        element: createElement(Navigate, { to: '/occupify-ai', replace: true }),
+      },
+      {
         path: 'projects',
         element: createElement(Navigate, { to: '/workspace', replace: true }),
+      },
+      {
+        path: 'jobs/:jobId',
+        Component: JobDetailPage,
+      },
+      {
+        path: 'contracts/:jobId',
+        Component: JobDetailPage,
       },
       {
         path: 'saved',
