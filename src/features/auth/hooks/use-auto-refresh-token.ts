@@ -38,26 +38,25 @@ export function useAutoRefreshToken() {
       timerRef.current = null
     }
 
-    if (!isAuthenticated || !accessToken || !refreshToken) {
+    if (!refreshToken) {
+      return
+    }
+
+    // Proactively refresh if access token is missing or already expired/near expiry
+    if (!accessToken || isJwtExpired(accessToken, 60000)) {
+      void triggerRefresh()
       return
     }
 
     const expMs = getJwtExpirationMs(accessToken)
     if (!expMs) {
-      console.info('[Auth] Token không phải định dạng JWT có trường exp, bỏ qua lập lịch auto refresh')
       return
     }
 
-    const now = Date.now()
-    const refreshInMs = expMs - now - 60000
-
-    if (refreshInMs <= 0) {
+    const refreshInMs = Math.max(0, expMs - Date.now() - 60000)
+    timerRef.current = setTimeout(() => {
       void triggerRefresh()
-    } else {
-      timerRef.current = setTimeout(() => {
-        void triggerRefresh()
-      }, refreshInMs)
-    }
+    }, refreshInMs)
 
     return () => {
       if (timerRef.current) {
@@ -69,12 +68,12 @@ export function useAutoRefreshToken() {
 
   // Listen to visibility & focus changes to refresh if expired while sleeping/inactive
   useEffect(() => {
-    if (!isAuthenticated || !refreshToken) return
+    if (!refreshToken) return
 
     const handleActive = () => {
       if (document.visibilityState === 'visible') {
         const currentAccess = useAuthStore.getState().accessToken
-        if (currentAccess && isJwtExpired(currentAccess, 60000)) {
+        if (!currentAccess || isJwtExpired(currentAccess, 60000)) {
           void triggerRefresh()
         }
       }
@@ -87,5 +86,5 @@ export function useAutoRefreshToken() {
       window.removeEventListener('visibilitychange', handleActive)
       window.removeEventListener('focus', handleActive)
     }
-  }, [isAuthenticated, refreshToken])
+  }, [refreshToken])
 }

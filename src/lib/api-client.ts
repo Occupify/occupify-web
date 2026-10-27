@@ -7,21 +7,7 @@ export interface RequestOptions extends RequestInit {
   skipAuth?: boolean
 }
 
-let isRefreshing = false
-let refreshSubscribers: Array<(newToken: string) => void> = []
-
-function subscribeTokenRefresh(cb: (newToken: string) => void) {
-  refreshSubscribers.push(cb)
-}
-
-function onRefreshed(newToken: string) {
-  refreshSubscribers.forEach((cb) => cb(newToken))
-  refreshSubscribers = []
-}
-
-function onRefreshFailed() {
-  refreshSubscribers = []
-}
+let refreshPromise: Promise<string> | null = null
 
 function getDefaultStatusMessage(status: number): string {
   switch (status) {
@@ -69,6 +55,7 @@ async function performTokenRefresh(): Promise<string> {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${refreshToken}`,
         'X-Refresh-Token': refreshToken,
       },
       body: JSON.stringify({ refreshToken }),
@@ -79,18 +66,29 @@ async function performTokenRefresh(): Promise<string> {
       try {
         errorBody = await response.json()
       } catch {
-        // Ignored
+        // Non-JSON response (e.g. gateway error)
       }
-      if (response.status === 400 || response.status === 401 || response.status === 403) {
+
+      const errorCode = errorBody?.errorCode || ''
+      const isTerminalAuthError =
+        errorCode === 'AUTH_004' ||
+        errorCode === 'AUTH_005' ||
+        errorCode === 'AUTH_006' ||
+        errorCode === 'USER_007' ||
+        errorCode === 'USER_008'
+
+      if (isTerminalAuthError) {
         clearTokens()
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('occupify:session-expired'))
         }
       }
+
       throw new ApiError(
-        errorBody?.message || 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
+        errorBody?.message || getDefaultStatusMessage(response.status),
         response.status,
-        errorBody?.errorCode || 'AUTH_005',
+        errorCode || 'AUTH_005',
+        errorBody,
       )
     }
 
@@ -100,20 +98,25 @@ async function performTokenRefresh(): Promise<string> {
     const newUser = payload?.data?.user || payload?.user
 
     if (!newAccessToken) {
-      clearTokens()
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('occupify:session-expired'))
-      }
-      throw new ApiError('Malformed refresh response', 500, 'AUTH_005')
+      throw new ApiError('Malformed refresh response: missing accessToken', 500, 'AUTH_005')
     }
 
     setTokens(newAccessToken, newRefreshToken, newUser)
     return newAccessToken
   } catch (error) {
-    if (error instanceof ApiError && (error.statusCode === 400 || error.statusCode === 401 || error.statusCode === 403)) {
-      clearTokens()
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('occupify:session-expired'))
+    if (error instanceof ApiError) {
+      const isTerminalAuthError =
+        error.errorCode === 'AUTH_004' ||
+        error.errorCode === 'AUTH_005' ||
+        error.errorCode === 'AUTH_006' ||
+        error.errorCode === 'USER_007' ||
+        error.errorCode === 'USER_008'
+
+      if (isTerminalAuthError) {
+        clearTokens()
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('occupify:session-expired'))
+        }
       }
     }
     throw error
@@ -181,50 +184,17 @@ export async function request<T>(endpoint: string, options: RequestOptions = {})
     const currentRefreshToken = useAuthStore.getState().refreshToken
 
     if (currentRefreshToken) {
-      if (!isRefreshing) {
-        isRefreshing = true
-        try {
-          const newToken = await performTokenRefresh()
-          onRefreshed(newToken)
-          isRefreshing = false
-
-          // Retry current request with new token
-          const retryHeaders = {
-            ...mergedHeaders,
-            Authorization: `Bearer ${newToken}`,
-          }
-          const retryResponse = await fetch(url, {
-            ...customConfig,
-            headers: retryHeaders,
-          })
-          return handleResponse<T>(retryResponse)
-        } catch (refreshErr) {
-          isRefreshing = false
-          onRefreshFailed()
-          throw refreshErr
-        }
+      const newToken = await refreshAuthToken()
+      const retryHeaders = {
+        ...mergedHeaders,
+        Authorization: `Bearer ${newToken}`,
       }
-
-      // Wait for in-flight refresh to finish, then retry
-      return new Promise<T>((resolve, reject) => {
-        subscribeTokenRefresh(async (newToken) => {
-          try {
-            const retryHeaders = {
-              ...mergedHeaders,
-              Authorization: `Bearer ${newToken}`,
-            }
-            const retryResponse = await fetch(url, {
-              ...customConfig,
-              headers: retryHeaders,
-            })
-            resolve(await handleResponse<T>(retryResponse))
-          } catch (retryErr) {
-            reject(retryErr)
-          }
-        })
+      const retryResponse = await fetch(url, {
+        ...customConfig,
+        headers: retryHeaders,
       })
+      return handleResponse<T>(retryResponse)
     } else {
-      // No refresh token available, session is void
       useAuthStore.getState().clearTokens()
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('occupify:session-expired'))
@@ -256,8 +226,14 @@ async function handleResponse<T>(response: Response): Promise<T> {
   return data as T
 }
 
-export async function refreshAuthToken(): Promise<string> {
-  return performTokenRefresh()
+export function refreshAuthToken(): Promise<string> {
+  if (refreshPromise) {
+    return refreshPromise
+  }
+  refreshPromise = performTokenRefresh().finally(() => {
+    refreshPromise = null
+  })
+  return refreshPromise
 }
 
 export const apiClient = {
