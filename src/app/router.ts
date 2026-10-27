@@ -16,6 +16,7 @@ const ProfilePage = lazy(() => import('@/pages/profile'))
 const AdminPage = lazy(() => import('@/pages/admin'))
 const MyWalletPage = lazy(() => import('@/pages/wallet'))
 const FinancialHistoryPage = lazy(() => import('@/pages/financial-history'))
+const OccupifyAiPage = lazy(() => import('@/pages/occupify-ai'))
 
 export const router = createBrowserRouter([
   // Standalone public entry / authentication views
@@ -67,6 +68,10 @@ export const router = createBrowserRouter([
       {
         path: 'workspace',
         Component: WorkspacePage,
+      },
+      {
+        path: 'occupify-ai',
+        Component: OccupifyAiPage,
       },
       {
         path: 'projects',
