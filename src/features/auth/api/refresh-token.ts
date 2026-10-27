@@ -13,6 +13,7 @@ export async function refreshTokenApi(refreshToken: string): Promise<AuthRespons
     { refreshToken },
     {
       headers: {
+        Authorization: `Bearer ${refreshToken}`,
         'X-Refresh-Token': refreshToken,
       },
       skipAuth: true,
