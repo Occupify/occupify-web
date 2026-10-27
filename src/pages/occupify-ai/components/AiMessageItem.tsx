@@ -27,13 +27,32 @@ export function AiMessageItem({ message, onRegenerate }: AiMessageItemProps) {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  // Simple formatting helper for markdown-like text (bold, list items, paragraphs)
+  // Formatting helper for markdown-like text (headings, bold, list items, paragraphs)
   const renderFormattedContent = (content: string) => {
     const lines = content.split('\n')
     return lines.map((line, idx) => {
       // Empty line
       if (!line.trim()) {
         return <div key={idx} className="h-2" />
+      }
+
+      // Headings
+      if (line.trim().startsWith('### ')) {
+        return (
+          <h4 key={idx} className="font-bold text-slate-900 text-xs sm:text-sm mt-3 mb-1">
+            {renderInlineFormatted(line.trim().slice(4))}
+          </h4>
+        )
+      }
+      if (line.trim().startsWith('## ')) {
+        return (
+          <h3
+            key={idx}
+            className="font-bold text-slate-900 text-sm sm:text-base mt-3.5 mb-1.5 border-b border-slate-100 pb-1"
+          >
+            {renderInlineFormatted(line.trim().slice(3))}
+          </h3>
+        )
       }
 
       // Bullet line
@@ -133,7 +152,7 @@ export function AiMessageItem({ message, onRegenerate }: AiMessageItemProps) {
                 {message.attachment.name}
               </div>
               <div className="text-[10px] text-slate-500">
-                {message.attachment.size} · Đã đính kèm
+                {message.attachment.size ? `${message.attachment.size} · ` : ''}Đã đính kèm
               </div>
             </div>
           </div>
@@ -143,15 +162,26 @@ export function AiMessageItem({ message, onRegenerate }: AiMessageItemProps) {
         <div
           className={`rounded-2xl px-4 py-3 text-xs sm:text-[13px] leading-relaxed shadow-2xs ${
             isAi
-              ? 'bg-white border border-[var(--border-default)] text-slate-800 rounded-tl-sm'
+              ? message.error
+                ? 'bg-rose-50 border border-rose-200 text-rose-800 rounded-tl-sm'
+                : 'bg-white border border-[var(--border-default)] text-slate-800 rounded-tl-sm'
               : 'bg-[var(--color-primary-500)] text-white font-medium rounded-tr-sm'
           }`}
         >
-          {isAi ? renderFormattedContent(message.content) : message.content}
+          {isAi ? (
+            <>
+              {renderFormattedContent(message.content)}
+              {message.isStreaming && (
+                <span className="inline-block w-1.5 h-3.5 ml-1 bg-[var(--color-primary-500)] animate-pulse align-middle" />
+              )}
+            </>
+          ) : (
+            message.content
+          )}
         </div>
 
         {/* ─── Bottom Actions for AI Messages ─── */}
-        {isAi && (
+        {isAi && !message.isStreaming && !message.error && (
           <div className="flex items-center gap-1.5 mt-1.5 text-slate-400">
             {/* Copy button */}
             <button

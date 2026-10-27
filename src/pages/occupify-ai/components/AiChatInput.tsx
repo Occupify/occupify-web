@@ -5,6 +5,7 @@ import { QUICK_SUGGESTION_PILLS } from '../occupify-ai-mock-data'
 interface AiChatInputProps {
   onSendMessage: (
     content: string,
+    file?: File | null,
     attachment?: { name: string; size: string; type?: string },
   ) => void
   disabled?: boolean
@@ -18,6 +19,7 @@ export function AiChatInput({
 }: AiChatInputProps) {
   const [text, setText] = React.useState(initialPrompt)
   const [selectedFile, setSelectedFile] = React.useState<{
+    file: File
     name: string
     size: string
     type?: string
@@ -36,7 +38,13 @@ export function AiChatInput({
 
   const handleSend = () => {
     if ((!text.trim() && !selectedFile) || disabled) return
-    onSendMessage(text.trim(), selectedFile || undefined)
+    onSendMessage(
+      text.trim(),
+      selectedFile?.file || null,
+      selectedFile
+        ? { name: selectedFile.name, size: selectedFile.size, type: selectedFile.type }
+        : undefined,
+    )
     setText('')
     setSelectedFile(null)
     if (textareaRef.current) {
@@ -61,6 +69,7 @@ export function AiChatInput({
     }
 
     setSelectedFile({
+      file,
       name: file.name,
       size: formatSize(file.size),
       type: file.type,
@@ -117,7 +126,7 @@ export function AiChatInput({
           type="file"
           ref={fileInputRef}
           onChange={handleFileChange}
-          accept=".pdf,.doc,.docx,.txt"
+          accept=".pdf"
           className="hidden"
         />
 
@@ -141,11 +150,11 @@ export function AiChatInput({
               type="button"
               onClick={() => fileInputRef.current?.click()}
               className="p-2 rounded-xl text-slate-400 hover:text-[var(--color-primary-500)] hover:bg-sky-50 transition-colors cursor-pointer flex items-center gap-1 text-xs"
-              title="Đính kèm CV hoặc tài liệu (PDF, DOCX)"
+              title="Đính kèm CV hoặc tài liệu (PDF tối đa 10MB)"
             >
               <PaperclipIcon size={17} weight="bold" />
               <span className="hidden sm:inline text-[11px] font-medium text-slate-500">
-                Đính kèm tệp
+                Đính kèm PDF
               </span>
             </button>
           </div>

@@ -1,196 +1,207 @@
 import * as React from 'react'
-import { ListIcon, SparkleIcon, TrashIcon } from '@phosphor-icons/react'
-import { INITIAL_SESSIONS } from './occupify-ai-mock-data'
+import {
+  ListIcon,
+  SparkleIcon,
+  TrashIcon,
+  CircleNotchIcon,
+  WarningCircleIcon,
+  StopIcon,
+} from '@phosphor-icons/react'
 import { AiSidebar } from './components/AiSidebar'
 import { AiMessageItem } from './components/AiMessageItem'
 import { AiWelcomeView } from './components/AiWelcomeView'
 import { AiChatInput } from './components/AiChatInput'
-import type { AiChatMessage, AiChatSession } from '@/features/occupify-ai'
+import {
+  useAiChatSessions,
+  useAiSessionMessages,
+  useDeleteAiSession,
+  useSendAiMessage,
+  formatMessageTime,
+  type AiChatMessage,
+} from '@/features/occupify-ai'
 
 export function OccupifyAiPage() {
-  const [sessions, setSessions] = React.useState<AiChatSession[]>(INITIAL_SESSIONS)
-  const [activeSessionId, setActiveSessionId] = React.useState<string>(INITIAL_SESSIONS[0].id)
-  const [isTyping, setIsTyping] = React.useState(false)
+  const { data: serverSessions = [] } = useAiChatSessions()
+  const [selectedSessionId, setSelectedSessionId] = React.useState<string | null>(null)
+  const [optimisticMessages, setOptimisticMessages] = React.useState<AiChatMessage[]>([])
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null)
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = React.useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(false)
   const [selectedInitialPrompt, setSelectedInitialPrompt] = React.useState<string>('')
 
+  // Derive active session ID: user selection takes precedence, falls back to first server session
+  const activeSessionId = selectedSessionId ?? (serverSessions[0]?.id || null)
+
+  const { data: serverMessages = [], isLoading: isLoadingMessages } =
+    useAiSessionMessages(activeSessionId)
+  const deleteSessionMutation = useDeleteAiSession()
+  const { isStreaming, streamingMessageId, streamingText, sendMessageStream, stopStreaming } =
+    useSendAiMessage()
+
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
 
-  const activeSession = React.useMemo(() => {
-    return sessions.find((s) => s.id === activeSessionId) || sessions[0]
-  }, [sessions, activeSessionId])
-
   // Auto-scroll to bottom of messages
-  const scrollToBottom = (smooth = true) => {
+  const scrollToBottom = React.useCallback((smooth = true) => {
     messagesEndRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' })
-  }
+  }, [])
 
   React.useEffect(() => {
     scrollToBottom(false)
-  }, [activeSessionId])
+  }, [activeSessionId, scrollToBottom])
+
+  // Combine server messages with optimistic messages and streaming turn
+  const displayMessages = React.useMemo(() => {
+    const combined: AiChatMessage[] = [...serverMessages]
+
+    // Append optimistic user messages not yet reconciled into serverMessages
+    for (const opt of optimisticMessages) {
+      const alreadyInServer = combined.some(
+        (m) => m.id === opt.id || (m.sender === 'user' && m.content === opt.content),
+      )
+      if (!alreadyInServer) {
+        combined.push(opt)
+      }
+    }
+
+    // Append live streaming message if active
+    if (isStreaming && streamingMessageId) {
+      combined.push({
+        id: streamingMessageId,
+        sender: 'ai',
+        content: streamingText,
+        timestamp: formatMessageTime(new Date().toISOString()),
+        isStreaming: true,
+      })
+    }
+
+    return combined
+  }, [serverMessages, optimisticMessages, isStreaming, streamingMessageId, streamingText])
 
   React.useEffect(() => {
-    if (activeSession?.messages.length) {
+    if (displayMessages.length > 0) {
       scrollToBottom(true)
     }
-  }, [activeSession?.messages.length, isTyping])
+  }, [displayMessages.length, streamingText, scrollToBottom])
+
+  // Active session title
+  const activeSession = React.useMemo(() => {
+    return serverSessions.find((s) => s.id === activeSessionId) || null
+  }, [serverSessions, activeSessionId])
+
+  const activeTitle = activeSession?.title || 'Cuộc trò chuyện mới'
+
+  // Select a session
+  const handleSelectSession = (id: string) => {
+    stopStreaming()
+    setSelectedSessionId(id)
+    setOptimisticMessages([])
+    setErrorMessage(null)
+  }
 
   // Create a new blank session
   const handleNewChat = () => {
-    const newSessionId = `session-${Date.now()}`
-    const newSession: AiChatSession = {
-      id: newSessionId,
-      title: 'Cuộc trò chuyện mới',
-      lastUpdated: 'Vừa xong',
-      messages: [],
-    }
-    setSessions((prev) => [newSession, ...prev])
-    setActiveSessionId(newSessionId)
+    stopStreaming()
+    const draftId = `draft-${Date.now()}`
+    setSelectedSessionId(draftId)
+    setOptimisticMessages([])
+    setErrorMessage(null)
     setSelectedInitialPrompt('')
     setIsMobileSidebarOpen(false)
   }
 
   // Delete a session
-  const handleDeleteSession = (id: string) => {
-    setSessions((prev) => {
-      const updated = prev.filter((s) => s.id !== id)
-      if (updated.length === 0) {
-        const fresh: AiChatSession = {
-          id: `session-${Date.now()}`,
-          title: 'Cuộc trò chuyện mới',
-          lastUpdated: 'Vừa xong',
-          messages: [],
-        }
-        setActiveSessionId(fresh.id)
-        return [fresh]
-      }
+  const handleDeleteSession = async (id: string) => {
+    if (id.startsWith('draft-')) {
+      setSelectedSessionId(serverSessions[0]?.id || null)
+      setOptimisticMessages([])
+      setErrorMessage(null)
+      return
+    }
+
+    try {
+      await deleteSessionMutation.mutateAsync(id)
       if (activeSessionId === id) {
-        setActiveSessionId(updated[0].id)
+        const remaining = serverSessions.filter((s) => s.id !== id)
+        setSelectedSessionId(remaining[0]?.id || null)
+        setOptimisticMessages([])
+        setErrorMessage(null)
       }
-      return updated
-    })
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Không thể xóa cuộc trò chuyện'
+      setErrorMessage(msg)
+    }
   }
 
   // Clear messages in current session
   const handleClearCurrentChat = () => {
-    setSessions((prev) =>
-      prev.map((s) => {
-        if (s.id === activeSessionId) {
-          return { ...s, messages: [] }
-        }
-        return s
-      }),
-    )
+    if (activeSessionId) {
+      handleDeleteSession(activeSessionId)
+    }
   }
 
   // Send message
   const handleSendMessage = React.useCallback(
-    (content: string, attachment?: { name: string; size: string; type?: string }) => {
-      if (!content.trim() && !attachment) return
+    async (
+      content: string,
+      file?: File | null,
+      attachmentMeta?: { name: string; size: string; type?: string },
+    ) => {
+      if ((!content.trim() && !file) || isStreaming) return
 
-      const now = new Date()
-      const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
+      setErrorMessage(null)
+      const nowTime = formatMessageTime(new Date().toISOString())
 
       const userMsg: AiChatMessage = {
-        id: `msg-${Date.now()}`,
+        id: `user-temp-${Date.now()}`,
         sender: 'user',
-        content: content || 'Đã đính kèm tệp tài liệu.',
-        timestamp: timeStr,
-        attachment,
+        content: content || (file ? `Đã đính kèm tệp: ${file.name}` : ''),
+        timestamp: nowTime,
+        attachment: file
+          ? {
+              name: file.name,
+              size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
+              type: file.type,
+            }
+          : attachmentMeta,
       }
 
-      // Update session title if first user message
-      const isFirstMessage = activeSession.messages.length === 0
-      const updatedTitle = isFirstMessage
-        ? content.slice(0, 34) + (content.length > 34 ? '...' : '')
-        : activeSession.title
-
-      setSessions((prev) =>
-        prev.map((s) => {
-          if (s.id === activeSessionId) {
-            return {
-              ...s,
-              title: updatedTitle,
-              lastUpdated: 'Vừa xong',
-              messages: [...s.messages, userMsg],
-            }
-          }
-          return s
-        }),
-      )
-
-      // Clear initial prompt if used
+      setOptimisticMessages((prev) => [...prev, userMsg])
       setSelectedInitialPrompt('')
 
-      // Simulate AI response
-      setIsTyping(true)
-      setTimeout(() => {
-        let aiReply = ''
-        if (attachment) {
-          aiReply = `Tôi đã nhận và phân tích tệp tài liệu **${attachment.name}** (${attachment.size}).
+      const currentSessionId =
+        activeSessionId && !activeSessionId.startsWith('draft-') ? activeSessionId : undefined
 
-* **Điểm nổi bật:** Hồ sơ có cấu trúc rõ ràng, định vị tốt chuyên môn lập trình và kinh nghiệm triển khai dự án.
-* **Gợi ý tối ưu:**
-  1. Thêm số liệu đo lường cụ thể cho từng đầu việc (KPI / tỷ lệ % tối ưu hiệu năng).
-  2. Bổ sung các từ khóa công nghệ mới nhất: **React 19, TypeScript, Clean Architecture**.
-  3. Đính kèm liên kết sản phẩm hoặc hồ sơ GitHub thực tế để tăng uy tín.
-
-Bạn muốn tôi viết lại đoạn tóm tắt chuyên môn (Summary Statement) hay lập kế hoạch tìm dự án phù hợp với hồ sơ này?`
-        } else if (
-          content.toLowerCase().includes('remote') ||
-          content.toLowerCase().includes('việc')
-        ) {
-          aiReply = `Tôi đã rà soát danh sách các dự án đang tuyển dụng trên Occupify:
-
-* **Frontend React & Next.js Engineer** · Mức ngân sách: **28.000.000 ₫** (Remote 100%)
-* **Full-stack Node.js & React Developer** · Mức thù lao: **450.000 ₫ / giờ** (Linh hoạt)
-* **Lead UI/UX & Design System** · Mức ngân sách: **32.000.000 ₫** (Hợp đồng trọn gói)
-
-Bạn có thể vào tab **Quản lý dự án** để xem chi tiết hoặc yêu cầu tôi hỗ trợ soạn thảo thư chào thầu (Proposal) nhé!`
-        } else {
-          aiReply = `Cảm ơn câu hỏi của bạn! Dưới đây là phản hồi tư vấn từ Occupify AI:
-
-* **Phân tích yêu cầu:** Đối với mục tiêu bạn vừa đề cập, việc chuẩn bị một kế hoạch chi tiết theo từng mốc (Milestones) là yếu tố quyết định để bảo chứng rủi ro thanh toán.
-* **Đề xuất hành động:**
-  1. Định nghĩa rõ phạm vi công việc (Scope of Work) và tiêu chí nghiệm thu rõ ràng.
-  2. Áp dụng hợp đồng thanh toán ký quỹ Escrow bảo đảm tiền thù lao luôn sẵn sàng trước khi bắt đầu code.
-  3. Cập nhật tiến độ định kỳ hàng tuần cho đối tác.
-
-Nếu bạn cần hỗ trợ soạn thảo văn bản hoặc phân tích bảng giá chi tiết, hãy cho tôi biết thêm thông tin cụ thể nhé!`
-        }
-
-        const aiMsg: AiChatMessage = {
-          id: `ai-${Date.now()}`,
-          sender: 'ai',
-          content: aiReply,
-          timestamp: `${new Date().getHours().toString().padStart(2, '0')}:${new Date().getMinutes().toString().padStart(2, '0')}`,
-        }
-
-        setSessions((prev) =>
-          prev.map((s) => {
-            if (s.id === activeSessionId) {
-              return {
-                ...s,
-                messages: [...s.messages, aiMsg],
-              }
-            }
-            return s
-          }),
+      try {
+        await sendMessageStream(
+          {
+            message: content || (file ? `Phân tích tệp ${file.name}` : ''),
+            sessionId: currentSessionId,
+            file: file || null,
+          },
+          {
+            onNewSessionCreated: (newId) => {
+              setSelectedSessionId(newId)
+            },
+            onError: (err) => {
+              setErrorMessage(err.message)
+            },
+          },
         )
-        setIsTyping(false)
-      }, 900)
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Lỗi kết nối máy chủ Occupify AI'
+        setErrorMessage(msg)
+      }
     },
-    [activeSession.messages.length, activeSession.title, activeSessionId],
+    [activeSessionId, isStreaming, sendMessageStream],
   )
 
   return (
     <div className="h-[calc(100dvh-3.5rem)] flex bg-[#F8FAFC] overflow-hidden">
       {/* ─── Sidebar ─── */}
       <AiSidebar
-        sessions={sessions}
-        activeSessionId={activeSessionId}
-        onSelectSession={setActiveSessionId}
+        sessions={serverSessions}
+        activeSessionId={activeSessionId || ''}
+        onSelectSession={handleSelectSession}
         onNewChat={handleNewChat}
         onDeleteSession={handleDeleteSession}
         isMobileOpen={isMobileSidebarOpen}
@@ -218,20 +229,32 @@ Nếu bạn cần hỗ trợ soạn thảo văn bản hoặc phân tích bảng 
             <div className="flex items-center gap-2 min-w-0">
               <span className="w-2 h-2 rounded-full bg-[var(--color-primary-500)] shrink-0" />
               <h2 className="text-xs sm:text-sm font-bold text-slate-800 truncate">
-                {activeSession.title}
+                {activeTitle}
               </h2>
             </div>
           </div>
 
           {/* Model Status & Actions */}
-          <div className="flex items-center gap-3">
-            {/* Clear conversation button */}
-            {activeSession.messages.length > 0 && (
+          <div className="flex items-center gap-2">
+            {isStreaming && (
+              <button
+                type="button"
+                onClick={stopStreaming}
+                className="px-2.5 py-1 rounded-lg border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+                title="Dừng sinh phản hồi"
+              >
+                <StopIcon size={14} weight="bold" />
+                <span className="hidden sm:inline">Dừng lại</span>
+              </button>
+            )}
+
+            {/* Clear / Delete conversation button */}
+            {activeSessionId && !activeSessionId.startsWith('draft-') && (
               <button
                 type="button"
                 onClick={handleClearCurrentChat}
                 className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                title="Làm mới cuộc trò chuyện này"
+                title="Xóa cuộc trò chuyện này"
               >
                 <TrashIcon size={16} />
               </button>
@@ -241,18 +264,23 @@ Nếu bạn cần hỗ trợ soạn thảo văn bản hoặc phân tích bảng 
 
         {/* Messages Body */}
         <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col">
-          {activeSession.messages.length === 0 ? (
+          {isLoadingMessages && displayMessages.length === 0 ? (
+            <div className="m-auto flex flex-col items-center gap-2 text-slate-400">
+              <CircleNotchIcon size={24} className="animate-spin text-[var(--color-primary-500)]" />
+              <span className="text-xs font-medium">Đang tải lịch sử trò chuyện...</span>
+            </div>
+          ) : displayMessages.length === 0 ? (
             <AiWelcomeView />
           ) : (
             <div className="max-w-3xl mx-auto w-full flex-1 flex flex-col">
-              {activeSession.messages.map((msg) => (
+              {displayMessages.map((msg) => (
                 <AiMessageItem
                   key={msg.id}
                   message={msg}
                   onRegenerate={
-                    msg.sender === 'ai'
+                    msg.sender === 'ai' && !isStreaming
                       ? () => {
-                          const lastUser = [...activeSession.messages]
+                          const lastUser = [...displayMessages]
                             .reverse()
                             .find((m) => m.sender === 'user')
                           if (lastUser) {
@@ -264,8 +292,8 @@ Nếu bạn cần hỗ trợ soạn thảo văn bản hoặc phân tích bảng 
                 />
               ))}
 
-              {/* Typing indicator bubble */}
-              {isTyping && (
+              {/* Typing indicator bubble before first chunk */}
+              {isStreaming && !streamingText && (
                 <div className="flex items-start gap-3.5 py-3">
                   <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[var(--color-primary-600)] to-[var(--color-primary-400)] text-white flex items-center justify-center shrink-0 shadow-xs">
                     <SparkleIcon size={16} weight="fill" />
@@ -277,8 +305,19 @@ Nếu bạn cần hỗ trợ soạn thảo văn bản hoặc phân tích bảng 
                       <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-primary-500)] animate-bounce [animation-delay:0.4s]" />
                     </div>
                     <span className="text-xs text-slate-400 font-medium">
-                      Occupify AI đang suy nghĩ...
+                      Occupify AI đang phân tích dữ liệu...
                     </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Error Alert Card */}
+              {errorMessage && (
+                <div className="my-3 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 flex items-start gap-2.5 text-xs">
+                  <WarningCircleIcon size={18} weight="fill" className="shrink-0 text-rose-500 mt-0.5" />
+                  <div className="flex-1">
+                    <span className="font-semibold">Đã xảy ra lỗi: </span>
+                    <span>{errorMessage}</span>
                   </div>
                 </div>
               )}
@@ -293,7 +332,7 @@ Nếu bạn cần hỗ trợ soạn thảo văn bản hoặc phân tích bảng 
           <AiChatInput
             key={selectedInitialPrompt}
             onSendMessage={handleSendMessage}
-            disabled={isTyping}
+            disabled={isStreaming}
             initialPrompt={selectedInitialPrompt}
           />
         </footer>
