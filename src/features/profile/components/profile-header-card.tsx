@@ -3,7 +3,6 @@ import {
   EnvelopeIcon,
   WarningIcon,
   PencilSimpleIcon,
-  MapPinIcon,
 } from '@phosphor-icons/react'
 import type { ProfileData } from '../types'
 import { nameToGmail } from '../api'
@@ -21,20 +20,59 @@ export function ProfileHeaderCard({
   onReportClick,
   onEditClick,
 }: ProfileHeaderCardProps) {
-  const avgRating =
-    profile.reviews.length > 0
-      ? (profile.reviews.reduce((sum, r) => sum + r.rating, 0) / profile.reviews.length).toFixed(1)
-      : '5.0'
+  const hasReviews = profile.reviews && profile.reviews.length > 0
+  const avgRating = hasReviews
+    ? (profile.reviews.reduce((sum, r) => sum + r.rating, 0) / profile.reviews.length).toFixed(1)
+    : 'Chưa có'
 
-  const initials = profile.name
-    .split(' ')
-    .filter(Boolean)
-    .slice(-2)
-    .map((w) => w[0])
-    .join('')
-    .toUpperCase()
+  const initials =
+    profile.name && profile.name !== 'Chưa cập nhật'
+      ? profile.name
+          .split(' ')
+          .filter(Boolean)
+          .slice(-2)
+          .map((w) => w[0])
+          .join('')
+          .toUpperCase()
+      : '?'
 
-  const gmail = nameToGmail(profile.name)
+  const gmail =
+    profile.email ||
+    (profile.name && profile.name !== 'Chưa cập nhật' ? nameToGmail(profile.name) : 'Chưa có')
+
+  const isVerified = profile.status === 'ACTIVE'
+
+  const stats = [
+    {
+      label: 'Đúng tiến độ',
+      value:
+        profile.onTimeRate !== undefined && profile.onTimeRate !== null
+          ? `${profile.onTimeRate}%`
+          : 'Chưa có',
+      hasValue: profile.onTimeRate !== undefined && profile.onTimeRate !== null,
+    },
+    {
+      label: 'Dự án thành công',
+      value:
+        profile.successRate !== undefined && profile.successRate !== null
+          ? `${profile.successRate}%`
+          : 'Chưa có',
+      hasValue: profile.successRate !== undefined && profile.successRate !== null,
+    },
+    {
+      label: 'Đánh giá trung bình',
+      value: hasReviews ? `${avgRating} / 5.0` : 'Chưa có',
+      hasValue: hasReviews,
+    },
+    {
+      label: 'Điểm tín nhiệm',
+      value:
+        profile.creditScore !== undefined && profile.creditScore !== null
+          ? `${profile.creditScore} / 100`
+          : 'Chưa có',
+      hasValue: profile.creditScore !== undefined && profile.creditScore !== null,
+    },
+  ]
 
   return (
     <div
@@ -88,26 +126,37 @@ export function ProfileHeaderCard({
               userSelect: 'none',
               boxShadow: '0 4px 16px rgba(0,0,0,0.18)',
               position: 'relative',
+              overflow: 'hidden',
             }}
           >
-            {initials}
-            {/* Verified badge icon on avatar */}
-            <div
-              style={{
-                position: 'absolute',
-                bottom: 2,
-                right: 2,
-                background: '#fff',
-                borderRadius: '50%',
-                padding: 2,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-              }}
-            >
-              <SealCheckIcon size={20} weight="fill" color="#0A66C2" />
-            </div>
+            {profile.avatarUrl ? (
+              <img
+                src={profile.avatarUrl}
+                alt={profile.name}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            ) : (
+              initials
+            )}
+            {/* Verified badge icon on avatar (shown when ACTIVE) */}
+            {isVerified && (
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: 2,
+                  right: 2,
+                  background: '#fff',
+                  borderRadius: '50%',
+                  padding: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                }}
+              >
+                <SealCheckIcon size={20} weight="fill" color="#0A66C2" />
+              </div>
+            )}
           </div>
         </div>
 
@@ -122,7 +171,7 @@ export function ProfileHeaderCard({
           }}
         >
           <div>
-            {/* Name + Verified Badge */}
+            {/* Name + Verification status badge */}
             <div
               style={{
                 fontSize: 24,
@@ -134,36 +183,56 @@ export function ProfileHeaderCard({
                 gap: 10,
               }}
             >
-              <span>{profile.name}</span>
-              <span
-                style={{
-                  fontSize: 12,
-                  fontWeight: 700,
-                  background: '#EAF1FA',
-                  color: '#0A66C2',
-                  padding: '3px 10px',
-                  borderRadius: 9999,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 4,
-                  border: '1px solid #DBEAFE',
-                }}
-              >
-                <SealCheckIcon size={14} weight="fill" />
-                Đã xác minh
-              </span>
+              <span>{profile.name || 'Chưa cập nhật'}</span>
+              {isVerified ? (
+                <span
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    background: '#EAF1FA',
+                    color: '#0A66C2',
+                    padding: '3px 10px',
+                    borderRadius: 9999,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4,
+                    border: '1px solid #DBEAFE',
+                  }}
+                >
+                  <SealCheckIcon size={14} weight="fill" />
+                  Đã xác minh
+                </span>
+              ) : (
+                <span
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    background: '#F1F5F9',
+                    color: '#64748B',
+                    padding: '3px 10px',
+                    borderRadius: 9999,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4,
+                    border: '1px solid #E2E8F0',
+                  }}
+                >
+                  Chưa xác minh
+                </span>
+              )}
             </div>
 
             {/* Professional Headline */}
             <div
               style={{
                 fontSize: 14.5,
-                color: '#475569',
+                color: profile.headline ? '#475569' : '#94A3B8',
+                fontStyle: profile.headline ? 'normal' : 'italic',
                 marginTop: 6,
                 fontWeight: 500,
               }}
             >
-              {profile.headline}
+              {profile.headline || 'Chưa cập nhật tiêu đề nghề nghiệp'}
             </div>
 
             {/* Contact Email & Location badges */}
@@ -192,25 +261,6 @@ export function ProfileHeaderCard({
                 <EnvelopeIcon size={15} color="#0A66C2" weight="bold" />
                 <span>{gmail}</span>
               </div>
-
-              {profile.location && (
-                <div
-                  style={{
-                    fontSize: 13,
-                    color: '#64748B',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    background: '#F8FAFC',
-                    padding: '4px 10px',
-                    borderRadius: 6,
-                    border: '1px solid #E2E8F0',
-                  }}
-                >
-                  <MapPinIcon size={15} color="#64748B" weight="bold" />
-                  <span>{profile.location}</span>
-                </div>
-              )}
             </div>
           </div>
 
@@ -293,7 +343,7 @@ export function ProfileHeaderCard({
           </div>
         </div>
 
-        {/* Minimal Stats Strip */}
+        {/* Stats Strip */}
         <div
           style={{
             marginTop: 20,
@@ -307,24 +357,7 @@ export function ProfileHeaderCard({
             alignItems: 'center',
           }}
         >
-          {[
-            {
-              label: 'Đúng tiến độ',
-              value: `${profile.onTimeRate}%`,
-            },
-            {
-              label: 'Dự án thành công',
-              value: `${profile.successRate}%`,
-            },
-            {
-              label: 'Đánh giá trung bình',
-              value: `${avgRating} / 5.0`,
-            },
-            {
-              label: 'Điểm tín nhiệm',
-              value: `${profile.creditScore} / 100`,
-            },
-          ].map((item, idx) => (
+          {stats.map((item, idx) => (
             <div
               key={item.label}
               style={{
@@ -335,9 +368,10 @@ export function ProfileHeaderCard({
             >
               <div
                 style={{
-                  fontSize: 20,
-                  fontWeight: 800,
-                  color: '#0F172A',
+                  fontSize: item.hasValue ? 20 : 15,
+                  fontWeight: item.hasValue ? 800 : 600,
+                  color: item.hasValue ? '#0F172A' : '#94A3B8',
+                  fontStyle: item.hasValue ? 'normal' : 'italic',
                   lineHeight: 1.15,
                   fontVariantNumeric: 'tabular-nums',
                 }}

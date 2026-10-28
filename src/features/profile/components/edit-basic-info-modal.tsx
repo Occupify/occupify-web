@@ -5,10 +5,10 @@ import type { UpdateBasicInfoPayload } from '../types'
 export interface EditBasicInfoModalProps {
   isOpen: boolean
   initialData: {
-    name: string
-    headline: string
+    name?: string
+    headline?: string
     location?: string
-    intro: string
+    intro?: string
   }
   onClose: () => void
   onSubmit: (data: UpdateBasicInfoPayload) => void
@@ -21,14 +21,14 @@ function EditBasicInfoForm({
   onSubmit,
   isSubmitting = false,
 }: Omit<EditBasicInfoModalProps, 'isOpen'>) {
-  const [name, setName] = React.useState(initialData.name)
-  const [headline, setHeadline] = React.useState(initialData.headline)
+  const [name, setName] = React.useState(initialData.name || '')
+  const [headline, setHeadline] = React.useState(initialData.headline || '')
   const [location, setLocation] = React.useState(initialData.location || '')
-  const [intro, setIntro] = React.useState(initialData.intro)
+  const [intro, setIntro] = React.useState(initialData.intro || '')
 
   const handleSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault()
-    if (!name.trim() || !headline.trim()) return
+    if (!name.trim()) return
     onSubmit({
       name: name.trim(),
       headline: headline.trim(),
@@ -284,5 +284,10 @@ function EditBasicInfoForm({
 
 export function EditBasicInfoModal({ isOpen, ...props }: EditBasicInfoModalProps) {
   if (!isOpen) return null
-  return <EditBasicInfoForm key={props.initialData.name + props.initialData.headline} {...props} />
+  return (
+    <EditBasicInfoForm
+      key={(props.initialData.name ?? '') + (props.initialData.headline ?? '')}
+      {...props}
+    />
+  )
 }

@@ -1,7 +1,7 @@
 import { PencilSimpleIcon } from '@phosphor-icons/react'
 
 export interface ProfileIntroCardProps {
-  intro: string
+  intro?: string
   isOwnProfile?: boolean
   onEditClick?: () => void
 }
@@ -11,6 +11,8 @@ export function ProfileIntroCard({
   isOwnProfile = true,
   onEditClick,
 }: ProfileIntroCardProps) {
+  const hasIntro = Boolean(intro && intro.trim().length > 0)
+
   return (
     <div
       style={{
@@ -74,16 +76,31 @@ export function ProfileIntroCard({
         )}
       </div>
 
-      <p
-        style={{
-          fontSize: 14,
-          color: '#334155',
-          lineHeight: 1.75,
-          margin: 0,
-        }}
-      >
-        {intro}
-      </p>
+      {hasIntro ? (
+        <p
+          style={{
+            fontSize: 14,
+            color: '#334155',
+            lineHeight: 1.75,
+            margin: 0,
+            whiteSpace: 'pre-line',
+          }}
+        >
+          {intro}
+        </p>
+      ) : (
+        <p
+          style={{
+            fontSize: 14,
+            color: '#94A3B8',
+            fontStyle: 'italic',
+            lineHeight: 1.75,
+            margin: 0,
+          }}
+        >
+          Chưa có thông tin giới thiệu.
+        </p>
+      )}
     </div>
   )
 }

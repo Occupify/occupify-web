@@ -42,7 +42,8 @@ export function ProfileCvCard({
     e.preventDefault()
   }
 
-  const effectiveFileName = currentFileName || `CV_${userName.replace(/\s+/g, '_')}.pdf`
+  const hasCv = Boolean(currentFileName || cvUrl)
+  const effectiveFileName = currentFileName || (cvUrl ? `CV_${userName.replace(/\s+/g, '_')}.pdf` : '')
 
   return (
     <div
@@ -209,15 +210,15 @@ export function ProfileCvCard({
                   color: '#0F172A',
                 }}
               >
-                Tải lên CV của bạn
+                Chưa có CV hoặc hồ sơ năng lực tải lên
               </div>
-              <div style={{ fontSize: 12, color: '#64748B' }}>
-                Hỗ trợ định dạng PDF, DOC, DOCX (Tối đa 15MB)
+              <div style={{ fontSize: 12.5, color: '#64748B' }}>
+                Nhấn hoặc kéo thả để tải lên CV của bạn (PDF, DOC, DOCX - Tối đa 15MB)
               </div>
             </div>
           )}
         </>
-      ) : (
+      ) : hasCv ? (
         <a
           href={cvUrl || '#'}
           download={effectiveFileName}
@@ -272,6 +273,21 @@ export function ProfileCvCard({
             </div>
           </div>
         </a>
+      ) : (
+        <div
+          style={{
+            padding: '24px 16px',
+            textAlign: 'center',
+            background: '#F8FAFC',
+            borderRadius: 10,
+            border: '1px dashed #CBD5E1',
+            color: '#94A3B8',
+            fontSize: 14,
+            fontStyle: 'italic',
+          }}
+        >
+          Chưa có CV hoặc hồ sơ năng lực tải lên.
+        </div>
       )}
     </div>
   )

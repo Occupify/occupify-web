@@ -47,8 +47,27 @@ export function ProfileReviewsCard({ reviews }: ProfileReviewsCardProps) {
         Đánh giá & Phản hồi từ đối tác
       </div>
 
-      {/* Rating Summary & Distribution */}
-      <div
+      {reviews.length === 0 ? (
+        <div
+          style={{
+            padding: '36px 20px',
+            textAlign: 'center',
+            background: '#F8FAFC',
+            borderRadius: 10,
+            border: '1px dashed #CBD5E1',
+          }}
+        >
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#475569', marginBottom: 4 }}>
+            Chưa có đánh giá nào
+          </div>
+          <div style={{ fontSize: 13, color: '#94A3B8', fontStyle: 'italic' }}>
+            Người dùng chưa nhận được đánh giá hoặc phản hồi nào từ đối tác.
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Rating Summary & Distribution */}
+          <div
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -321,6 +340,8 @@ export function ProfileReviewsCard({ reviews }: ProfileReviewsCardProps) {
           </p>
         )}
       </div>
+        </>
+      )}
     </div>
   )
 }
