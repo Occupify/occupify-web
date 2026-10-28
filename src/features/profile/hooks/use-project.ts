@@ -16,8 +16,7 @@ export function useAddProject() {
 export function useUpdateProject() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: ProjectFormData }) =>
-      updateProjectApi(id, data),
+    mutationFn: ({ id, data }: { id: number; data: ProjectFormData }) => updateProjectApi(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEYS.all })
     },

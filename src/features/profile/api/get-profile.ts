@@ -86,12 +86,16 @@ export async function getProfileApi(userName?: string): Promise<ProfileData> {
         certificates: liveCertificates,
         skills: liveSkills,
         reviews: [],
-        projects: currentProfileState.data.projects.length > 0 ? currentProfileState.data.projects : [],
+        projects:
+          currentProfileState.data.projects.length > 0 ? currentProfileState.data.projects : [],
       }
 
       return { ...currentProfileState.data }
     } catch (err) {
-      console.warn('[getProfileApi] Error fetching /users/me/detail, using local/cached state:', err)
+      console.warn(
+        '[getProfileApi] Error fetching /users/me/detail, using local/cached state:',
+        err,
+      )
     }
   }
 

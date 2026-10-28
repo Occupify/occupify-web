@@ -253,7 +253,8 @@ export const apiClient = {
     return request<T>(endpoint, {
       ...options,
       method: 'POST',
-      body: body !== undefined ? (isFormData ? (body as BodyInit) : JSON.stringify(body)) : undefined,
+      body:
+        body !== undefined ? (isFormData ? (body as BodyInit) : JSON.stringify(body)) : undefined,
     })
   },
 
@@ -262,7 +263,8 @@ export const apiClient = {
     return request<T>(endpoint, {
       ...options,
       method: 'PUT',
-      body: body !== undefined ? (isFormData ? (body as BodyInit) : JSON.stringify(body)) : undefined,
+      body:
+        body !== undefined ? (isFormData ? (body as BodyInit) : JSON.stringify(body)) : undefined,
     })
   },
 
@@ -271,7 +273,8 @@ export const apiClient = {
     return request<T>(endpoint, {
       ...options,
       method: 'PATCH',
-      body: body !== undefined ? (isFormData ? (body as BodyInit) : JSON.stringify(body)) : undefined,
+      body:
+        body !== undefined ? (isFormData ? (body as BodyInit) : JSON.stringify(body)) : undefined,
     })
   },
 

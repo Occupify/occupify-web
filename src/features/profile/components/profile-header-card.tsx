@@ -1,9 +1,4 @@
-import {
-  SealCheckIcon,
-  EnvelopeIcon,
-  WarningIcon,
-  PencilSimpleIcon,
-} from '@phosphor-icons/react'
+import { SealCheckIcon, EnvelopeIcon, WarningIcon, PencilSimpleIcon } from '@phosphor-icons/react'
 import type { ProfileData } from '../types'
 import { nameToGmail } from '../api'
 

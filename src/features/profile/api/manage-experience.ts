@@ -26,7 +26,10 @@ export async function addExperienceApi(exp: ExperienceFormData): Promise<Profile
         createdId = res.data.id
       }
     } catch (err) {
-      console.warn('[addExperienceApi] Backend post /users/me/experiences failed, saving locally:', err)
+      console.warn(
+        '[addExperienceApi] Backend post /users/me/experiences failed, saving locally:',
+        err,
+      )
     }
   }
 
@@ -55,7 +58,10 @@ export async function updateExperienceApi(
         description: exp.description || '',
       })
     } catch (err) {
-      console.warn('[updateExperienceApi] Backend put /users/me/experiences failed, updating locally:', err)
+      console.warn(
+        '[updateExperienceApi] Backend put /users/me/experiences failed, updating locally:',
+        err,
+      )
     }
   }
 

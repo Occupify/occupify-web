@@ -43,7 +43,8 @@ export function ProfileCvCard({
   }
 
   const hasCv = Boolean(currentFileName || cvUrl)
-  const effectiveFileName = currentFileName || (cvUrl ? `CV_${userName.replace(/\s+/g, '_')}.pdf` : '')
+  const effectiveFileName =
+    currentFileName || (cvUrl ? `CV_${userName.replace(/\s+/g, '_')}.pdf` : '')
 
   return (
     <div

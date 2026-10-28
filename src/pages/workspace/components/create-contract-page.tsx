@@ -115,7 +115,10 @@ export function CreateContractPage({
     if (trimmed) {
       setIsCustomRole(true)
       setSelectedRole('')
-      if (selectedProject && (!title || title.startsWith('Tuyển') || title.startsWith('Hợp đồng'))) {
+      if (
+        selectedProject &&
+        (!title || title.startsWith('Tuyển') || title.startsWith('Hợp đồng'))
+      ) {
         setTitle(`Tuyển ${trimmed} — ${selectedProject}`)
       }
     }
@@ -562,7 +565,9 @@ export function CreateContractPage({
                 {/* Upload file */}
                 <div>
                   <label className="mb-1.5 block text-xs font-bold !text-[var(--text-secondary)]">
-                    {isInvite ? 'Tài liệu hợp đồng đính kèm (File)' : 'Tài liệu mô tả đính kèm (File)'}
+                    {isInvite
+                      ? 'Tài liệu hợp đồng đính kèm (File)'
+                      : 'Tài liệu mô tả đính kèm (File)'}
                   </label>
                   <input
                     ref={termsFileRef}
@@ -600,7 +605,9 @@ export function CreateContractPage({
                       <>
                         <PaperclipIcon size={22} className="!text-[var(--text-tertiary)]" />
                         <span className="mt-1 text-xs font-semibold !text-[var(--text-secondary)]">
-                          {isInvite ? 'Tải lên file hợp đồng đính kèm' : 'Tải lên file mô tả dự án đính kèm'}
+                          {isInvite
+                            ? 'Tải lên file hợp đồng đính kèm'
+                            : 'Tải lên file mô tả dự án đính kèm'}
                         </span>
                         <span className="text-[11px] !text-[var(--text-tertiary)]">
                           PDF, DOC, DOCX, TXT
