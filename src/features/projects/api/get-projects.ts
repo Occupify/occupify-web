@@ -56,43 +56,28 @@ export async function getProjectDetail(id: string): Promise<ProjectDetail> {
 }
 
 /**
- * Fetch project by ID with fallback to local mock store
+ * Fetch project by ID from backend API
  */
 export async function getProjectById(id: string | number): Promise<MyProject | null> {
-  try {
-    const detail = await getProjectDetail(String(id))
-    return toMyProject(detail)
-  } catch {
-    const local =
-      myProjectsStore.find((p) => String(p.id) === String(id)) ||
-      employeeProjectsStore.find((p) => String(p.id) === String(id))
-    return local || null
-  }
+  const detail = await getProjectDetail(String(id))
+  return toMyProject(detail)
 }
 
 /**
- * Get current user's projects with backend integration & local store fallback
+ * Get current user's projects with backend integration
  */
 export async function getMyProjects(employerId?: string): Promise<MyProject[]> {
-  try {
-    const res = await getProjects({
-      employerId,
-      limit: 50,
-      sort: 'createdAt,desc',
-    })
-    if (res?.data && Array.isArray(res.data)) {
-      const backendProjects = res.data.map(toMyProject)
-      // Keep any local custom projects that were created locally in this browser
-      const existingNames = new Set(backendProjects.map((p) => p.name.trim().toLowerCase()))
-      const localCustom = myProjectsStore.filter(
-        (p) => String(p.id).startsWith('local-') && !existingNames.has(p.name.trim().toLowerCase()),
-      )
-      return [...localCustom, ...backendProjects]
-    }
-  } catch {
-    // Fallback to local memory store when backend is unavailable
+  const res = await getProjects({
+    employerId,
+    limit: 50,
+    sort: 'createdAt,desc',
+  })
+  if (res?.data && Array.isArray(res.data)) {
+    const backendProjects = res.data.map(toMyProject)
+    setInternalStores({ myProjects: backendProjects })
+    return backendProjects
   }
-  return [...myProjectsStore]
+  return []
 }
 
 export async function getEmployeeProjects(): Promise<MyProject[]> {

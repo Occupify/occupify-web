@@ -132,6 +132,9 @@ export function useProjects(employerId?: string) {
     pending: pendingQuery.data ?? [],
     isLoading:
       myProjectsQuery.isLoading || employeeProjectsQuery.isLoading || pendingQuery.isLoading,
+    isError: myProjectsQuery.isError,
+    error: myProjectsQuery.error,
+    refetch: myProjectsQuery.refetch,
     createProject: createProjectMutation.mutateAsync,
     updateProject: updateProjectMutation.mutateAsync,
     closeProject: closeProjectMutation.mutateAsync,
