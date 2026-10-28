@@ -56,10 +56,10 @@ export function QuickActionsCard({ onCreateProject, onCreateContract }: QuickAct
             </div>
             <div className="min-w-0">
               <div className="text-[13px] font-bold text-slate-900 group-hover:text-emerald-700 transition-colors truncate">
-                Soạn hợp đồng Escrow
+                Đăng tuyển dụng Freelancer
               </div>
               <div className="text-[11px] text-slate-500 mt-0.5 truncate">
-                Ký kết bảo chứng & phân rã mốc bàn giao
+                Đăng tin tìm nhân sự chuyên môn cho dự án
               </div>
             </div>
           </div>

@@ -69,9 +69,9 @@ export function CreateContractPage({
 
   const [title, setTitle] = useState(
     initialProject && initialRole
-      ? `Hợp đồng ${initialRole} — ${initialProject}`
+      ? `Tuyển ${initialRole} — ${initialProject}`
       : initialProject
-        ? `Hợp đồng dịch vụ — ${initialProject}`
+        ? `Tuyển dụng — ${initialProject}`
         : '',
   )
   const [value, setValue] = useState(initialBidValue ? initialBidValue.replace(/[^0-9]/g, '') : '')
@@ -115,8 +115,8 @@ export function CreateContractPage({
     if (trimmed) {
       setIsCustomRole(true)
       setSelectedRole('')
-      if (selectedProject && (!title || title.startsWith('Hợp đồng'))) {
-        setTitle(`Hợp đồng ${trimmed} — ${selectedProject}`)
+      if (selectedProject && (!title || title.startsWith('Tuyển') || title.startsWith('Hợp đồng'))) {
+        setTitle(`Tuyển ${trimmed} — ${selectedProject}`)
       }
     }
   }
@@ -129,9 +129,9 @@ export function CreateContractPage({
   const canSubmit =
     title.trim().length > 0 &&
     value.trim().length > 0 &&
-    freelancerEmail.trim().length > 0 &&
     activeRole.length > 0 &&
-    jobDescription.trim().length > 0
+    jobDescription.trim().length > 0 &&
+    (!isInvite || freelancerEmail.trim().length > 0)
 
   const projectNames = projects.map((p) => p.name)
 
@@ -141,12 +141,12 @@ export function CreateContractPage({
       <div className="py-8 !bg-gradient-to-r from-[var(--color-primary-500)] to-[#084FA0] !text-white">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
           <h1 className="text-2xl font-extrabold sm:text-3xl !text-white">
-            {isInvite ? 'Mời hợp đồng' : 'Tạo hợp đồng mới'}
+            {isInvite ? 'Mời hợp đồng' : 'Đăng tuyển dụng'}
           </h1>
           <p className="mt-1.5 text-sm !text-white/80">
             {isInvite
               ? `Gửi lời mời tham gia hợp đồng cho vai trò ${activeRole || 'chuyên môn'} — ${selectedProject || 'Dự án'}`
-              : 'Điền thông tin và chỉ định vai trò để mời freelancer tham gia'}
+              : 'Điền thông tin và chỉ định vai trò chuyên môn để đăng tuyển dụng'}
           </p>
         </div>
       </div>
@@ -161,12 +161,12 @@ export function CreateContractPage({
             </div>
             <div>
               <h2 className="text-lg font-bold !text-[var(--text-primary)]">
-                {isInvite ? 'Mời freelancer vào hợp đồng' : 'Tạo hợp đồng mới'}
+                {isInvite ? 'Mời freelancer vào hợp đồng' : 'Đăng tuyển dụng'}
               </h2>
               <p className="text-xs !text-[var(--text-secondary)]">
                 {isInvite
                   ? 'Xem lại chi tiết hợp đồng đã thiết lập và điền email freelancer để gửi lời mời'
-                  : 'Thiết lập hợp đồng và chọn vai trò chuyên môn cho freelancer'}
+                  : 'Thiết lập yêu cầu và chọn vai trò chuyên môn cần tuyển dụng'}
               </p>
             </div>
           </div>
@@ -178,7 +178,7 @@ export function CreateContractPage({
                 {/* 1. Chọn dự án */}
                 <div className="p-5 sm:px-6">
                   <h3 className="mb-3 text-sm font-bold !text-[var(--text-primary)]">
-                    1. Hợp đồng này dành cho dự án nào?
+                    1. Vị trí này dành cho dự án nào?
                   </h3>
 
                   {selectedProject && (
@@ -218,10 +218,10 @@ export function CreateContractPage({
                 {/* 2. Chọn vai trò */}
                 <div className="p-5 sm:px-6">
                   <h3 className="mb-1 text-sm font-bold !text-[var(--text-primary)]">
-                    2. Vai trò (Role) trong hợp đồng *
+                    2. Vai trò (Role) cần tuyển dụng *
                   </h3>
                   <p className="mb-4 text-xs !text-[var(--text-secondary)]">
-                    Chọn vị trí chuyên môn phù hợp mà freelancer sẽ đảm nhiệm trong dự án
+                    Chọn vị trí chuyên môn phù hợp cần tuyển dụng cho dự án
                   </p>
 
                   {/* Roles from selected project */}
@@ -456,7 +456,7 @@ export function CreateContractPage({
               <div className="p-5 sm:px-6">
                 <div className="mb-4 flex items-center justify-between">
                   <h3 className="text-sm font-bold !text-[var(--text-primary)]">
-                    {isInvite ? 'Sửa chi tiết hợp đồng' : '3. Chi tiết hợp đồng'}
+                    {isInvite ? 'Sửa chi tiết hợp đồng' : '3. Chi tiết tuyển dụng'}
                   </h3>
                   {isInvite && (
                     <button
@@ -472,7 +472,7 @@ export function CreateContractPage({
 
                 <div className="mb-4">
                   <label className="mb-1.5 block text-xs font-bold !text-[var(--text-secondary)]">
-                    Tiêu đề hợp đồng *
+                    {isInvite ? 'Tiêu đề hợp đồng *' : 'Tiêu đề tin tuyển dụng *'}
                   </label>
                   <input
                     type="text"
@@ -486,7 +486,7 @@ export function CreateContractPage({
                 <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
                   <div className="sm:col-span-2">
                     <label className="mb-1.5 block text-xs font-bold !text-[var(--text-secondary)]">
-                      Giá trị hợp đồng (VNĐ) *
+                      {isInvite ? 'Giá trị hợp đồng (VNĐ) *' : 'Ngân sách tuyển dụng (VNĐ) *'}
                     </label>
                     <div className="relative">
                       <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold !text-[var(--text-tertiary)]">
@@ -562,7 +562,7 @@ export function CreateContractPage({
                 {/* Upload file */}
                 <div>
                   <label className="mb-1.5 block text-xs font-bold !text-[var(--text-secondary)]">
-                    Tài liệu hợp đồng đính kèm (File) *
+                    {isInvite ? 'Tài liệu hợp đồng đính kèm (File)' : 'Tài liệu mô tả đính kèm (File)'}
                   </label>
                   <input
                     ref={termsFileRef}
@@ -600,7 +600,7 @@ export function CreateContractPage({
                       <>
                         <PaperclipIcon size={22} className="!text-[var(--text-tertiary)]" />
                         <span className="mt-1 text-xs font-semibold !text-[var(--text-secondary)]">
-                          Tải lên file hợp đồng đính kèm
+                          {isInvite ? 'Tải lên file hợp đồng đính kèm' : 'Tải lên file mô tả dự án đính kèm'}
                         </span>
                         <span className="text-[11px] !text-[var(--text-tertiary)]">
                           PDF, DOC, DOCX, TXT
@@ -612,41 +612,43 @@ export function CreateContractPage({
               </div>
             )}
 
-            {/* Mời Freelancer */}
-            <div className="p-5 sm:px-6">
-              <h3 className="mb-1 text-sm font-bold !text-[var(--text-primary)]">
-                {isInvite ? 'Điền thông tin freelancer để mời' : '4. Mời Freelancer'}
-              </h3>
-              <p className="mb-4 text-xs !text-[var(--text-secondary)]">
-                Nhập email của freelancer để gửi lời mời tham gia hợp đồng này
-              </p>
+            {/* Mời Freelancer (Chỉ hiển thị khi mời trực tiếp freelancer vào hợp đồng) */}
+            {isInvite && (
+              <div className="p-5 sm:px-6">
+                <h3 className="mb-1 text-sm font-bold !text-[var(--text-primary)]">
+                  Điền thông tin freelancer để mời
+                </h3>
+                <p className="mb-4 text-xs !text-[var(--text-secondary)]">
+                  Nhập email của freelancer để gửi lời mời tham gia hợp đồng này
+                </p>
 
-              <div className="mb-4">
-                <label className="mb-1.5 block text-xs font-bold !text-[var(--text-secondary)]">
-                  Email Freelancer *
-                </label>
-                <input
-                  type="email"
-                  value={freelancerEmail}
-                  onChange={(e) => setFreelancerEmail(e.target.value)}
-                  placeholder="freelancer@example.com"
-                  className="w-full rounded border p-2.5 text-sm !bg-[var(--bg-elevated)] !text-[var(--text-primary)] !border-[var(--border-default)] outline-none focus:!border-[var(--color-primary-500)]"
-                />
-              </div>
+                <div className="mb-4">
+                  <label className="mb-1.5 block text-xs font-bold !text-[var(--text-secondary)]">
+                    Email Freelancer *
+                  </label>
+                  <input
+                    type="email"
+                    value={freelancerEmail}
+                    onChange={(e) => setFreelancerEmail(e.target.value)}
+                    placeholder="freelancer@example.com"
+                    className="w-full rounded border p-2.5 text-sm !bg-[var(--bg-elevated)] !text-[var(--text-primary)] !border-[var(--border-default)] outline-none focus:!border-[var(--color-primary-500)]"
+                  />
+                </div>
 
-              <div>
-                <label className="mb-1.5 block text-xs font-bold !text-[var(--text-secondary)]">
-                  Tin nhắn mời{' '}
-                  <span className="font-normal !text-[var(--text-tertiary)]">(tuỳ chọn)</span>
-                </label>
-                <textarea
-                  value={inviteMsg}
-                  onChange={(e) => setInviteMsg(e.target.value)}
-                  placeholder="Viết tin nhắn giới thiệu về dự án và lý do bạn muốn hợp tác..."
-                  className="min-h-[80px] w-full resize-y rounded border p-2.5 text-sm leading-relaxed !bg-[var(--bg-elevated)] !text-[var(--text-primary)] !border-[var(--border-default)] outline-none focus:!border-[var(--color-primary-500)]"
-                />
+                <div>
+                  <label className="mb-1.5 block text-xs font-bold !text-[var(--text-secondary)]">
+                    Tin nhắn mời{' '}
+                    <span className="font-normal !text-[var(--text-tertiary)]">(tuỳ chọn)</span>
+                  </label>
+                  <textarea
+                    value={inviteMsg}
+                    onChange={(e) => setInviteMsg(e.target.value)}
+                    placeholder="Viết tin nhắn giới thiệu về dự án và lý do bạn muốn hợp tác..."
+                    className="min-h-[80px] w-full resize-y rounded border p-2.5 text-sm leading-relaxed !bg-[var(--bg-elevated)] !text-[var(--text-primary)] !border-[var(--border-default)] outline-none focus:!border-[var(--color-primary-500)]"
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Footer */}
             <div className="flex items-center justify-end gap-2.5 p-5 sm:px-6 !bg-[var(--bg-subtle)]">
@@ -668,7 +670,7 @@ export function CreateContractPage({
                       startDate,
                       endDate,
                       role: activeRole,
-                      freelancerEmail,
+                      freelancerEmail: isInvite ? freelancerEmail : '',
                       candidateName: initialCandidateName,
                       project: selectedProject,
                       termsFileName: termsFileName || 'DieuKhoan_HopDong.pdf',
@@ -679,7 +681,7 @@ export function CreateContractPage({
                 disabled={!canSubmit}
                 className="cursor-pointer rounded-full px-7 py-2 text-xs font-bold !text-white transition-colors !bg-[var(--color-primary-500)] hover:!bg-[var(--color-primary-600)] disabled:cursor-not-allowed disabled:!bg-[rgba(0,0,0,0.12)] disabled:!text-[rgba(0,0,0,0.35)]"
               >
-                {isInvite ? 'Gửi lời mời hợp đồng' : 'Tạo & Gửi lời mời'}
+                {isInvite ? 'Gửi lời mời hợp đồng' : 'Đăng tuyển dụng'}
               </button>
             </div>
           </div>

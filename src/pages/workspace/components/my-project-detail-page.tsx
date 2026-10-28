@@ -588,7 +588,7 @@ export function MyProjectDetailPage({
                         </div>
 
                         <div className="mb-1.5 text-[12.5px] !text-[var(--text-secondary)]">
-                          {proposal.occupation} · {proposal.location}
+                          {proposal.occupation}
                         </div>
 
                         <div className="mb-2 flex flex-wrap items-center gap-2 text-xs !text-[var(--text-secondary)]">
@@ -726,8 +726,6 @@ export function MyProjectDetailPage({
                       <span>
                         ★ {selectedApplicant.rating} ({selectedApplicant.ratingCount} đánh giá)
                       </span>
-                      <span>•</span>
-                      <span>{selectedApplicant.location}</span>
                     </div>
                   </div>
                 </div>
