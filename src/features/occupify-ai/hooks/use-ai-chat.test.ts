@@ -1,11 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {
-  formatRelativeTime,
-  formatMessageTime,
-  toUiSession,
-  toUiMessage,
-} from './use-ai-chat.ts'
+import { formatRelativeTime, formatMessageTime, toUiSession, toUiMessage } from './use-ai-chat.ts'
 import type { ChatSessionItem, ChatMessageItem } from '../types'
 
 test('formatRelativeTime returns expected strings', () => {

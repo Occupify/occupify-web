@@ -314,7 +314,11 @@ export function OccupifyAiPage() {
               {/* Error Alert Card */}
               {errorMessage && (
                 <div className="my-3 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 flex items-start gap-2.5 text-xs">
-                  <WarningCircleIcon size={18} weight="fill" className="shrink-0 text-rose-500 mt-0.5" />
+                  <WarningCircleIcon
+                    size={18}
+                    weight="fill"
+                    className="shrink-0 text-rose-500 mt-0.5"
+                  />
                   <div className="flex-1">
                     <span className="font-semibold">Đã xảy ra lỗi: </span>
                     <span>{errorMessage}</span>
