@@ -14,6 +14,7 @@ export interface AuthUser {
   createdAt?: string
   fullName?: string
   avatarUrl?: string | null
+  headline?: string
 }
 
 export interface UserProfile extends AuthUser {
