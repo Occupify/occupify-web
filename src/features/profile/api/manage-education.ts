@@ -44,6 +44,7 @@ export async function updateEducationApi(
     formData.append('document', edu.document)
   }
   if (edu.removedDocument) {
+    formData.append('removeDocument', 'true')
     formData.append('removedDocument', 'true')
   }
 

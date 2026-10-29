@@ -30,3 +30,41 @@ export function nameToGmail(name: string): string {
       .replace(/\s+/g, '') + '@gmail.com'
   )
 }
+
+/**
+ * Maps Vietnamese or UI employment type options to backend EmploymentType enum.
+ */
+export function toBackendEmploymentType(type?: string): string {
+  if (!type) return 'FULL_TIME'
+  const val = type.toLowerCase()
+  if (val.includes('freelance') || val.includes('tự do')) return 'FREELANCE'
+  if (val.includes('contract') || val.includes('hợp đồng')) return 'CONTRACT'
+  if (val.includes('bán thời gian') || val.includes('part')) return 'PART_TIME'
+  if (val.includes('khởi nghiệp') || val.includes('self')) return 'SELF_EMPLOYED'
+  if (val.includes('thực tập') || val.includes('intern')) return 'INTERNSHIP'
+  return 'FULL_TIME'
+}
+
+/**
+ * Maps backend EmploymentType enum to human-friendly display label.
+ */
+export function fromBackendEmploymentType(type?: string): string {
+  if (!type) return 'Toàn thời gian'
+  switch (type.toUpperCase()) {
+    case 'FULL_TIME':
+      return 'Toàn thời gian'
+    case 'PART_TIME':
+      return 'Bán thời gian'
+    case 'FREELANCE':
+      return 'Freelance / Tự do'
+    case 'CONTRACT':
+      return 'Hợp đồng dự án'
+    case 'SELF_EMPLOYED':
+      return 'Tự do / Khởi nghiệp'
+    case 'INTERNSHIP':
+      return 'Thực tập sinh'
+    default:
+      return type
+  }
+}
+

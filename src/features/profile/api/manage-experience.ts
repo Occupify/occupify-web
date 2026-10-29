@@ -1,7 +1,7 @@
 import type { ProfileExperience, ExperienceFormData } from '../types'
 import { apiClient } from '@/lib/api-client'
 import type { SingleResponse } from '@/types'
-import { formatDateForBackend } from '../utils'
+import { formatDateForBackend, toBackendEmploymentType } from '../utils'
 
 /**
  * Work Experience CRUD APIs (POST/PUT/DELETE /users/me/experiences)
@@ -10,7 +10,7 @@ export async function addExperienceApi(exp: ExperienceFormData): Promise<Profile
   const res = await apiClient.post<SingleResponse<{ id: string }>>('/users/me/experiences', {
     title: exp.title,
     organization: exp.company,
-    employmentType: exp.employmentType || 'FULL_TIME',
+    employmentType: toBackendEmploymentType(exp.employmentType),
     location: exp.location || '',
     startDate: formatDateForBackend(exp.startDate),
     endDate: exp.isCurrent ? null : formatDateForBackend(exp.endDate),
@@ -31,7 +31,7 @@ export async function updateExperienceApi(
   await apiClient.put(`/users/me/experiences/${id}`, {
     title: exp.title,
     organization: exp.company,
-    employmentType: exp.employmentType || 'FULL_TIME',
+    employmentType: toBackendEmploymentType(exp.employmentType),
     location: exp.location || '',
     startDate: formatDateForBackend(exp.startDate),
     endDate: exp.isCurrent ? null : formatDateForBackend(exp.endDate),
