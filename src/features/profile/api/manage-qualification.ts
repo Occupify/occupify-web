@@ -1,30 +1,28 @@
-import type { ProfileCertificate, CertificateFormData } from '../types'
-import { currentProfileState } from './profile-state'
+import type { CertificateFormData } from '../types'
+import { apiClient } from '@/lib/api-client'
 
 /**
  * Qualification / Certificate CRUD APIs (POST/PUT/DELETE /users/me/qualifications)
  */
-export async function addCertificateApi(cert: CertificateFormData): Promise<ProfileCertificate[]> {
-  await new Promise((resolve) => setTimeout(resolve, 100))
-  currentProfileState.data.certificates = [cert, ...currentProfileState.data.certificates]
-  return [...currentProfileState.data.certificates]
+export async function addCertificateApi(cert: CertificateFormData): Promise<void> {
+  await apiClient.post('/users/me/qualifications', {
+    title: cert.name,
+    organization: cert.issuer,
+    issueDate: cert.year ? `${cert.year}-01-01` : new Date().toISOString().split('T')[0],
+  })
 }
 
 export async function updateCertificateApi(
-  index: number,
+  id: number | string,
   cert: CertificateFormData,
-): Promise<ProfileCertificate[]> {
-  await new Promise((resolve) => setTimeout(resolve, 100))
-  currentProfileState.data.certificates = currentProfileState.data.certificates.map((item, idx) =>
-    idx === index ? cert : item,
-  )
-  return [...currentProfileState.data.certificates]
+): Promise<void> {
+  await apiClient.put(`/users/me/qualifications/${id}`, {
+    title: cert.name,
+    organization: cert.issuer,
+    issueDate: cert.year ? `${cert.year}-01-01` : new Date().toISOString().split('T')[0],
+  })
 }
 
-export async function deleteCertificateApi(index: number): Promise<ProfileCertificate[]> {
-  await new Promise((resolve) => setTimeout(resolve, 80))
-  currentProfileState.data.certificates = currentProfileState.data.certificates.filter(
-    (_, idx) => idx !== index,
-  )
-  return [...currentProfileState.data.certificates]
+export async function deleteCertificateApi(id: number | string): Promise<void> {
+  await apiClient.delete(`/users/me/qualifications/${id}`)
 }

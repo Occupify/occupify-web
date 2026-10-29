@@ -41,15 +41,38 @@ export interface ProfileProject {
   rating: number
 }
 
+export interface EducationalInstitution {
+  id: string
+  name: string
+  code?: string | null
+  country?: string | null
+  city?: string | null
+  website?: string | null
+  logoUrl?: string | null
+}
+
 export interface ProfileEducation {
+  id?: string | number
+  institutionId?: string | null
   school: string
   period: string
+  fieldOfStudy?: string
+  degree?: string
+  grade?: string
+  description?: string
+  startDate?: string
+  endDate?: string
+  isCurrent?: boolean
+  documentUrl?: string
 }
 
 export interface ProfileCertificate {
+  id?: string | number
   name: string
   issuer: string
   year: string
+  credentialUrl?: string
+  documentUrl?: string
 }
 
 export interface ProfileExperience {
@@ -75,7 +98,6 @@ export interface ProfileSkill {
 export interface ProfileData {
   name: string
   headline?: string
-  location?: string
   connections?: number
   intro?: string
   onTimeRate?: number
@@ -108,7 +130,6 @@ export interface UploadCvResponse {
 export interface UpdateBasicInfoPayload {
   name: string
   headline: string
-  location?: string
   intro: string
 }
 
@@ -125,8 +146,18 @@ export interface ExperienceFormData {
 }
 
 export interface EducationFormData {
-  school: string
-  period: string
+  id?: string | number
+  institutionId: string
+  school?: string
+  fieldOfStudy: string
+  degree?: string
+  grade?: string
+  description?: string
+  startDate: string
+  endDate?: string
+  isCurrent?: boolean
+  document?: File | null
+  removedDocument?: boolean
 }
 
 export interface CertificateFormData {
@@ -146,4 +177,25 @@ export interface SkillFormData {
   name: string
   category?: string
   isTopSkill?: boolean
+}
+
+export const DEFAULT_EMPTY_PROFILE: ProfileData = {
+  name: 'Chưa cập nhật',
+  headline: '',
+  connections: undefined,
+  intro: '',
+  onTimeRate: undefined,
+  successRate: undefined,
+  creditScore: undefined,
+  cvFileName: undefined,
+  cvUrl: undefined,
+  avatarUrl: null,
+  email: '',
+  status: '',
+  experiences: [],
+  education: [],
+  certificates: [],
+  skills: [],
+  reviews: [],
+  projects: [],
 }

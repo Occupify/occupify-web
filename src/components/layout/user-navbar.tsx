@@ -13,6 +13,8 @@ import {
   ReceiptIcon,
 } from '@phosphor-icons/react'
 import { Avatar } from '@/components/ui'
+import { useAuthStore } from '@/stores'
+import { useSignOut } from '@/features/auth'
 
 export interface UserNavBarProps {
   unreadNotificationsCount?: number
@@ -20,6 +22,12 @@ export interface UserNavBarProps {
 
 export function UserNavBar({ unreadNotificationsCount }: UserNavBarProps = {}) {
   const navigate = useNavigate()
+  const { user } = useAuthStore()
+  const signOutMutation = useSignOut()
+
+  const displayName = user?.fullName || (user?.email ? user.email.split('@')[0] : 'Tôi')
+  const displayRole = user?.role === 'ADMIN' ? 'Quản trị viên' : 'Thành viên'
+  const avatarUrl = user?.avatarUrl || undefined
 
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -112,9 +120,9 @@ export function UserNavBar({ unreadNotificationsCount }: UserNavBarProps = {}) {
                   : 'border-transparent hover:!bg-[var(--bg-subtle)]'
               }`}
             >
-              <Avatar name="Nguyễn Minh Khoa" size="xs" />
+              <Avatar name={displayName} src={avatarUrl} size="xs" />
               <span className="flex items-center gap-1 text-[13px] font-semibold !text-[var(--text-primary)]">
-                Tôi
+                {displayName.length > 12 ? `${displayName.slice(0, 12)}...` : displayName}
                 <CaretDownIcon
                   size={11}
                   weight="bold"
@@ -129,13 +137,13 @@ export function UserNavBar({ unreadNotificationsCount }: UserNavBarProps = {}) {
               <div className="absolute right-0 top-[calc(100%+8px)] z-50 w-60 overflow-hidden rounded-xl border p-1 shadow-lg animate-in fade-in zoom-in-95 !border-[var(--border-default)] !bg-[var(--bg-elevated)]">
                 <div className="border-b p-3 !border-[var(--border-subtle)]">
                   <div className="flex items-center gap-2.5">
-                    <Avatar name="Nguyễn Minh Khoa" size="sm" />
+                    <Avatar name={displayName} src={avatarUrl} size="sm" />
                     <div className="min-w-0">
                       <div className="truncate text-xs font-bold !text-[var(--text-primary)]">
-                        Nguyễn Minh Khoa
+                        {displayName}
                       </div>
                       <div className="truncate text-[11px] !text-[var(--text-tertiary)]">
-                        Senior Architect
+                        {displayRole}
                       </div>
                     </div>
                   </div>
@@ -177,9 +185,13 @@ export function UserNavBar({ unreadNotificationsCount }: UserNavBarProps = {}) {
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
+                    onClick={async () => {
                       setMenuOpen(false)
-                      navigate('/')
+                      try {
+                        await signOutMutation.mutateAsync()
+                      } finally {
+                        navigate('/login')
+                      }
                     }}
                     className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-semibold !text-[#C03A2B] hover:!bg-[#FBE2E2]"
                   >

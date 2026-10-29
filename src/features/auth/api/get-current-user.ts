@@ -2,25 +2,25 @@ import type { UserProfile } from '../types'
 import { useAuthStore } from '@/stores'
 import { getAccountProfileApi } from '@/features/profile'
 
-// Fallback user for offline prototype demonstration
-const MOCK_CURRENT_USER: UserProfile = {
-  id: 'usr_01jk98m',
-  fullName: 'Nguyễn Minh Khoa',
-  email: 'nguyenminhkhoa@gmail.com',
-  avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-  headline: 'Senior UI/UX Designer & Product Architect',
+// Fallback baseline structure for anonymous / offline fallback
+const BASE_DEFAULT_USER: UserProfile = {
+  id: '',
+  fullName: '',
+  email: '',
+  avatarUrl: null,
+  headline: '',
   role: 'FREELANCER',
   status: 'ACTIVE',
-  connectionsCount: 534,
-  walletBalance: 52450000,
-  myProjectsCount: 2,
-  employeeProjectsCount: 2,
-  pendingProjectsCount: 2,
+  connectionsCount: 0,
+  walletBalance: 0,
+  myProjectsCount: 0,
+  employeeProjectsCount: 0,
+  pendingProjectsCount: 0,
 }
 
 /**
  * Fetches the currently authenticated user's profile information.
- * Calls backend GET /users/me if authenticated, with offline fallback.
+ * Calls backend GET /users/me if authenticated.
  */
 export async function getCurrentUser(): Promise<UserProfile> {
   const { isAuthenticated, accessToken, user: storeUser } = useAuthStore.getState()
@@ -28,16 +28,21 @@ export async function getCurrentUser(): Promise<UserProfile> {
   if (isAuthenticated && accessToken) {
     try {
       const accountProfile = await getAccountProfileApi()
+      const resolvedName =
+        accountProfile.fullName || storeUser?.fullName || accountProfile.email.split('@')[0]
+      const resolvedAvatar = accountProfile.avatarUrl ?? storeUser?.avatarUrl ?? null
+      const resolvedHeadline = accountProfile.headline ?? storeUser?.headline ?? undefined
+
       const mergedUser: UserProfile = {
-        ...MOCK_CURRENT_USER,
+        ...BASE_DEFAULT_USER,
         ...accountProfile,
         id: accountProfile.id,
         email: accountProfile.email,
         role: accountProfile.role,
         status: accountProfile.status,
-        fullName: accountProfile.fullName || accountProfile.email.split('@')[0],
-        avatarUrl: accountProfile.avatarUrl ?? null,
-        headline: accountProfile.headline ?? undefined,
+        fullName: resolvedName,
+        avatarUrl: resolvedAvatar,
+        headline: resolvedHeadline,
       }
 
       // Sync active profile back to Zustand auth store
@@ -48,30 +53,29 @@ export async function getCurrentUser(): Promise<UserProfile> {
         status: mergedUser.status,
         fullName: mergedUser.fullName,
         avatarUrl: mergedUser.avatarUrl,
+        headline: mergedUser.headline,
         createdAt: accountProfile.createdAt,
       })
 
       return mergedUser
     } catch {
-      // Downstream failure or offline: fallback to stored session or mock
+      // Downstream failure or offline: fallback to stored session
     }
   }
 
   if (storeUser) {
     return {
-      ...MOCK_CURRENT_USER,
+      ...BASE_DEFAULT_USER,
       ...storeUser,
       id: storeUser.id,
       email: storeUser.email,
       role: storeUser.role,
       status: storeUser.status,
       fullName: storeUser.fullName || storeUser.email.split('@')[0],
+      avatarUrl: storeUser.avatarUrl ?? null,
+      headline: storeUser.headline,
     }
   }
 
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(MOCK_CURRENT_USER)
-    }, 50)
-  })
+  return { ...BASE_DEFAULT_USER }
 }

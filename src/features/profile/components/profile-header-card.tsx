@@ -1,6 +1,6 @@
 import { SealCheckIcon, EnvelopeIcon, WarningIcon, PencilSimpleIcon } from '@phosphor-icons/react'
 import type { ProfileData } from '../types'
-import { nameToGmail } from '../api'
+import { nameToGmail } from '../utils'
 
 export interface ProfileHeaderCardProps {
   profile: ProfileData
@@ -165,7 +165,7 @@ export function ProfileHeaderCard({
             flexWrap: 'wrap',
           }}
         >
-          <div>
+          <div style={{ flex: '1 1 500px', minWidth: 260 }}>
             {/* Name + Verification status badge */}
             <div
               style={{
@@ -230,7 +230,7 @@ export function ProfileHeaderCard({
               {profile.headline || 'Chưa cập nhật tiêu đề nghề nghiệp'}
             </div>
 
-            {/* Contact Email & Location badges */}
+            {/* Contact Email badge */}
             <div
               style={{
                 marginTop: 8,
@@ -257,10 +257,42 @@ export function ProfileHeaderCard({
                 <span>{gmail}</span>
               </div>
             </div>
+
+            {/* Intro / Giới thiệu */}
+            <div style={{ marginTop: 14 }}>
+              {profile.intro && profile.intro.trim().length > 0 ? (
+                <p
+                  style={{
+                    fontSize: 13.5,
+                    color: '#334155',
+                    lineHeight: 1.65,
+                    margin: 0,
+                    whiteSpace: 'pre-line',
+                    wordBreak: 'break-word',
+                  }}
+                >
+                  {profile.intro}
+                </p>
+              ) : (
+                <p
+                  style={{
+                    fontSize: 13,
+                    color: '#94A3B8',
+                    fontStyle: 'italic',
+                    lineHeight: 1.65,
+                    margin: 0,
+                  }}
+                >
+                  Chưa cập nhật phần giới thiệu bản thân.
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Action buttons */}
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 4 }}>
+          <div
+            style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 4, flexShrink: 0 }}
+          >
             {isOwnProfile && (
               <button
                 type="button"

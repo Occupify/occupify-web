@@ -7,7 +7,6 @@ export interface EditBasicInfoModalProps {
   initialData: {
     name?: string
     headline?: string
-    location?: string
     intro?: string
   }
   onClose: () => void
@@ -23,7 +22,6 @@ function EditBasicInfoForm({
 }: Omit<EditBasicInfoModalProps, 'isOpen'>) {
   const [name, setName] = React.useState(initialData.name || '')
   const [headline, setHeadline] = React.useState(initialData.headline || '')
-  const [location, setLocation] = React.useState(initialData.location || '')
   const [intro, setIntro] = React.useState(initialData.intro || '')
 
   const handleSubmit = (e: React.SyntheticEvent) => {
@@ -32,7 +30,6 @@ function EditBasicInfoForm({
     onSubmit({
       name: name.trim(),
       headline: headline.trim(),
-      location: location.trim() || undefined,
       intro: intro.trim(),
     })
   }
@@ -156,38 +153,6 @@ function EditBasicInfoForm({
               value={headline}
               onChange={(e) => setHeadline(e.target.value)}
               placeholder="VD: Senior Product Designer & UX Architect"
-              style={{
-                width: '100%',
-                borderRadius: 8,
-                border: '1px solid #CBD5E1',
-                padding: '9px 12px',
-                fontSize: 14,
-                fontFamily: 'inherit',
-                boxSizing: 'border-box',
-                outline: 'none',
-              }}
-            />
-          </div>
-
-          <div style={{ marginBottom: 14 }}>
-            <label
-              htmlFor="basic-location"
-              style={{
-                display: 'block',
-                fontWeight: 700,
-                fontSize: 13,
-                marginBottom: 6,
-                color: '#334155',
-              }}
-            >
-              Địa điểm
-            </label>
-            <input
-              id="basic-location"
-              type="text"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="VD: Hà Nội, Việt Nam"
               style={{
                 width: '100%',
                 borderRadius: 8,

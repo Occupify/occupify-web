@@ -122,6 +122,19 @@ export function ProfileEducationCard({
                 >
                   {item.school}
                 </div>
+                {item.fieldOfStudy && (
+                  <div
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: '#0A66C2',
+                      marginTop: 2,
+                    }}
+                  >
+                    {item.degree ? `${item.degree} • ` : ''}
+                    {item.fieldOfStudy}
+                  </div>
+                )}
                 <div
                   style={{
                     fontSize: 12.5,
@@ -130,6 +143,7 @@ export function ProfileEducationCard({
                   }}
                 >
                   Thời gian học: {item.period}
+                  {item.grade ? ` • Xếp loại: ${item.grade}` : ''}
                 </div>
               </div>
             </div>

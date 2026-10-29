@@ -16,8 +16,15 @@ export function useAddEducation() {
 export function useUpdateEducation() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ index, data }: { index: number; data: EducationFormData }) =>
-      updateEducationApi(index, data),
+    mutationFn: ({
+      id,
+      index,
+      data,
+    }: {
+      id?: string | number
+      index?: number
+      data: EducationFormData
+    }) => updateEducationApi(id ?? index ?? '', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEYS.all })
     },
@@ -27,7 +34,7 @@ export function useUpdateEducation() {
 export function useDeleteEducation() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (index: number) => deleteEducationApi(index),
+    mutationFn: (idOrIndex: string | number) => deleteEducationApi(idOrIndex),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEYS.all })
     },
