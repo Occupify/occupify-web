@@ -9,4 +9,3 @@ export * from './manage-project'
 export * from './manage-cv'
 export * from './report-profile'
 export * from './get-institutions'
-

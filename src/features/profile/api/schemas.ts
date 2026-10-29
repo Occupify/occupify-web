@@ -127,4 +127,3 @@ export const institutionsResponseEnvelopeSchema = z.object({
   message: z.string().default('OK'),
   data: z.array(institutionItemSchema).default([]),
 })
-

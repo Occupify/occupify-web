@@ -127,7 +127,6 @@ export function ProfileProjectsCard({
                   {/* Actions for owner: Delete */}
                   {isOwnProfile && (
                     <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-
                       <button
                         type="button"
                         onClick={() => onDeleteClick?.(proj.id)}

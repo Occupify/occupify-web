@@ -30,4 +30,3 @@ export function nameToGmail(name: string): string {
       .replace(/\s+/g, '') + '@gmail.com'
   )
 }
-

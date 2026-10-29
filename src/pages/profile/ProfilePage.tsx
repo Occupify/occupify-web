@@ -260,9 +260,7 @@ export function ProfilePage({
         imageFileName,
       })
       setReportModalOpen(false)
-      toast.info(
-        'Tính năng đang phát triển.',
-      )
+      toast.info('Tính năng đang phát triển.')
     } catch {
       toast.error('Có lỗi xảy ra khi gửi báo cáo người dùng.')
     }

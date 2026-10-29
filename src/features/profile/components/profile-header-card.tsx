@@ -2,7 +2,6 @@ import { SealCheckIcon, EnvelopeIcon, WarningIcon, PencilSimpleIcon } from '@pho
 import type { ProfileData } from '../types'
 import { nameToGmail } from '../utils'
 
-
 export interface ProfileHeaderCardProps {
   profile: ProfileData
   isOwnProfile?: boolean
@@ -291,7 +290,9 @@ export function ProfileHeaderCard({
           </div>
 
           {/* Action buttons */}
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 4, flexShrink: 0 }}>
+          <div
+            style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 4, flexShrink: 0 }}
+          >
             {isOwnProfile && (
               <button
                 type="button"

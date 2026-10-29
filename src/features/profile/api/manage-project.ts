@@ -10,10 +10,7 @@ export async function addProjectApi(proj: ProjectFormData): Promise<ProfileProje
   }
 }
 
-export async function updateProjectApi(
-  id: number,
-  proj: ProjectFormData,
-): Promise<ProfileProject> {
+export async function updateProjectApi(id: number, proj: ProjectFormData): Promise<ProfileProject> {
   return {
     ...proj,
     id,

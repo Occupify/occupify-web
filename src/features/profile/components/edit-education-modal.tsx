@@ -55,10 +55,13 @@ function EditEducationForm({
   const [degree, setDegree] = React.useState(educationToEdit?.degree || DEGREE_OPTIONS[0])
   const [grade, setGrade] = React.useState(educationToEdit?.grade || '')
   const [startDate, setStartDate] = React.useState(
-    educationToEdit?.startDate || (educationToEdit?.period ? `${educationToEdit.period.slice(0, 4)}-09-01` : ''),
+    educationToEdit?.startDate ||
+      (educationToEdit?.period ? `${educationToEdit.period.slice(0, 4)}-09-01` : ''),
   )
   const [endDate, setEndDate] = React.useState(educationToEdit?.endDate || '')
-  const [isCurrent, setIsCurrent] = React.useState(Boolean(educationToEdit?.isCurrent || educationToEdit?.period?.includes('Hiện tại')))
+  const [isCurrent, setIsCurrent] = React.useState(
+    Boolean(educationToEdit?.isCurrent || educationToEdit?.period?.includes('Hiện tại')),
+  )
   const [description, setDescription] = React.useState(educationToEdit?.description || '')
   const [documentFile, setDocumentFile] = React.useState<File | null>(null)
 
@@ -93,7 +96,8 @@ function EditEducationForm({
   const handleSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault()
 
-    const chosenInstitutionId = selectedInstitution?.id || (educationToEdit?.institutionId || 'inst-custom')
+    const chosenInstitutionId =
+      selectedInstitution?.id || educationToEdit?.institutionId || 'inst-custom'
     const finalSchoolName = selectedInstitution?.name || customSchoolName.trim()
 
     if (!finalSchoolName || !fieldOfStudy.trim() || !startDate) return
@@ -106,7 +110,7 @@ function EditEducationForm({
       degree: degree || undefined,
       grade: grade.trim() || undefined,
       startDate,
-      endDate: isCurrent ? undefined : (endDate || undefined),
+      endDate: isCurrent ? undefined : endDate || undefined,
       isCurrent,
       description: description.trim() || undefined,
       document: documentFile,
@@ -256,7 +260,8 @@ function EditEducationForm({
                           marginTop: 2,
                         }}
                       >
-                        {selectedInstitution.code} {selectedInstitution.city ? `• ${selectedInstitution.city}` : ''}
+                        {selectedInstitution.code}{' '}
+                        {selectedInstitution.city ? `• ${selectedInstitution.city}` : ''}
                       </span>
                     )}
                   </div>
@@ -342,11 +347,20 @@ function EditEducationForm({
                         color: '#64748B',
                       }}
                     >
-                      {isSearchingInstitutions ? 'Đang tìm kiếm trường...' : 'Danh mục cơ sở đào tạo xác minh'}
+                      {isSearchingInstitutions
+                        ? 'Đang tìm kiếm trường...'
+                        : 'Danh mục cơ sở đào tạo xác minh'}
                     </div>
 
                     {institutions.length === 0 ? (
-                      <div style={{ padding: '12px', textAlign: 'center', fontSize: 13, color: '#94A3B8' }}>
+                      <div
+                        style={{
+                          padding: '12px',
+                          textAlign: 'center',
+                          fontSize: 13,
+                          color: '#94A3B8',
+                        }}
+                      >
                         Không tìm thấy trường phù hợp.
                       </div>
                     ) : (
@@ -377,7 +391,8 @@ function EditEducationForm({
                                 {inst.name}
                               </div>
                               <div style={{ fontSize: 11.5, color: '#64748B' }}>
-                                {inst.code ? `${inst.code} • ` : ''}{inst.city || 'Việt Nam'}
+                                {inst.code ? `${inst.code} • ` : ''}
+                                {inst.city || 'Việt Nam'}
                               </div>
                             </div>
                           </div>
@@ -451,7 +466,9 @@ function EditEducationForm({
           </div>
 
           {/* Degree & Grade Row */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+          <div
+            style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}
+          >
             <div>
               <label
                 htmlFor="edu-degree"
@@ -524,7 +541,9 @@ function EditEducationForm({
 
           {/* Dates & isCurrent Checkbox */}
           <div style={{ marginBottom: 14 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 8 }}>
+            <div
+              style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 8 }}
+            >
               <div>
                 <label
                   htmlFor="edu-start-date"
@@ -758,5 +777,10 @@ function EditEducationForm({
 
 export function EditEducationModal({ isOpen, ...props }: EditEducationModalProps) {
   if (!isOpen) return null
-  return <EditEducationForm key={props.educationToEdit?.id ?? props.educationToEdit?.school ?? 'new'} {...props} />
+  return (
+    <EditEducationForm
+      key={props.educationToEdit?.id ?? props.educationToEdit?.school ?? 'new'}
+      {...props}
+    />
+  )
 }

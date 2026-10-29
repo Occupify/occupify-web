@@ -199,4 +199,3 @@ export const DEFAULT_EMPTY_PROFILE: ProfileData = {
   reviews: [],
   projects: [],
 }
-
