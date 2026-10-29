@@ -166,7 +166,7 @@ export function ProfileHeaderCard({
             flexWrap: 'wrap',
           }}
         >
-          <div>
+          <div style={{ flex: '1 1 500px', minWidth: 260 }}>
             {/* Name + Verification status badge */}
             <div
               style={{
@@ -258,10 +258,40 @@ export function ProfileHeaderCard({
                 <span>{gmail}</span>
               </div>
             </div>
+
+            {/* Intro / Giới thiệu */}
+            <div style={{ marginTop: 14 }}>
+              {profile.intro && profile.intro.trim().length > 0 ? (
+                <p
+                  style={{
+                    fontSize: 13.5,
+                    color: '#334155',
+                    lineHeight: 1.65,
+                    margin: 0,
+                    whiteSpace: 'pre-line',
+                    wordBreak: 'break-word',
+                  }}
+                >
+                  {profile.intro}
+                </p>
+              ) : (
+                <p
+                  style={{
+                    fontSize: 13,
+                    color: '#94A3B8',
+                    fontStyle: 'italic',
+                    lineHeight: 1.65,
+                    margin: 0,
+                  }}
+                >
+                  Chưa cập nhật phần giới thiệu bản thân.
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Action buttons */}
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 4 }}>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 4, flexShrink: 0 }}>
             {isOwnProfile && (
               <button
                 type="button"

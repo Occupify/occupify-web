@@ -21,7 +21,6 @@ import {
   useUpdateSkill,
   useDeleteSkill,
   ProfileHeaderCard,
-  ProfileIntroCard,
   ProfileCvCard,
   ProfileExperienceCard,
   ProfileSkillsCard,
@@ -323,14 +322,7 @@ export function ProfilePage({
           onEditClick={() => setEditBasicInfoOpen(true)}
         />
 
-        {/* 2. Giới thiệu (Bio / Intro) */}
-        <ProfileIntroCard
-          intro={profile.intro}
-          isOwnProfile={isOwnProfile}
-          onEditClick={() => setEditBasicInfoOpen(true)}
-        />
-
-        {/* 3. CV & Năng lực */}
+        {/* 2. CV & Năng lực */}
         <ProfileCvCard
           isOwnProfile={isOwnProfile}
           cvFileName={profile.cvFileName}
