@@ -1,5 +1,4 @@
 export * from './use-profile'
-export * from './use-account-actions'
 export * from './use-experience'
 export * from './use-education'
 export * from './use-qualification'
@@ -7,3 +6,5 @@ export * from './use-skill'
 export * from './use-project'
 export * from './use-cv'
 export * from './use-report'
+export * from './use-institutions'
+
