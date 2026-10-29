@@ -7,7 +7,6 @@ import {
   UsersIcon,
   StarIcon,
   ShieldCheckIcon,
-  MapPinIcon,
   ArrowRightIcon,
 } from '@phosphor-icons/react'
 import { Avatar } from '@/components/ui'
@@ -102,12 +101,6 @@ export function JobCard({
               <span>{job.clientRating}</span>
             </span>
           )}
-
-          {/* Location badge */}
-          <span className="inline-flex items-center gap-1 text-[11.5px] text-slate-500">
-            <MapPinIcon size={12} className="text-slate-400" />
-            <span>{job.location || 'Toàn quốc (Remote)'}</span>
-          </span>
         </div>
 
         {/* Right side: Freshness and Bookmark Button */}

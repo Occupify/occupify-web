@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { toast } from '@/components/feedback'
+import { useAuthStore } from '@/stores'
 import {
   useProfile,
   useReportProfile,
@@ -64,8 +65,12 @@ export function ProfilePage({
   const paramName = searchParams.get('name')
   const targetUserName = propUserName ?? paramName ?? undefined
 
+  const currentUser = useAuthStore((state) => state.user)
   const isOwnProfile =
-    propIsOwnProfile ?? (!targetUserName || targetUserName === 'Nguyễn Minh Khoa')
+    propIsOwnProfile ??
+    (!targetUserName ||
+      targetUserName === currentUser?.fullName ||
+      targetUserName === currentUser?.email)
 
   const { data: profile, isLoading } = useProfile(targetUserName)
 

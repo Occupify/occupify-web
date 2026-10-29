@@ -1,5 +1,6 @@
 import type { UserProfile } from '../types'
 import { useAuthStore } from '@/stores'
+import { getAccountProfileApi } from '@/features/profile'
 
 // Fallback user for offline prototype demonstration
 const MOCK_CURRENT_USER: UserProfile = {
@@ -19,10 +20,43 @@ const MOCK_CURRENT_USER: UserProfile = {
 
 /**
  * Fetches the currently authenticated user's profile information.
- * Uses cached auth session user from occupify-identity if available.
+ * Calls backend GET /users/me if authenticated, with offline fallback.
  */
 export async function getCurrentUser(): Promise<UserProfile> {
-  const storeUser = useAuthStore.getState().user
+  const { isAuthenticated, accessToken, user: storeUser } = useAuthStore.getState()
+
+  if (isAuthenticated && accessToken) {
+    try {
+      const accountProfile = await getAccountProfileApi()
+      const mergedUser: UserProfile = {
+        ...MOCK_CURRENT_USER,
+        ...accountProfile,
+        id: accountProfile.id,
+        email: accountProfile.email,
+        role: accountProfile.role,
+        status: accountProfile.status,
+        fullName: accountProfile.fullName || accountProfile.email.split('@')[0],
+        avatarUrl: accountProfile.avatarUrl ?? null,
+        headline: accountProfile.headline ?? undefined,
+      }
+
+      // Sync active profile back to Zustand auth store
+      useAuthStore.getState().setUser({
+        id: mergedUser.id,
+        email: mergedUser.email,
+        role: mergedUser.role,
+        status: mergedUser.status,
+        fullName: mergedUser.fullName,
+        avatarUrl: mergedUser.avatarUrl,
+        createdAt: accountProfile.createdAt,
+      })
+
+      return mergedUser
+    } catch {
+      // Downstream failure or offline: fallback to stored session or mock
+    }
+  }
+
   if (storeUser) {
     return {
       ...MOCK_CURRENT_USER,

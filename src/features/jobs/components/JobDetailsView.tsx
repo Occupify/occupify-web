@@ -12,7 +12,6 @@ import {
   UserIcon,
   WarningIcon,
   StarIcon,
-  MapPinIcon,
   ShareNetworkIcon,
 } from '@phosphor-icons/react'
 import { Avatar } from '@/components/ui'
@@ -304,15 +303,6 @@ export function JobDetailsView({
                     {job.clientName || job.company}
                   </strong>
                 </span>
-                {job.location && (
-                  <>
-                    <span>•</span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <MapPinIcon size={14} color="var(--text-tertiary)" />
-                      {job.location}
-                    </span>
-                  </>
-                )}
               </div>
 
               {/* Structured Project Information Panel (Bảng thông số dự án) */}
@@ -1055,16 +1045,6 @@ export function JobDetailsView({
                   <span style={{ color: 'var(--text-secondary)' }}>Dự án đã giao:</span>
                   <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>
                     {job.completedProjectsCount || 24} dự án
-                  </span>
-                </div>
-
-                {/* Location */}
-                <div
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
-                >
-                  <span style={{ color: 'var(--text-secondary)' }}>Trụ sở / Địa bàn:</span>
-                  <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
-                    {job.location || 'Việt Nam'}
                   </span>
                 </div>
 

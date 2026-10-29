@@ -234,17 +234,20 @@ export function ProfileProjectsCard({
         })}
 
         {projects.length === 0 && (
-          <p
+          <div
             style={{
-              fontSize: 13.5,
-              color: '#94A3B8',
+              padding: '28px 16px',
               textAlign: 'center',
-              padding: '20px 0',
-              margin: 0,
+              background: '#F8FAFC',
+              borderRadius: 10,
+              border: '1px dashed #CBD5E1',
+              color: '#94A3B8',
+              fontSize: 14,
+              fontStyle: 'italic',
             }}
           >
-            Chưa có dự án nào được thêm.
-          </p>
+            Chưa có dự án nào được thêm vào hồ sơ.
+          </div>
         )}
       </div>
     </div>

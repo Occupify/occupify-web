@@ -80,12 +80,13 @@ export function toUiSession(item: ChatSessionItem): AiChatSession {
  * Maps backend message DTO to UI message object
  */
 export function toUiMessage(item: ChatMessageItem): AiChatMessage {
-  const attachment = item.attachments && item.attachments.length > 0
-    ? {
-        name: item.attachments[0].fileName || 'Tài liệu đính kèm',
-        size: item.attachments[0].pages ? `${item.attachments[0].pages} trang` : undefined,
-      }
-    : undefined
+  const attachment =
+    item.attachments && item.attachments.length > 0
+      ? {
+          name: item.attachments[0].fileName || 'Tài liệu đính kèm',
+          size: item.attachments[0].pages ? `${item.attachments[0].pages} trang` : undefined,
+        }
+      : undefined
 
   return {
     id: item.id,

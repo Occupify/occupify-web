@@ -1,3 +1,30 @@
+export interface AccountProfile {
+  id: string
+  email: string
+  fullName?: string | null
+  headline?: string | null
+  avatarUrl?: string | null
+  bio?: string | null
+  phoneNumber?: string | null
+  role: string
+  status: string
+  institutionId?: string | null
+  institutionName?: string | null
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface UpdateAccountPayload {
+  fullName: string
+  headline?: string
+  bio?: string
+  phoneNumber?: string
+}
+
+export interface AvatarUploadResponse {
+  avatarUrl?: string | null
+}
+
 export interface ProfileReview {
   id: number
   reviewer: string
@@ -47,15 +74,18 @@ export interface ProfileSkill {
 
 export interface ProfileData {
   name: string
-  headline: string
-  location: string
-  connections: number
-  intro: string
-  onTimeRate: number
-  successRate: number
-  creditScore: number
+  headline?: string
+  location?: string
+  connections?: number
+  intro?: string
+  onTimeRate?: number
+  successRate?: number
+  creditScore?: number
   cvUrl?: string
   cvFileName?: string
+  avatarUrl?: string | null
+  email?: string
+  status?: string
   education: ProfileEducation[]
   certificates: ProfileCertificate[]
   reviews: ProfileReview[]

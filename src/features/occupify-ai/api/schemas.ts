@@ -1,10 +1,12 @@
 import { z } from 'zod'
 
-export const attachmentInfoSchema = z.object({
-  fileName: z.string().default(''),
-  pages: z.number().optional().default(1),
-  removed: z.record(z.string(), z.number()).optional().default({}),
-}).loose()
+export const attachmentInfoSchema = z
+  .object({
+    fileName: z.string().default(''),
+    pages: z.number().optional().default(1),
+    removed: z.record(z.string(), z.number()).optional().default({}),
+  })
+  .loose()
 
 export const tokenUsageSchema = z.object({
   tokensIn: z.number().default(0),

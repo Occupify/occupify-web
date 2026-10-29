@@ -327,7 +327,7 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
             className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-4 py-2 text-xs font-bold transition-all !bg-[var(--bg-elevated)] !border-[#10B981] !text-[#057642] hover:!bg-[#ECFDF5]"
           >
             <FileTextIcon size={16} weight="bold" />
-            <span>+ Soạn hợp đồng</span>
+            <span>+ Đăng tuyển dụng</span>
           </button>
 
           <button

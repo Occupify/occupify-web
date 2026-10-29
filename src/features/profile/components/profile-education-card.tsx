@@ -202,17 +202,20 @@ export function ProfileEducationCard({
         ))}
 
         {education.length === 0 && (
-          <p
+          <div
             style={{
-              fontSize: 13.5,
-              color: '#94A3B8',
+              padding: '28px 16px',
               textAlign: 'center',
-              padding: '20px 0',
-              margin: 0,
+              background: '#F8FAFC',
+              borderRadius: 10,
+              border: '1px dashed #CBD5E1',
+              color: '#94A3B8',
+              fontSize: 14,
+              fontStyle: 'italic',
             }}
           >
             Chưa có thông tin học vấn nào được thêm.
-          </p>
+          </div>
         )}
       </div>
     </div>
