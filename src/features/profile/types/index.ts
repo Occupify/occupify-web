@@ -67,9 +67,12 @@ export interface ProfileEducation {
 }
 
 export interface ProfileCertificate {
+  id?: string | number
   name: string
   issuer: string
   year: string
+  credentialUrl?: string
+  documentUrl?: string
 }
 
 export interface ProfileExperience {

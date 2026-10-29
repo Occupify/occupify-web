@@ -212,8 +212,8 @@ export function ProfilePage({
   // Certificate Handlers
   const handleSaveCertificate = async (data: CertificateFormData) => {
     try {
-      if (certificateModal.item?.id || certificateModal.index !== undefined) {
-        const targetId = certificateModal.item?.id ?? certificateModal.index
+      const targetId = certificateModal.item?.id ?? certificateModal.index
+      if (targetId !== undefined) {
         await updateCertMutation.mutateAsync({
           id: targetId,
           data,
