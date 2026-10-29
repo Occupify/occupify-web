@@ -10,7 +10,6 @@ import { apiClient } from '@/lib/api-client'
 import { useAuthStore } from '@/stores'
 import { userDetailResponseEnvelopeSchema } from './schemas'
 import type { SingleResponse } from '@/types'
-import { fromBackendEmploymentType } from '../utils'
 
 /**
  * Fetch profile data for current user or external partner
@@ -34,7 +33,7 @@ export async function getProfileApi(userName?: string): Promise<ProfileData> {
       id: exp.id,
       title: exp.title,
       company: exp.organization,
-      employmentType: fromBackendEmploymentType(exp.employmentType ?? undefined),
+      employmentType: exp.employmentType ?? 'Toàn thời gian',
       location: exp.location ?? '',
       startDate: exp.startDate,
       endDate: exp.isCurrent ? 'Hiện tại' : (exp.endDate ?? ''),
