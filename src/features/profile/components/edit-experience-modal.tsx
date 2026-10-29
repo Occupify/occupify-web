@@ -30,16 +30,10 @@ function EditExperienceForm({
     experienceToEdit?.isCurrent ?? experienceToEdit?.endDate === 'Hiện tại',
   )
   const [description, setDescription] = React.useState(experienceToEdit?.description || '')
-  const [skillsInput, setSkillsInput] = React.useState(experienceToEdit?.skills?.join(', ') || '')
 
   const handleSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault()
     if (!title.trim() || !company.trim() || !startDate.trim()) return
-
-    const skills = skillsInput
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean)
 
     onSubmit({
       title: title.trim(),
@@ -50,7 +44,6 @@ function EditExperienceForm({
       endDate: isCurrent ? 'Hiện tại' : endDate.trim() || 'Hiện tại',
       isCurrent,
       description: description.trim(),
-      skills: skills.length > 0 ? skills : undefined,
     })
   }
 
@@ -397,39 +390,6 @@ function EditExperienceForm({
                 fontSize: 13.5,
                 fontFamily: 'inherit',
                 resize: 'vertical',
-                boxSizing: 'border-box',
-                outline: 'none',
-              }}
-            />
-          </div>
-
-          {/* Skills */}
-          <div style={{ marginBottom: 20 }}>
-            <label
-              htmlFor="exp-skills"
-              style={{
-                display: 'block',
-                fontWeight: 700,
-                fontSize: 13,
-                marginBottom: 6,
-                color: '#334155',
-              }}
-            >
-              Kỹ năng sử dụng (Phân tách bằng dấu phẩy)
-            </label>
-            <input
-              id="exp-skills"
-              type="text"
-              value={skillsInput}
-              onChange={(e) => setSkillsInput(e.target.value)}
-              placeholder="VD: React, TypeScript, Figma, Design System, Node.js"
-              style={{
-                width: '100%',
-                borderRadius: 8,
-                border: '1px solid #CBD5E1',
-                padding: '9px 12px',
-                fontSize: 14,
-                fontFamily: 'inherit',
                 boxSizing: 'border-box',
                 outline: 'none',
               }}

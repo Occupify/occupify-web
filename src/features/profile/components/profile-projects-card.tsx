@@ -1,20 +1,16 @@
-import { PlusIcon, PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react'
+import { TrashIcon } from '@phosphor-icons/react'
 import { StarRating } from './star-rating'
 import type { ProfileProject } from '../types'
 
 export interface ProfileProjectsCardProps {
   projects: ProfileProject[]
   isOwnProfile?: boolean
-  onAddClick?: () => void
-  onEditClick?: (proj: ProfileProject) => void
   onDeleteClick?: (id: number) => void
 }
 
 export function ProfileProjectsCard({
   projects,
   isOwnProfile = true,
-  onAddClick,
-  onEditClick,
   onDeleteClick,
 }: ProfileProjectsCardProps) {
   return (
@@ -38,48 +34,31 @@ export function ProfileProjectsCard({
           borderBottom: '1px solid var(--border-subtle)',
         }}
       >
-        <span
-          style={{
-            fontSize: 17,
-            fontWeight: 800,
-            color: '#0F172A',
-            letterSpacing: '-0.01em',
-          }}
-        >
-          Danh sách các dự án đã tham gia
-        </span>
-
-        {isOwnProfile && (
-          <button
-            type="button"
-            onClick={onAddClick}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span
             style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 5,
-              background: '#EFF6FF',
-              border: '1px solid #DBEAFE',
-              color: '#0A66C2',
-              fontSize: 12.5,
-              fontWeight: 700,
-              cursor: 'pointer',
-              padding: '5px 12px',
-              borderRadius: 6,
-              transition: 'all 120ms ease',
-            }}
-            onMouseEnter={(e) => {
-              const el = e.currentTarget as HTMLElement
-              el.style.background = '#DBEAFE'
-            }}
-            onMouseLeave={(e) => {
-              const el = e.currentTarget as HTMLElement
-              el.style.background = '#EFF6FF'
+              fontSize: 17,
+              fontWeight: 800,
+              color: '#0F172A',
+              letterSpacing: '-0.01em',
             }}
           >
-            <PlusIcon size={14} weight="bold" />
-            <span>Thêm dự án</span>
-          </button>
-        )}
+            Danh sách các dự án đã tham gia
+          </span>
+          <span
+            style={{
+              fontSize: 11.5,
+              fontWeight: 700,
+              background: '#FEF3C7',
+              color: '#B45309',
+              padding: '2px 8px',
+              borderRadius: 9999,
+              border: '1px solid #FDE68A',
+            }}
+          >
+            Tính năng đang phát triển
+          </span>
+        </div>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -145,38 +124,9 @@ export function ProfileProjectsCard({
                     {proj.name}
                   </div>
 
-                  {/* Actions for owner: Edit / Delete */}
+                  {/* Actions for owner: Delete */}
                   {isOwnProfile && (
                     <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-                      <button
-                        type="button"
-                        onClick={() => onEditClick?.(proj)}
-                        title="Chỉnh sửa dự án"
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          cursor: 'pointer',
-                          color: '#64748B',
-                          padding: 6,
-                          borderRadius: 6,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          transition: 'all 120ms ease',
-                        }}
-                        onMouseEnter={(e) => {
-                          const el = e.currentTarget as HTMLElement
-                          el.style.background = '#EFF6FF'
-                          el.style.color = '#0A66C2'
-                        }}
-                        onMouseLeave={(e) => {
-                          const el = e.currentTarget as HTMLElement
-                          el.style.background = 'none'
-                          el.style.color = '#64748B'
-                        }}
-                      >
-                        <PencilSimpleIcon size={15} weight="bold" />
-                      </button>
 
                       <button
                         type="button"
@@ -246,7 +196,7 @@ export function ProfileProjectsCard({
               fontStyle: 'italic',
             }}
           >
-            Chưa có dự án nào được thêm vào hồ sơ.
+            Tính năng hồ sơ dự án cá nhân đang được phát triển và sẽ sớm ra mắt.
           </div>
         )}
       </div>
