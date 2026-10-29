@@ -9,6 +9,22 @@ export interface RequestOptions extends RequestInit {
 
 let refreshPromise: Promise<string> | null = null
 
+/**
+ * Debounce session-expired events so only one toast fires
+ * within a 2-second window, regardless of how many callers trigger it.
+ */
+let sessionExpiredTimer: ReturnType<typeof setTimeout> | null = null
+
+function dispatchSessionExpired() {
+  if (sessionExpiredTimer) return // already scheduled
+  sessionExpiredTimer = setTimeout(() => {
+    sessionExpiredTimer = null
+  }, 2000)
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('occupify:session-expired'))
+  }
+}
+
 function getDefaultStatusMessage(status: number): string {
   switch (status) {
     case 400:
@@ -42,9 +58,7 @@ async function performTokenRefresh(): Promise<string> {
   const { refreshToken, clearTokens, setTokens } = useAuthStore.getState()
   if (!refreshToken) {
     clearTokens()
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('occupify:session-expired'))
-    }
+    dispatchSessionExpired()
     throw new ApiError('No refresh token available', 401, 'AUTH_004')
   }
 
@@ -79,15 +93,15 @@ async function performTokenRefresh(): Promise<string> {
 
       if (isTerminalAuthError) {
         clearTokens()
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('occupify:session-expired'))
-        }
+        dispatchSessionExpired()
       }
 
+      // Keep original errorCode — do NOT fall back to a terminal code
+      // so temporary server errors (500, timeout) don't kill the session
       throw new ApiError(
         errorBody?.message || getDefaultStatusMessage(response.status),
         response.status,
-        errorCode || 'AUTH_005',
+        errorCode || undefined,
         errorBody,
       )
     }
@@ -98,26 +112,21 @@ async function performTokenRefresh(): Promise<string> {
     const newUser = payload?.data?.user || payload?.user
 
     if (!newAccessToken) {
-      throw new ApiError('Malformed refresh response: missing accessToken', 500, 'AUTH_005')
+      throw new ApiError('Malformed refresh response: missing accessToken', 500, 'REFRESH_MALFORMED')
     }
 
     setTokens(newAccessToken, newRefreshToken, newUser)
     return newAccessToken
   } catch (error) {
-    if (error instanceof ApiError) {
-      const isTerminalAuthError =
-        error.errorCode === 'AUTH_004' ||
-        error.errorCode === 'AUTH_005' ||
-        error.errorCode === 'AUTH_006' ||
-        error.errorCode === 'USER_007' ||
-        error.errorCode === 'USER_008'
-
-      if (isTerminalAuthError) {
-        clearTokens()
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('occupify:session-expired'))
-        }
-      }
+    // Only handle non-ApiError (network errors, etc.)
+    // ApiError is already handled above — do NOT re-dispatch session-expired
+    if (!(error instanceof ApiError)) {
+      // Network error during refresh — don't clear tokens, let the caller retry
+      throw new ApiError(
+        'Network error during token refresh',
+        0,
+        'NETWORK_ERROR',
+      )
     }
     throw error
   }
@@ -191,21 +200,31 @@ export async function request<T>(endpoint: string, options: RequestOptions = {})
     const currentRefreshToken = useAuthStore.getState().refreshToken
 
     if (currentRefreshToken) {
-      const newToken = await refreshAuthToken()
-      const retryHeaders = {
-        ...mergedHeaders,
-        Authorization: `Bearer ${newToken}`,
+      try {
+        const newToken = await refreshAuthToken()
+        const retryHeaders = {
+          ...mergedHeaders,
+          Authorization: `Bearer ${newToken}`,
+        }
+        const retryResponse = await fetch(url, {
+          ...customConfig,
+          headers: retryHeaders,
+        })
+        return handleResponse<T>(retryResponse)
+      } catch {
+        // Refresh failed — performTokenRefresh already handled
+        // session-expired dispatch and token cleanup for terminal errors.
+        // Re-throw with the original 401 context so the caller gets a
+        // meaningful error instead of the refresh-internal error.
+        throw new ApiError(
+          getDefaultStatusMessage(401),
+          401,
+          'AUTH_SESSION_EXPIRED',
+        )
       }
-      const retryResponse = await fetch(url, {
-        ...customConfig,
-        headers: retryHeaders,
-      })
-      return handleResponse<T>(retryResponse)
     } else {
       useAuthStore.getState().clearTokens()
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('occupify:session-expired'))
-      }
+      dispatchSessionExpired()
     }
   }
 
