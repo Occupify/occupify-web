@@ -16,8 +16,8 @@ export function useAddCertificate() {
 export function useUpdateCertificate() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ index, data }: { index: number; data: CertificateFormData }) =>
-      updateCertificateApi(index, data),
+    mutationFn: ({ id, data }: { id: string | number; data: CertificateFormData }) =>
+      updateCertificateApi(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEYS.all })
     },
@@ -27,7 +27,7 @@ export function useUpdateCertificate() {
 export function useDeleteCertificate() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (index: number) => deleteCertificateApi(index),
+    mutationFn: (id: string | number) => deleteCertificateApi(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEYS.all })
     },

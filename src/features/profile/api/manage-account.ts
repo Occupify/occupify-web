@@ -11,9 +11,7 @@ import type {
   UpdateAccountPayload,
   AvatarUploadResponse,
   UpdateBasicInfoPayload,
-  ProfileData,
 } from '../types'
-import { currentProfileState } from './profile-state'
 
 /**
  * Retrieves the profile of the currently authenticated user account.
@@ -72,36 +70,23 @@ export async function deleteAvatarApi(): Promise<void> {
 }
 
 /**
- * Update basic user information (Name, Headline, Location, Bio/Intro)
+ * Update basic user information (Name, Headline, Bio/Intro)
  * Synchronizes with PUT /users/me and updates global session
  */
-export async function updateBasicInfoApi(payload: UpdateBasicInfoPayload): Promise<ProfileData> {
+export async function updateBasicInfoApi(payload: UpdateBasicInfoPayload): Promise<void> {
   if (useAuthStore.getState().isAuthenticated) {
-    try {
-      await apiClient.put('/users/me', {
-        fullName: payload.name,
-        headline: payload.headline,
-        bio: payload.intro,
-      })
+    await apiClient.put('/users/me', {
+      fullName: payload.name,
+      headline: payload.headline,
+      bio: payload.intro,
+    })
 
-      const currentUser = useAuthStore.getState().user
-      if (currentUser) {
-        useAuthStore.getState().setUser({
-          ...currentUser,
-          fullName: payload.name,
-        })
-      }
-    } catch (err) {
-      console.warn('[updateBasicInfoApi] Backend put /users/me failed, updating locally:', err)
+    const currentUser = useAuthStore.getState().user
+    if (currentUser) {
+      useAuthStore.getState().setUser({
+        ...currentUser,
+        fullName: payload.name,
+      })
     }
   }
-
-  currentProfileState.data = {
-    ...currentProfileState.data,
-    name: payload.name,
-    headline: payload.headline,
-    location: payload.location ?? currentProfileState.data.location,
-    intro: payload.intro,
-  }
-  return { ...currentProfileState.data }
 }

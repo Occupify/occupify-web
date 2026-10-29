@@ -1,6 +1,7 @@
 import { SealCheckIcon, EnvelopeIcon, WarningIcon, PencilSimpleIcon } from '@phosphor-icons/react'
 import type { ProfileData } from '../types'
-import { nameToGmail } from '../api'
+import { nameToGmail } from '../utils'
+
 
 export interface ProfileHeaderCardProps {
   profile: ProfileData
@@ -230,7 +231,7 @@ export function ProfileHeaderCard({
               {profile.headline || 'Chưa cập nhật tiêu đề nghề nghiệp'}
             </div>
 
-            {/* Contact Email & Location badges */}
+            {/* Contact Email badge */}
             <div
               style={{
                 marginTop: 8,

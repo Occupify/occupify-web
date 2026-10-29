@@ -111,3 +111,20 @@ export const userDetailResponseEnvelopeSchema = z.object({
   message: z.string().default('OK'),
   data: userDetailResponseSchema,
 })
+
+export const institutionItemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  code: z.string().optional().nullable(),
+  country: z.string().optional().nullable(),
+  city: z.string().optional().nullable(),
+  website: z.string().optional().nullable(),
+  logoUrl: z.string().optional().nullable(),
+})
+
+export const institutionsResponseEnvelopeSchema = z.object({
+  statusCode: z.number().default(200),
+  message: z.string().default('OK'),
+  data: z.array(institutionItemSchema).default([]),
+})
+

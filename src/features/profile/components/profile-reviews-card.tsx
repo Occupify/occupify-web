@@ -2,7 +2,7 @@ import * as React from 'react'
 import { SealCheckIcon } from '@phosphor-icons/react'
 import { Avatar } from '@/components/ui'
 import { StarRating } from './star-rating'
-import { nameToGmail } from '../api'
+import { nameToGmail } from '../utils'
 import type { ProfileReview } from '../types'
 
 export interface ProfileReviewsCardProps {

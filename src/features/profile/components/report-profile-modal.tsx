@@ -68,16 +68,31 @@ export function ReportProfileModal({
           }}
         >
           <div>
-            <h3
-              style={{
-                fontSize: 18,
-                fontWeight: 800,
-                color: '#0F172A',
-                margin: 0,
-              }}
-            >
-              Báo cáo người dùng
-            </h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <h3
+                style={{
+                  fontSize: 18,
+                  fontWeight: 800,
+                  color: '#0F172A',
+                  margin: 0,
+                }}
+              >
+                Báo cáo người dùng
+              </h3>
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  background: '#FEF3C7',
+                  color: '#B45309',
+                  padding: '2px 8px',
+                  borderRadius: 9999,
+                  border: '1px solid #FDE68A',
+                }}
+              >
+                Đang phát triển
+              </span>
+            </div>
             <p
               style={{
                 fontSize: 13,

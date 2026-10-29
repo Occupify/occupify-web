@@ -59,16 +59,39 @@ export function ProfileCvCard({
     >
       <div
         style={{
-          fontSize: 17,
-          fontWeight: 800,
-          color: '#0F172A',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
           marginBottom: 16,
           paddingBottom: 10,
           borderBottom: '1px solid var(--border-subtle)',
-          letterSpacing: '-0.01em',
         }}
       >
-        CV & Hồ sơ năng lực
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span
+            style={{
+              fontSize: 17,
+              fontWeight: 800,
+              color: '#0F172A',
+              letterSpacing: '-0.01em',
+            }}
+          >
+            CV & Hồ sơ năng lực
+          </span>
+          <span
+            style={{
+              fontSize: 11.5,
+              fontWeight: 700,
+              background: '#FEF3C7',
+              color: '#B45309',
+              padding: '2px 8px',
+              borderRadius: 9999,
+              border: '1px solid #FDE68A',
+            }}
+          >
+            Tính năng đang phát triển
+          </span>
+        </div>
       </div>
 
       {isOwnProfile ? (

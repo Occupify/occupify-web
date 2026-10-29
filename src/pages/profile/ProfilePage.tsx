@@ -16,8 +16,6 @@ import {
   useAddCertificate,
   useUpdateCertificate,
   useDeleteCertificate,
-  useAddProject,
-  useUpdateProject,
   useDeleteProject,
   useAddSkill,
   useUpdateSkill,
@@ -37,16 +35,13 @@ import {
   EditSkillModal,
   EditEducationModal,
   EditCertificateModal,
-  EditProjectModal,
   type ProfileExperience,
   type ProfileEducation,
   type ProfileCertificate,
-  type ProfileProject,
   type ProfileSkill,
   type ExperienceFormData,
   type EducationFormData,
   type CertificateFormData,
-  type ProjectFormData,
   type SkillFormData,
   type UpdateBasicInfoPayload,
 } from '@/features/profile'
@@ -87,8 +82,6 @@ export function ProfilePage({
   const addCertMutation = useAddCertificate()
   const updateCertMutation = useUpdateCertificate()
   const deleteCertMutation = useDeleteCertificate()
-  const addProjMutation = useAddProject()
-  const updateProjMutation = useUpdateProject()
   const deleteProjMutation = useDeleteProject()
   const addSkillMutation = useAddSkill()
   const updateSkillMutation = useUpdateSkill()
@@ -115,10 +108,6 @@ export function ProfilePage({
     index?: number
     item?: ProfileCertificate | null
   }>({ open: false, index: undefined, item: null })
-  const [projectModal, setProjectModal] = React.useState<{
-    open: boolean
-    item?: ProfileProject | null
-  }>({ open: false, item: null })
 
   // Basic Info Handlers
   const handleUpdateBasicInfo = async (data: UpdateBasicInfoPayload) => {
@@ -192,8 +181,9 @@ export function ProfilePage({
   // Education Handlers
   const handleSaveEducation = async (data: EducationFormData) => {
     try {
-      if (educationModal.index !== undefined) {
+      if (educationModal.item?.id !== undefined || educationModal.index !== undefined) {
         await updateEduMutation.mutateAsync({
+          id: educationModal.item?.id,
           index: educationModal.index,
           data,
         })
@@ -211,7 +201,8 @@ export function ProfilePage({
   const handleDeleteEducation = async (index: number) => {
     if (!window.confirm('Bạn có chắc chắn muốn xóa mục học vấn này?')) return
     try {
-      await deleteEduMutation.mutateAsync(index)
+      const targetItem = profile?.education?.[index]
+      await deleteEduMutation.mutateAsync(targetItem?.id ?? index)
       toast.info('Đã xóa mục học vấn.')
     } catch {
       toast.error('Có lỗi xảy ra khi xóa học vấn.')
@@ -221,9 +212,10 @@ export function ProfilePage({
   // Certificate Handlers
   const handleSaveCertificate = async (data: CertificateFormData) => {
     try {
-      if (certificateModal.index !== undefined) {
+      if (certificateModal.item?.id || certificateModal.index !== undefined) {
+        const targetId = certificateModal.item?.id ?? certificateModal.index
         await updateCertMutation.mutateAsync({
-          index: certificateModal.index,
+          id: targetId,
           data,
         })
         toast.success('Đã cập nhật chứng chỉ chuyên môn!')
@@ -240,7 +232,8 @@ export function ProfilePage({
   const handleDeleteCertificate = async (index: number) => {
     if (!window.confirm('Bạn có chắc chắn muốn xóa chứng chỉ này?')) return
     try {
-      await deleteCertMutation.mutateAsync(index)
+      const targetItem = profile?.certificates?.[index]
+      await deleteCertMutation.mutateAsync(targetItem?.id ?? index)
       toast.info('Đã xóa chứng chỉ chuyên môn.')
     } catch {
       toast.error('Có lỗi xảy ra khi xóa chứng chỉ.')
@@ -248,24 +241,6 @@ export function ProfilePage({
   }
 
   // Project Handlers
-  const handleSaveProject = async (data: ProjectFormData) => {
-    try {
-      if (projectModal.item) {
-        await updateProjMutation.mutateAsync({
-          id: projectModal.item.id,
-          data,
-        })
-        toast.success('Đã cập nhật dự án thành công!')
-      } else {
-        await addProjMutation.mutateAsync(data)
-        toast.success('Đã thêm dự án thực tế mới!')
-      }
-      setProjectModal({ open: false, item: null })
-    } catch {
-      toast.error('Có lỗi xảy ra khi lưu dự án.')
-    }
-  }
-
   const handleDeleteProject = async (id: number) => {
     if (!window.confirm('Bạn có chắc chắn muốn xóa dự án này khỏi hồ sơ?')) return
     try {
@@ -280,13 +255,15 @@ export function ProfilePage({
   const handleReportSubmit = async (reason: string, imageFileName?: string) => {
     if (!profile) return
     try {
-      const res = await reportMutation.mutateAsync({
+      await reportMutation.mutateAsync({
         reportedUserName: profile.name,
         reason,
         imageFileName,
       })
       setReportModalOpen(false)
-      toast.success(res.message)
+      toast.info(
+        'Tính năng đang phát triển.',
+      )
     } catch {
       toast.error('Có lỗi xảy ra khi gửi báo cáo người dùng.')
     }
@@ -295,7 +272,9 @@ export function ProfilePage({
   const handleUploadCv = async (file: File) => {
     try {
       const res = await uploadCvMutation.mutateAsync(file)
-      toast.success(`Đã tải lên tệp CV "${res.fileName}" thành công!`)
+      toast.info(
+        `Tính năng đang phát triển: Tệp "${res.fileName}" hiện chỉ xem trước cục bộ (chưa lưu trữ đám mây).`,
+      )
     } catch {
       toast.error('Có lỗi xảy ra khi tải lên tệp CV.')
     }
@@ -403,8 +382,6 @@ export function ProfilePage({
         <ProfileProjectsCard
           projects={profile.projects}
           isOwnProfile={isOwnProfile}
-          onAddClick={() => setProjectModal({ open: true, item: null })}
-          onEditClick={(item) => setProjectModal({ open: true, item })}
           onDeleteClick={handleDeleteProject}
         />
 
@@ -424,7 +401,6 @@ export function ProfilePage({
           initialData={{
             name: profile.name,
             headline: profile.headline,
-            location: profile.location,
             intro: profile.intro,
           }}
           onClose={() => setEditBasicInfoOpen(false)}
@@ -466,15 +442,6 @@ export function ProfilePage({
           onClose={() => setCertificateModal({ open: false, index: undefined, item: null })}
           onSubmit={handleSaveCertificate}
           isSubmitting={addCertMutation.isPending || updateCertMutation.isPending}
-        />
-
-        {/* Add/Edit Project Modal */}
-        <EditProjectModal
-          isOpen={projectModal.open}
-          projectToEdit={projectModal.item}
-          onClose={() => setProjectModal({ open: false, item: null })}
-          onSubmit={handleSaveProject}
-          isSubmitting={addProjMutation.isPending || updateProjMutation.isPending}
         />
       </div>
     </div>
