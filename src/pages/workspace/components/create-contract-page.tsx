@@ -10,22 +10,8 @@ import {
   SealCheckIcon,
   XIcon,
 } from '@phosphor-icons/react'
-import type { MyProject } from '@/features/projects'
-import { CY_PERIODS, MY_PROJECTS_DATA } from '@/features/mock-data'
-
-export interface CreateContractFormData {
-  title: string
-  value: string
-  period: string
-  startDate?: string
-  endDate?: string
-  role: string
-  freelancerEmail: string
-  candidateName?: string
-  project: string | null
-  termsFileName?: string
-  jobDescription?: string
-}
+import type { MyProject, CreateContractFormData } from '@/features/projects'
+import { CY_PERIODS } from '@/features/mock-data'
 
 interface CreateContractPageProps {
   onBack: () => void
@@ -37,6 +23,7 @@ interface CreateContractPageProps {
   initialCandidateEmail?: string
   initialBidValue?: string
   initialJobDescription?: string
+  initialJobId?: string
   projects?: MyProject[]
 }
 
@@ -62,10 +49,13 @@ export function CreateContractPage({
   initialCandidateEmail,
   initialBidValue,
   initialJobDescription,
-  projects = MY_PROJECTS_DATA,
+  initialJobId,
+  projects = [],
 }: CreateContractPageProps) {
   const isInvite = mode === 'invite' || Boolean(initialRole && initialProject)
   const [isEditingContract, setIsEditingContract] = useState(!isInvite)
+  const [selectedJobId, setSelectedJobId] = useState<string | undefined>(initialJobId)
+  const [termsFile, setTermsFile] = useState<File | null>(null)
 
   const [title, setTitle] = useState(
     initialProject && initialRole
@@ -243,6 +233,7 @@ export function CreateContractPage({
                               type="button"
                               onClick={() => {
                                 setSelectedRole(r.title)
+                                setSelectedJobId(r.id)
                                 setIsCustomRole(false)
                               }}
                               className={`inline-flex cursor-pointer items-center gap-2 rounded-lg border p-2 text-xs font-semibold transition-colors ${
@@ -576,7 +567,10 @@ export function CreateContractPage({
                     className="hidden"
                     onChange={(e) => {
                       const f = e.target.files?.[0]
-                      if (f) setTermsFileName(f.name)
+                      if (f) {
+                        setTermsFileName(f.name)
+                        setTermsFile(f)
+                      }
                     }}
                   />
                   <div
@@ -680,8 +674,12 @@ export function CreateContractPage({
                       freelancerEmail: isInvite ? freelancerEmail : '',
                       candidateName: initialCandidateName,
                       project: selectedProject,
+                      projectName: currentProjectObj?.name || selectedProject || undefined,
+                      projectId: currentProjectObj?.id ? String(currentProjectObj.id) : undefined,
                       termsFileName: termsFileName || 'DieuKhoan_HopDong.pdf',
                       jobDescription,
+                      jobId: selectedJobId,
+                      file: termsFile,
                     })
                   }
                 }}
