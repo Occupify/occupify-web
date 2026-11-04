@@ -43,6 +43,29 @@ export async function createContract(
         file: formData.file ?? null,
       })
       backendContractId = createdJob.id
+
+      // Update recruitingRoles in local store so project detail is in sync immediately
+      const { myProjects } = getInternalStores()
+      const updated = myProjects.map((p) => {
+        if (String(p.id) === String(formData.projectId) || p.name === formData.projectName) {
+          const newRole = {
+            id: createdJob.id,
+            title: createdJob.title || formData.title,
+            skills: createdJob.skills ? Array.from(createdJob.skills) : [],
+            salaryRange: rawPrice > 0 ? `${rawPrice.toLocaleString('vi-VN')} ₫` : undefined,
+            slotsTotal: createdJob.quantity || 1,
+            slotsFilled: 0,
+            status: 'recruiting' as const,
+            jobDescription: createdJob.description,
+          }
+          return {
+            ...p,
+            recruitingRoles: [...(p.recruitingRoles || []), newRole],
+          }
+        }
+        return p
+      })
+      setInternalStores({ myProjects: updated })
     } catch {
       // Fallback
     }

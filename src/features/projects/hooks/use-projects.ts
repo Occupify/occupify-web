@@ -78,9 +78,13 @@ export function useProjects(employerId?: string) {
 
   const createContractMutation = useMutation({
     mutationFn: createContract,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: projectKeys.my() })
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.all })
+      queryClient.invalidateQueries({ queryKey: ['jobs'] })
       queryClient.invalidateQueries({ queryKey: contractKeys.all })
+      if (variables?.projectId) {
+        queryClient.invalidateQueries({ queryKey: projectKeys.detail(variables.projectId) })
+      }
     },
   })
 
