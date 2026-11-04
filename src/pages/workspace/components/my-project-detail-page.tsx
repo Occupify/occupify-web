@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react'
 import {
-  BriefcaseIcon,
   DownloadSimpleIcon,
   FilePdfIcon,
   FileTextIcon,
@@ -390,6 +389,23 @@ export function MyProjectDetailPage({
                       <span>Không thể hủy khi còn nhân sự ({members.length})</span>
                     </div>
                   )}
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onCreateContract?.(
+                        undefined,
+                        undefined,
+                        undefined,
+                        undefined,
+                        undefined,
+                        'create',
+                      )
+                    }
+                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-full px-5 py-2 text-sm font-bold transition-colors !bg-[var(--color-primary-500)] !text-white hover:!bg-[var(--color-primary-600)] shadow-xs"
+                  >
+                    <span>Thêm hợp đồng</span>
+                  </button>
                 </>
               )}
             </div>
@@ -545,127 +561,7 @@ export function MyProjectDetailPage({
             </div>
           )}
 
-          {/* Section: Danh sách thành viên */}
-          <div className="border-b p-6 sm:px-7 !border-[var(--border-default)]">
-            <div className="mb-4 flex items-center justify-between">
-              <span className="text-[15px] font-bold !text-[var(--text-primary)]">
-                Danh sách thành viên
-              </span>
-              <button
-                type="button"
-                onClick={() => onCreateContract?.()}
-                className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors !border-[var(--color-primary-500)] !text-[var(--color-primary-500)] hover:!bg-[var(--color-primary-50)]"
-              >
-                <UserPlusIcon size={15} />
-                <span>Mời thành viên</span>
-              </button>
-            </div>
 
-            {members.length === 0 ? (
-              <p className="text-[13px] !text-[var(--text-tertiary)]">Không còn thành viên nào.</p>
-            ) : (
-              <div className="flex flex-col gap-3">
-                {members.map((m) => (
-                  <div
-                    key={m.email}
-                    className="rounded-lg border p-4.5 !border-[var(--border-subtle)] !bg-[var(--bg-subtle)]/40"
-                  >
-                    {/* Name row */}
-                    <div className="mb-2.5 flex flex-wrap items-center gap-2">
-                      <span className="text-[15px] font-bold !text-[var(--text-primary)]">
-                        {m.name}
-                      </span>
-                      {m.role && (
-                        <span className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-bold !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)]">
-                          <BriefcaseIcon size={12} weight="bold" />
-                          {m.role}
-                        </span>
-                      )}
-                      <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)]">
-                        {m.status ?? 'Đang làm'}
-                      </span>
-                    </div>
-
-                    {/* Info grid */}
-                    <div className="mb-3.5 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                      <div>
-                        <div className="mb-0.5 text-[11px] font-bold tracking-wider uppercase !text-[var(--text-tertiary)]">
-                          Giá trị HĐ
-                        </div>
-                        <div className="text-sm font-bold !text-[var(--text-primary)]">
-                          {m.price}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="mb-0.5 text-[11px] font-bold tracking-wider uppercase !text-[var(--text-tertiary)]">
-                          Chu kỳ
-                        </div>
-                        <div className="text-sm !text-[var(--text-secondary)]">
-                          {project.period}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="mb-0.5 text-[11px] font-bold tracking-wider uppercase !text-[var(--text-tertiary)]">
-                          Hạn hoàn thành
-                        </div>
-                        <div className="text-sm !text-[var(--text-secondary)]">
-                          {m.dueDate ?? project.dueDate ?? '—'}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="mb-0.5 text-[11px] font-bold tracking-wider uppercase !text-[var(--text-tertiary)]">
-                          Hạn trả lương
-                        </div>
-                        <div className="text-sm font-bold !text-[var(--color-primary-500)]">
-                          {m.salaryDueDate ??
-                            (project.period === 'Hàng tháng'
-                              ? 'Ngày 05 hàng tháng'
-                              : project.period === 'Hàng tuần'
-                                ? 'Thứ 6 hàng tuần'
-                                : project.dueDate
-                                  ? `Trước ${project.dueDate}`
-                                  : 'Theo thỏa thuận')}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex flex-wrap items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setRatingTarget(m.email)
-                          setRatingStars(5)
-                          setRatingOnTime(true)
-                          setRatingComment('')
-                        }}
-                        className="cursor-pointer rounded-full border px-4 py-1.5 text-[13px] font-semibold transition-colors !border-[#44712E] !text-[#44712E] hover:!bg-[#E5F6E8]"
-                      >
-                        Hoàn thành dự án
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setCancelTarget(m.email)}
-                        className="cursor-pointer rounded-full border px-4 py-1.5 text-[13px] font-semibold transition-colors !border-[#C03A2B] !text-[#C03A2B] hover:!bg-[#FBE2E2]"
-                      >
-                        Hủy hợp đồng
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setContractDetailMember(m)
-                          setIsEditingContract(false)
-                        }}
-                        className="cursor-pointer rounded-full border px-4 py-1.5 text-[13px] font-semibold transition-colors !border-[var(--color-primary-500)] !text-[var(--color-primary-500)] hover:!bg-[var(--color-primary-50)]"
-                      >
-                        Xem chi tiết hợp đồng
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
 
           {/* Section: Danh sách ứng viên */}
           <div className="p-6 sm:px-7">

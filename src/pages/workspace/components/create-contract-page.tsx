@@ -10,6 +10,7 @@ import {
   SealCheckIcon,
   XIcon,
 } from '@phosphor-icons/react'
+import { toast } from '@/components/feedback'
 import type { MyProject, CreateContractFormData } from '@/features/projects'
 import { CY_PERIODS } from '@/features/mock-data'
 
@@ -663,6 +664,10 @@ export function CreateContractPage({
               <button
                 type="button"
                 onClick={() => {
+                  if (isInvite) {
+                    toast.info('Tính năng đang phát triển')
+                    return
+                  }
                   if (canSubmit) {
                     onSubmit({
                       title,
@@ -683,7 +688,7 @@ export function CreateContractPage({
                     })
                   }
                 }}
-                disabled={!canSubmit}
+                disabled={!isInvite && !canSubmit}
                 className="cursor-pointer rounded-full px-7 py-2 text-xs font-bold !text-white transition-colors !bg-[var(--color-primary-500)] hover:!bg-[var(--color-primary-600)] disabled:cursor-not-allowed disabled:!bg-[rgba(0,0,0,0.12)] disabled:!text-[rgba(0,0,0,0.35)]"
               >
                 {isInvite ? 'Gửi lời mời hợp đồng' : 'Đăng tuyển dụng'}
