@@ -112,7 +112,11 @@ async function performTokenRefresh(): Promise<string> {
     const newUser = payload?.data?.user || payload?.user
 
     if (!newAccessToken) {
-      throw new ApiError('Malformed refresh response: missing accessToken', 500, 'REFRESH_MALFORMED')
+      throw new ApiError(
+        'Malformed refresh response: missing accessToken',
+        500,
+        'REFRESH_MALFORMED',
+      )
     }
 
     setTokens(newAccessToken, newRefreshToken, newUser)
@@ -122,11 +126,7 @@ async function performTokenRefresh(): Promise<string> {
     // ApiError is already handled above — do NOT re-dispatch session-expired
     if (!(error instanceof ApiError)) {
       // Network error during refresh — don't clear tokens, let the caller retry
-      throw new ApiError(
-        'Network error during token refresh',
-        0,
-        'NETWORK_ERROR',
-      )
+      throw new ApiError('Network error during token refresh', 0, 'NETWORK_ERROR')
     }
     throw error
   }
@@ -216,11 +216,7 @@ export async function request<T>(endpoint: string, options: RequestOptions = {})
         // session-expired dispatch and token cleanup for terminal errors.
         // Re-throw with the original 401 context so the caller gets a
         // meaningful error instead of the refresh-internal error.
-        throw new ApiError(
-          getDefaultStatusMessage(401),
-          401,
-          'AUTH_SESSION_EXPIRED',
-        )
+        throw new ApiError(getDefaultStatusMessage(401), 401, 'AUTH_SESSION_EXPIRED')
       }
     } else {
       useAuthStore.getState().clearTokens()
