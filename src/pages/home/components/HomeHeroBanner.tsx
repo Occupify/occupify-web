@@ -2,10 +2,6 @@ import * as React from 'react'
 import {
   MagnifyingGlassIcon,
   XIcon,
-  ShieldCheckIcon,
-  FileTextIcon,
-  ClockIcon,
-  CoinsIcon,
   BriefcaseMetalIcon,
   TrendUpIcon,
 } from '@phosphor-icons/react'
@@ -142,36 +138,7 @@ export function HomeHeroBanner({
           })}
         </div>
 
-        {/* Marketplace Trust Features Strip */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3.5 pt-4 border-t border-[#0A66C2]/15">
-          <div className="flex items-center gap-2.5 bg-white/70 backdrop-blur-xs rounded-xl p-2.5 sm:px-3 border border-sky-200/60 shadow-2xs">
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-200/70">
-              <ShieldCheckIcon size={18} weight="fill" className="text-emerald-600" />
-            </div>
-            <span className="text-xs font-bold text-slate-800">100% Escrow Bảo chứng</span>
-          </div>
-
-          <div className="flex items-center gap-2.5 bg-white/70 backdrop-blur-xs rounded-xl p-2.5 sm:px-3 border border-sky-200/60 shadow-2xs">
-            <div className="w-8 h-8 rounded-lg bg-sky-50 text-sky-700 flex items-center justify-center shrink-0 border border-sky-200/70">
-              <FileTextIcon size={18} weight="fill" className="text-[#0A66C2]" />
-            </div>
-            <span className="text-xs font-bold text-slate-800">Hợp đồng số ký kết an toàn</span>
-          </div>
-
-          <div className="flex items-center gap-2.5 bg-white/70 backdrop-blur-xs rounded-xl p-2.5 sm:px-3 border border-sky-200/60 shadow-2xs">
-            <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-800 flex items-center justify-center shrink-0 border border-amber-200/70">
-              <ClockIcon size={18} weight="fill" className="text-amber-600" />
-            </div>
-            <span className="text-xs font-bold text-slate-800">Phản hồi nhanh dưới 4h</span>
-          </div>
-
-          <div className="flex items-center gap-2.5 bg-white/70 backdrop-blur-xs rounded-xl p-2.5 sm:px-3 border border-sky-200/60 shadow-2xs">
-            <div className="w-8 h-8 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center shrink-0 border border-purple-200/70">
-              <CoinsIcon size={18} weight="fill" className="text-purple-600" />
-            </div>
-            <span className="text-xs font-bold text-slate-800">0% Phí ẩn cho Freelancer</span>
-          </div>
-        </div>
+        
       </div>
     </div>
   )

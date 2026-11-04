@@ -29,7 +29,6 @@ import {
   ProjectsStatusCard,
   WalletSummaryCard,
   CreateProjectPage,
-  FreelancerProfileCard,
   MarketplaceTrustCard,
 } from './components'
 
@@ -39,8 +38,8 @@ export interface HomePageProps {
   onViewProfile?: (name?: string) => void
   onOpenFinancialHistory?: () => void
   onNavigateProjects?: () => void
-  savedJobIds?: number[]
-  onToggleSaveJob?: (id: number) => void
+  savedJobIds?: (string | number)[]
+  onToggleSaveJob?: (id: string | number) => void
   onOpenWallet?: () => void
   walletBalance?: number
   myProjectsCount?: number
@@ -90,11 +89,12 @@ export function HomePage({
 
   // Server state: Current user profile from TanStack Query
   const { data: currentUser } = useCurrentUser()
+  const { myProjects = [], employeeProjects = [], pending = [], createProject } = useProjects()
   const currentUserName = propUserName ?? currentUser?.fullName
   const walletBalance = propWalletBalance ?? currentUser?.walletBalance ?? 0
-  const myProjectsCount = propMyProjectsCount ?? currentUser?.myProjectsCount ?? 0
-  const employeeProjectsCount = propEmployeeProjectsCount ?? currentUser?.employeeProjectsCount ?? 0
-  const pendingProjectsCount = propPendingProjectsCount ?? currentUser?.pendingProjectsCount ?? 0
+  const myProjectsCount = propMyProjectsCount ?? myProjects.length
+  const employeeProjectsCount = propEmployeeProjectsCount ?? employeeProjects.length
+  const pendingProjectsCount = propPendingProjectsCount ?? pending.length
 
   // Filter and Sort states
   const [searchKeyword, setSearchKeyword] = React.useState('')
@@ -135,8 +135,7 @@ export function HomePage({
 
   // Parse jobId from URL query parameters
   const jobIdParam = searchParams.get('jobId')
-  const numericJobId = jobIdParam ? Number(jobIdParam) : null
-  const validJobId = numericJobId && !Number.isNaN(numericJobId) ? numericJobId : null
+  const validJobId = jobIdParam && jobIdParam.trim() ? jobIdParam.trim() : null
 
   // Query individual job if navigated directly via URL and not in feed
   const { data: queriedJob } = useJob(validJobId)
@@ -144,7 +143,7 @@ export function HomePage({
   // Derive selectedJob reactively from URL parameter (URL is single source of truth)
   const selectedJob = React.useMemo(() => {
     if (!validJobId) return null
-    return displayJobs.find((j) => j.id === validJobId) ?? queriedJob ?? null
+    return displayJobs.find((j) => String(j.id) === String(validJobId)) ?? queriedJob ?? null
   }, [validJobId, displayJobs, queriedJob])
 
   const handleSelectJob = React.useCallback(
@@ -171,10 +170,10 @@ export function HomePage({
   const [subPage, setSubPage] = React.useState<'create-project' | null>(null)
 
   // Local saved jobs fallback if not controlled by parent
-  const [localSavedJobIds, setLocalSavedJobIds] = React.useState<number[]>([])
-  const activeSavedJobIds = savedJobIds ?? localSavedJobIds
+  const [localSavedJobIds, setLocalSavedJobIds] = React.useState<(string | number)[]>([])
+  const activeSavedJobIds: (string | number)[] = (savedJobIds as (string | number)[] | undefined) ?? localSavedJobIds
 
-  const handleToggleSave = (id: number) => {
+  const handleToggleSave = (id: string | number) => {
     if (onToggleSaveJob) {
       onToggleSaveJob(id)
     } else {
@@ -186,7 +185,6 @@ export function HomePage({
     toast.info(isNowSaved ? 'Đã lưu công việc vào danh sách yêu thích' : 'Đã bỏ lưu công việc')
   }
 
-  const { createProject } = useProjects()
 
   const handleCreateProject = async (formData: CreateProjectFormData) => {
     try {
@@ -354,12 +352,6 @@ export function HomePage({
 
           {/* Right Column: Freelance Workbench Widgets */}
           <aside className="flex flex-col gap-4 lg:sticky lg:top-20">
-            {/* Freelancer Profile Readiness Card */}
-            <FreelancerProfileCard
-              userName={currentUserName}
-              onViewProfile={() => handleViewProfile()}
-            />
-
             {/* Quick Actions Card */}
             <QuickActionsCard
               onCreateProject={() => setSubPage('create-project')}
