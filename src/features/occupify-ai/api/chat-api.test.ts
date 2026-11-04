@@ -1,14 +1,71 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {
-  AI_AGENTIC_BASE_URL,
-  getAiAuthHeaders,
-  getChatSessions,
-  deleteChatSession,
-} from './chat-api.ts'
+import { env } from '../../../config/env.ts'
+import { getAiAuthHeaders, getChatSessions, deleteChatSession } from './chat-api.ts'
 
-test('AI_AGENTIC_BASE_URL points to localhost by default', () => {
-  assert.ok(AI_AGENTIC_BASE_URL.includes('localhost:8186'))
+test('getChatSessions targets env.apiBaseUrl endpoint', async () => {
+  const originalFetch = globalThis.fetch
+  let calledUrl = ''
+  globalThis.fetch = async (input) => {
+    calledUrl = String(input)
+    return new Response(
+      JSON.stringify({
+        statusCode: 200,
+        message: 'OK',
+        data: [],
+        paging: { page: 1, limit: 50, total: 0, totalPages: 0 },
+      }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } },
+    )
+  }
+
+  try {
+    await getChatSessions(1, 50)
+    const expectedBaseUrl = env.apiBaseUrl.replace(/\/+$/, '')
+    assert.ok(calledUrl.startsWith(`${expectedBaseUrl}/ai/chat/sessions`))
+  } finally {
+    globalThis.fetch = originalFetch
+  }
+})
+
+test('getChatSessions normalizes trailing slashes in env.apiBaseUrl without double slashes', async () => {
+  const originalFetch = globalThis.fetch
+  const originalBaseUrl = env.apiBaseUrl
+  let calledUrl = ''
+
+  globalThis.fetch = async (input) => {
+    calledUrl = String(input)
+    return new Response(
+      JSON.stringify({
+        statusCode: 200,
+        message: 'OK',
+        data: [],
+        paging: { page: 1, limit: 50, total: 0, totalPages: 0 },
+      }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } },
+    )
+  }
+
+  try {
+    Object.defineProperty(env, 'apiBaseUrl', {
+      value: 'https://occupify.tienvm.dpdns.org/api///',
+      configurable: true,
+    })
+
+    await getChatSessions(1, 10)
+
+    assert.equal(
+      calledUrl,
+      'https://occupify.tienvm.dpdns.org/api/ai/chat/sessions?page=1&limit=10',
+    )
+    assert.equal(calledUrl.includes('//ai/chat'), false)
+  } finally {
+    Object.defineProperty(env, 'apiBaseUrl', {
+      value: originalBaseUrl,
+      configurable: true,
+    })
+    globalThis.fetch = originalFetch
+  }
 })
 
 test('getAiAuthHeaders includes default dev user when not logged in', () => {
