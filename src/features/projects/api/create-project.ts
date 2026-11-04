@@ -19,6 +19,7 @@ export async function createProject(formData: CreateProjectFormData): Promise<My
     startPrice: cleanPrice > 0 ? cleanPrice : undefined,
     period: formData.period ? toBackendPeriod(formData.period) : 'FIXED',
     dueDate: formData.dueDate ? formData.dueDate : undefined,
+    startDate: formData.bidCloseDate ? `${formData.bidCloseDate}T00:00:00` : undefined,
     experienceLevel: toBackendExperienceLevel(formData.experienceLevel),
   }
 

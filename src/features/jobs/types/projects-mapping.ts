@@ -261,7 +261,7 @@ export function toJobListingFromProject(project: ProjectApiResponse): JobListing
     duration: project.duration || (project.period ? getSalaryTypeLabel(project.period).replace('/', 'Theo') : 'Linh hoạt'),
     hoursPerDay: project.hoursPerDay ? Number(project.hoursPerDay) : undefined,
     dueDate: formatDueDate(project.dueDate),
-    bidCloseDate: formatDueDate(project.dueDate),
+    bidCloseDate: formatDueDate(project.startDate || project.dueDate),
     tags: Array.isArray(project.tags) ? project.tags : [],
     completedProjectsCount: 1,
   }

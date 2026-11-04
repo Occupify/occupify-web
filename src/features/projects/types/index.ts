@@ -173,6 +173,8 @@ export interface ProjectSummary {
   startPrice?: number
   period: ProjectPeriod
   dueDate?: string
+  startDate?: string
+  endDate?: string
   experienceLevel?: ProjectExperienceLevel
   status: ProjectStatus
   closedAt?: string | null
@@ -188,6 +190,8 @@ export interface ProjectDetail {
   startPrice?: number
   period: ProjectPeriod
   dueDate?: string
+  startDate?: string
+  endDate?: string
   experienceLevel?: ProjectExperienceLevel
   status: ProjectStatus
   closedAt?: string | null
@@ -203,6 +207,8 @@ export interface CreateProjectPayload {
   startPrice?: number
   period: ProjectPeriod
   dueDate?: string
+  startDate?: string
+  endDate?: string
   bidCloseDate?: string
   experienceLevel?: ProjectExperienceLevel
   skillIds?: string[]
@@ -214,6 +220,8 @@ export interface UpdateProjectPayload {
   startPrice?: number
   period?: ProjectPeriod
   dueDate?: string
+  startDate?: string
+  endDate?: string
   bidCloseDate?: string
   experienceLevel?: ProjectExperienceLevel
 }
@@ -301,6 +309,13 @@ export function toMyProject(detail: ProjectDetail | ProjectSummary): MyProject {
         })
       : []
 
+  const rawStartDate = 'startDate' in detail ? detail.startDate : undefined
+  const bidCloseDate = rawStartDate
+    ? rawStartDate.split('T')[0]
+    : 'bidCloseDate' in detail
+      ? (detail as { bidCloseDate?: string }).bidCloseDate
+      : undefined
+
   return {
     id: detail.id,
     name: detail.title,
@@ -310,6 +325,7 @@ export function toMyProject(detail: ProjectDetail | ProjectSummary): MyProject {
     ownerRating: 5.0,
     period: periodLabel,
     dueDate: detail.dueDate,
+    bidCloseDate,
     startPrice: detail.startPrice,
     status: detail.status,
     closedAt: 'closedAt' in detail ? detail.closedAt : null,

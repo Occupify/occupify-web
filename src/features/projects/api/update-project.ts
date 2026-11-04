@@ -32,8 +32,14 @@ export async function updateProject(
     return found as unknown as ProjectDetail
   }
 
-  // Strip frontend-only fields before sending to backend PUT /projects/{id}
-  const { bidCloseDate: _bidClose, ...apiPayload } = payload
+  // Map bidCloseDate to backend startDate (LocalDateTime)
+  const apiPayload: UpdateProjectPayload = {
+    ...payload,
+    startDate: payload.bidCloseDate
+      ? `${payload.bidCloseDate}T00:00:00`
+      : payload.startDate,
+  }
+  delete apiPayload.bidCloseDate
 
   try {
     const res = await apiClient.put<SingleResponse<ProjectDetail>>(`/projects/${id}`, apiPayload)
