@@ -5,6 +5,7 @@ import type {
   PendingProject,
   ProjectDetail,
   ProjectFilterParams,
+  ProjectJob,
   ProjectSummary,
 } from '../types'
 import { toMyProject } from '../types'
@@ -64,6 +65,15 @@ export async function getProjectDetail(id: string): Promise<ProjectDetail> {
  */
 export async function getProjectById(id: string | number): Promise<MyProject | null> {
   const detail = await getProjectDetail(String(id))
+  try {
+    // /projects/{id}/jobs filters out soft-deleted jobs (findByProjectIdAndDeletedAtIsNull)
+    const jobsRes = await apiClient.get<PageResponse<ProjectJob>>(`/projects/${id}/jobs?size=100`)
+    if (jobsRes?.data && Array.isArray(jobsRes.data)) {
+      detail.jobs = jobsRes.data
+    }
+  } catch {
+    // Fallback to detail.jobs
+  }
   return toMyProject(detail)
 }
 

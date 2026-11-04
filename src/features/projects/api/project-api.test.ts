@@ -117,6 +117,21 @@ test('toMyProject converts real backend ProjectDetailResponse with string skills
         status: 'FILLED',
         skills: ['TypeScript', 'Tailwind CSS', 'React Native'],
       },
+      {
+        id: 'job-closed-03',
+        title: 'DevOps Engineer',
+        budget: 20000000,
+        status: 'CLOSED',
+        skills: ['Docker', 'Kubernetes'],
+      },
+      {
+        id: 'job-deleted-04',
+        title: 'QA Tester',
+        budget: 10000000,
+        status: 'CLOSED',
+        deletedAt: '2026-10-25T00:00:00Z',
+        skills: ['Selenium'],
+      },
     ],
     createdAt: '2026-10-24T11:07:17Z',
     updatedAt: '2026-10-24T11:07:17Z',
@@ -124,7 +139,8 @@ test('toMyProject converts real backend ProjectDetailResponse with string skills
 
   const converted = toMyProject(detail)
   assert.equal(converted.id, 'a0000000-0000-0000-0000-000000000001')
-  assert.equal(converted.recruitingRoles?.length, 2)
+  // Deleted job is filtered out, leaving 3 roles
+  assert.equal(converted.recruitingRoles?.length, 3)
 
   // First role: recruiting
   const r1 = converted.recruitingRoles![0]
@@ -142,6 +158,12 @@ test('toMyProject converts real backend ProjectDetailResponse with string skills
   assert.deepEqual(r2.skills, ['TypeScript', 'Tailwind CSS', 'React Native'])
   assert.equal(r2.slotsTotal, 2)
   assert.equal(r2.slotsFilled, 2)
+
+  // Third role: closed
+  const r3 = converted.recruitingRoles![2]
+  assert.equal(r3.title, 'DevOps Engineer')
+  assert.equal(r3.status, 'closed')
+  assert.deepEqual(r3.skills, ['Docker', 'Kubernetes'])
 
   // Flattened tags
   assert.ok(converted.tags?.includes('PostgreSQL'))

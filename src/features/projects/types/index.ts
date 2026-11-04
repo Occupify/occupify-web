@@ -7,7 +7,7 @@ export interface ProjectRole {
   salaryRange?: string
   slotsTotal?: number
   slotsFilled?: number
-  status?: 'recruiting' | 'filled'
+  status?: 'recruiting' | 'filled' | 'closed'
   assignedMemberName?: string
   jobDescription?: string
 }
@@ -163,6 +163,7 @@ export interface ProjectJob {
   budget?: number
   status?: string
   skills?: string[] | JobSkill[]
+  deletedAt?: string | null
   createdAt?: string
 }
 
@@ -277,36 +278,43 @@ export function toMyProject(detail: ProjectDetail | ProjectSummary): MyProject {
 
   const recruitingRoles =
     'jobs' in detail && detail.jobs && detail.jobs.length > 0
-      ? detail.jobs.map((job) => {
-          const rawSkills: Array<string | JobSkill> = job.skills || []
-          const skills: string[] = rawSkills
-            .map((s) => (typeof s === 'string' ? s : s?.name))
-            .filter((s): s is string => Boolean(s))
+      ? detail.jobs
+          .filter((job) => !job.deletedAt)
+          .map((job) => {
+            const rawSkills: Array<string | JobSkill> = job.skills || []
+            const skills: string[] = rawSkills
+              .map((s) => (typeof s === 'string' ? s : s?.name))
+              .filter((s): s is string => Boolean(s))
 
-          let salaryRange = formattedSalary
-          if (job.budgetMin != null && job.budgetMax != null) {
-            salaryRange = `${job.budgetMin.toLocaleString('vi-VN')} - ${job.budgetMax.toLocaleString('vi-VN')} ₫`
-          } else if (job.budgetMin != null) {
-            salaryRange = `Từ ${job.budgetMin.toLocaleString('vi-VN')} ₫`
-          } else if (job.budget != null) {
-            salaryRange = `${job.budget.toLocaleString('vi-VN')} ₫`
-          }
+            let salaryRange = formattedSalary
+            if (job.budgetMin != null && job.budgetMax != null) {
+              salaryRange = `${job.budgetMin.toLocaleString('vi-VN')} - ${job.budgetMax.toLocaleString('vi-VN')} ₫`
+            } else if (job.budgetMin != null) {
+              salaryRange = `Từ ${job.budgetMin.toLocaleString('vi-VN')} ₫`
+            } else if (job.budget != null) {
+              salaryRange = `${job.budget.toLocaleString('vi-VN')} ₫`
+            }
 
-          const isFilled = String(job.status || '').toUpperCase() === 'FILLED'
-          const roleStatus: 'recruiting' | 'filled' = isFilled ? 'filled' : 'recruiting'
-          const slots = job.quantity || job.headcount || 1
+            const rawStatus = String(job.status || '').toUpperCase()
+            const roleStatus: 'recruiting' | 'filled' | 'closed' =
+              rawStatus === 'FILLED'
+                ? 'filled'
+                : rawStatus === 'CLOSED'
+                  ? 'closed'
+                  : 'recruiting'
+            const slots = job.quantity || job.headcount || 1
 
-          return {
-            id: job.id,
-            title: job.title,
-            skills,
-            salaryRange,
-            slotsTotal: slots,
-            slotsFilled: isFilled ? slots : 0,
-            status: roleStatus,
-            jobDescription: job.description,
-          }
-        })
+            return {
+              id: job.id,
+              title: job.title,
+              skills,
+              salaryRange,
+              slotsTotal: slots,
+              slotsFilled: rawStatus === 'FILLED' ? slots : 0,
+              status: roleStatus,
+              jobDescription: job.description,
+            }
+          })
       : []
 
   const rawStartDate = 'startDate' in detail ? detail.startDate : undefined
