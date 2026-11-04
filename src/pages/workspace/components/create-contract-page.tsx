@@ -99,7 +99,9 @@ export function CreateContractPage({
   const currentProjectObj = selectedProject
     ? projects.find((p) => p.name === selectedProject)
     : null
-  const projectRecruitingRoles = currentProjectObj?.recruitingRoles ?? []
+  const projectRecruitingRoles = (currentProjectObj?.recruitingRoles ?? []).filter(
+    (r) => r.status === 'recruiting',
+  )
 
   const handleApplyCustomRole = () => {
     const trimmed = customRoleInput.trim()

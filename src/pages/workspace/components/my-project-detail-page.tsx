@@ -108,6 +108,25 @@ export function MyProjectDetailPage({
   // Edit / Delete role states
   const [editingJobRole, setEditingJobRole] = useState<ProjectRole | null>(null)
   const [deletingJobId, setDeletingJobId] = useState<string | null>(null)
+  const [deletedRoleIds, setDeletedRoleIds] = useState<Set<string>>(new Set())
+  const [closedRoleIds, setClosedRoleIds] = useState<Set<string>>(new Set())
+  const [roleOverrides, setRoleOverrides] = useState<Record<string, Partial<ProjectRole>>>({})
+
+  const roles: ProjectRole[] = useMemo(() => {
+    return (project.recruitingRoles || [])
+      .filter((r) => !deletedRoleIds.has(r.id))
+      .map((r) => {
+        let role = r
+        if (closedRoleIds.has(r.id)) {
+          role = { ...role, status: 'closed' }
+        }
+        if (roleOverrides[r.id]) {
+          role = { ...role, ...roleOverrides[r.id] }
+        }
+        return role
+      })
+  }, [project.recruitingRoles, deletedRoleIds, closedRoleIds, roleOverrides])
+
   const [roleTitleInput, setRoleTitleInput] = useState('')
   const [roleBudgetInput, setRoleBudgetInput] = useState('')
   const [roleDescInput, setRoleDescInput] = useState('')
@@ -156,7 +175,7 @@ export function MyProjectDetailPage({
 
   const availableRoles = Array.from(
     new Set([
-      ...(project.recruitingRoles?.map((r) => r.title) || []),
+      ...(roles.map((r) => r.title) || []),
       ...applicants.map((a: ApplicantProposal) => a.roleApplied),
     ]),
   )
@@ -242,6 +261,7 @@ export function MyProjectDetailPage({
   const handleCloseRoleRecruiting = async (roleId: string) => {
     try {
       await closeJobMutation.mutateAsync(roleId)
+      setClosedRoleIds((prev) => new Set([...prev, roleId]))
       toast.info('Đã đóng tuyển dụng cho vị trí này.')
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Có lỗi khi đóng tuyển dụng'
@@ -251,13 +271,14 @@ export function MyProjectDetailPage({
 
   const handleCloseAllRecruitment = async () => {
     try {
-      if (project.recruitingRoles && project.recruitingRoles.length > 0) {
+      if (roles && roles.length > 0) {
         await Promise.all(
-          project.recruitingRoles
+          roles
             .filter((r) => r.status === 'recruiting')
             .map((r) => closeJobMutation.mutateAsync(r.id)),
         )
       }
+      setClosedRoleIds((prev) => new Set([...prev, ...roles.map((r) => r.id)]))
       setRecruitmentClosed(true)
       setCloseRecruitConfirm(false)
       toast.info('Đã đóng tuyển dụng cho toàn bộ dự án.')
@@ -279,6 +300,16 @@ export function MyProjectDetailPage({
           budget: Number(roleBudgetInput.replace(/[^0-9]/g, '')) || undefined,
         },
       })
+      setRoleOverrides((prev) => ({
+        ...prev,
+        [editingJobRole.id]: {
+          title: roleTitleInput,
+          jobDescription: roleDescInput,
+          salaryRange: roleBudgetInput
+            ? `${Number(roleBudgetInput.replace(/[^0-9]/g, '')).toLocaleString('vi-VN')} ₫`
+            : editingJobRole.salaryRange,
+        },
+      }))
       toast.success('Đã cập nhật vị trí tuyển dụng!')
       setEditingJobRole(null)
     } catch (err: unknown) {
@@ -289,8 +320,10 @@ export function MyProjectDetailPage({
 
   const handleConfirmDeleteJob = async () => {
     if (!deletingJobId) return
+    const idToDelete = deletingJobId
     try {
-      await deleteJobMutation.mutateAsync(deletingJobId)
+      await deleteJobMutation.mutateAsync(idToDelete)
+      setDeletedRoleIds((prev) => new Set([...prev, idToDelete]))
       toast.success('Đã xóa vị trí tuyển dụng!')
       setDeletingJobId(null)
     } catch (err: unknown) {
@@ -412,11 +445,11 @@ export function MyProjectDetailPage({
           </div>
 
           {/* Section: Vị trí tuyển dụng trong dự án */}
-          {project.recruitingRoles && project.recruitingRoles.length > 0 && (
+          {roles && roles.length > 0 && (
             <div className="border-b p-6 sm:px-7 !border-[var(--border-default)] !bg-[var(--bg-subtle)]/50">
               <div className="mb-3.5">
                 <h2 className="text-[15px] font-bold !text-[var(--text-primary)]">
-                  Vị trí tuyển dụng trong dự án ({project.recruitingRoles.length} vai trò)
+                  Vị trí tuyển dụng trong dự án ({roles.length} vai trò)
                 </h2>
                 <p className="mt-0.5 text-[13px] !text-[var(--text-secondary)]">
                   Các role cần thiết lập hợp đồng và chiêu mộ nhân sự
@@ -424,8 +457,9 @@ export function MyProjectDetailPage({
               </div>
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {project.recruitingRoles.map((r) => {
+                {roles.map((r) => {
                   const isRecruiting = r.status === 'recruiting'
+                  const isClosed = r.status === 'closed'
                   return (
                     <div
                       key={r.id}
@@ -444,14 +478,16 @@ export function MyProjectDetailPage({
                             className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
                               isRecruiting
                                 ? '!border !border-[#BBF7D0] !bg-[#E5F6E8] !text-[#057642]'
-                                : '!border !border-[var(--border-default)] !bg-[var(--bg-subtle)] !text-[var(--text-secondary)]'
+                                : isClosed
+                                  ? '!border !border-[#FED7AA] !bg-[#FFF7ED] !text-[#C2410C]'
+                                  : '!border !border-[var(--border-default)] !bg-[var(--bg-subtle)] !text-[var(--text-secondary)]'
                             }`}
                           >
-                            {isRecruiting ? 'Đang tuyển' : 'Đã có nhân sự'}
+                            {isRecruiting ? 'Đang tuyển' : isClosed ? 'Đã đóng tuyển' : 'Đã có nhân sự'}
                           </span>
                         </div>
 
-                        {!isRecruiting && (
+                        {!isRecruiting && !isClosed && (
                           <div className="mb-2 inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[11.5px] font-semibold !border-[#DCFCE7] !bg-[#F0FDF4] !text-[#057642]">
                             <SealCheckIcon size={13} weight="fill" className="text-[#057642]" />
                             <span>
