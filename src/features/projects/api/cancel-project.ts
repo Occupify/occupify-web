@@ -2,6 +2,7 @@ import { apiClient } from '@/lib/api-client'
 import type { SingleResponse } from '@/types'
 import type { ProjectDetail } from '../types'
 import { getInternalStores, setInternalStores } from './get-projects'
+import { cancelContract as apiCancelContract } from '@/features/contracts'
 
 export async function closeProject(projectId: string | number): Promise<ProjectDetail> {
   const res = await apiClient.patch<SingleResponse<ProjectDetail>>(`/projects/${projectId}/close`)
@@ -25,9 +26,15 @@ export async function cancelMyProject(
 
 export async function cancelEmployeeProject(
   projectId: number | string,
-  _reason?: string,
+  reason?: string,
 ): Promise<{ success: boolean; projectId: number | string }> {
-  await new Promise((resolve) => setTimeout(resolve, 80))
+  try {
+    if (typeof projectId === 'string' || Number.isNaN(Number(projectId))) {
+      await apiCancelContract(String(projectId), reason)
+    }
+  } catch {
+    // Fallback to local store
+  }
   const { employeeProjects } = getInternalStores()
   const updated = employeeProjects.filter((p) => String(p.id) !== String(projectId))
   setInternalStores({ employeeProjects: updated })

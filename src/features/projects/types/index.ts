@@ -13,6 +13,8 @@ export interface ProjectRole {
 }
 
 export interface ProjectMember {
+  id?: string
+  contractId?: string
   name: string
   email: string
   price: string
@@ -23,7 +25,7 @@ export interface ProjectMember {
 }
 
 export interface PendingProject {
-  id: number
+  id: number | string
   name: string
   owner: string
   ownerAvatar?: string
@@ -67,7 +69,7 @@ export interface FreelancerReview {
 }
 
 export interface ApplicantProposal {
-  id: number
+  id: number | string
   name: string
   bid: string
   salaryCycle: string
@@ -87,6 +89,9 @@ export interface ApplicantProposal {
   phone: string
   location: string
   appliedDate: string
+  projectId?: string
+  jobId?: string
+  cvFileUrl?: string
 }
 
 export interface CreateProjectFormData {
@@ -101,6 +106,7 @@ export interface CreateProjectFormData {
 }
 
 export interface CreateContractFormData {
+  projectId?: string
   title: string
   value: string
   period: string
@@ -121,6 +127,8 @@ export interface CreateContractFormData {
   termsFileName?: string
   paymentType?: 'milestone' | 'period'
   invitationMessage?: string
+  jobId?: string
+  file?: File | null
 }
 
 // ─────────────────────────────────────────────────────────────
