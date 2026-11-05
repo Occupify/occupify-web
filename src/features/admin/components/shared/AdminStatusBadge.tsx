@@ -47,8 +47,7 @@ export function AdminStatusBadge({ status, className = '' }: AdminStatusBadgePro
   const normalizedKey = status?.trim()
   const upperKey = normalizedKey?.toUpperCase()
 
-  const config =
-    STATUS_CONFIG[normalizedKey] ??
+  const config = STATUS_CONFIG[normalizedKey] ??
     STATUS_CONFIG[upperKey] ?? {
       label: status,
       bg: 'bg-[#F4F2EE]',

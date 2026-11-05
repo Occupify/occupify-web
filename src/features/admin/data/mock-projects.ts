@@ -4,7 +4,12 @@ export const ADMIN_PROJECTS_DATA: AdminProject[] = [
   {
     id: 'd0100000-0000-0000-0000-000000000001',
     title: 'Thiết kế UI/UX cho ứng dụng quản lý nội bộ',
-    owner: { name: 'Phạm Quỳnh Anh', initials: 'QA', color: '#8B5CF6', email: 'quynhanh@shopee.com' },
+    owner: {
+      name: 'Phạm Quỳnh Anh',
+      initials: 'QA',
+      color: '#8B5CF6',
+      email: 'quynhanh@shopee.com',
+    },
     budget: '15.000.000 ₫',
     budgetType: 'Cố định',
     field: 'Thiết kế',
@@ -36,7 +41,12 @@ export const ADMIN_PROJECTS_DATA: AdminProject[] = [
   {
     id: 'd0100000-0000-0000-0000-000000000002',
     title: 'Phát triển backend API cho hệ thống thương mại điện tử',
-    owner: { name: 'Trần Thị Hương', initials: 'TH', color: '#057642', email: 'thuong.tran@tiki.vn' },
+    owner: {
+      name: 'Trần Thị Hương',
+      initials: 'TH',
+      color: '#057642',
+      email: 'thuong.tran@tiki.vn',
+    },
     budget: '25.000.000 ₫',
     budgetType: 'Hàng tháng',
     field: 'Lập trình',
@@ -61,7 +71,12 @@ export const ADMIN_PROJECTS_DATA: AdminProject[] = [
   {
     id: 'd0100000-0000-0000-0000-000000000003',
     title: 'Marketing content cho chiến dịch ra mắt sản phẩm Q4',
-    owner: { name: 'Đỗ Thị Lan Anh', initials: 'LA', color: '#0891B2', email: 'lananh.do@gmail.com' },
+    owner: {
+      name: 'Đỗ Thị Lan Anh',
+      initials: 'LA',
+      color: '#0891B2',
+      email: 'lananh.do@gmail.com',
+    },
     budget: '8.000.000 ₫',
     budgetType: 'Cố định',
     field: 'Marketing',
@@ -148,7 +163,12 @@ export const ADMIN_PROJECTS_DATA: AdminProject[] = [
   {
     id: 'd0100000-0000-0000-0000-000000000006',
     title: 'Data Analytics dashboard cho hệ thống logistics',
-    owner: { name: 'Vũ Tiến Dũng', initials: 'VD', color: '#C03A2B', email: 'tiendung.vu@vnpay.vn' },
+    owner: {
+      name: 'Vũ Tiến Dũng',
+      initials: 'VD',
+      color: '#C03A2B',
+      email: 'tiendung.vu@vnpay.vn',
+    },
     budget: '20.000.000 ₫',
     budgetType: 'Cố định',
     field: 'Data / AI',

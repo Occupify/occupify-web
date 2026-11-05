@@ -6,7 +6,14 @@ import {
   ADMIN_CONTRACTS_DATA,
   ADMIN_VIOLATIONS_DATA,
 } from '../data'
-import type { AdminUser, AdminProject, AdminContract, AdminViolation, AdminTabId, EntityId } from '../types'
+import type {
+  AdminUser,
+  AdminProject,
+  AdminContract,
+  AdminViolation,
+  AdminTabId,
+  EntityId,
+} from '../types'
 
 const ROWS_PER_PAGE = 8
 
@@ -48,7 +55,8 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
   )
 
   const flaggedUsersCount = useMemo(
-    () => users.filter((u) => u.status === 'Bị gắn cờ' || (u.status as string) === 'FLAGGED').length,
+    () =>
+      users.filter((u) => u.status === 'Bị gắn cờ' || (u.status as string) === 'FLAGGED').length,
     [users],
   )
   const activeUsersCount = useMemo(
@@ -188,7 +196,8 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
     [projects],
   )
   const closedProjectsCount = useMemo(
-    () => projects.filter((p) => p.status === 'Đã đóng' || (p.status as string) === 'CLOSED').length,
+    () =>
+      projects.filter((p) => p.status === 'Đã đóng' || (p.status as string) === 'CLOSED').length,
     [projects],
   )
 
@@ -234,9 +243,8 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
   )
   const completedContractsCount = useMemo(
     () =>
-      contracts.filter(
-        (c) => c.status === 'Hoàn thành' || (c.status as string) === 'COMPLETED',
-      ).length,
+      contracts.filter((c) => c.status === 'Hoàn thành' || (c.status as string) === 'COMPLETED')
+        .length,
     [contracts],
   )
 
@@ -274,9 +282,8 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
 
   const pendingViolationsCount = useMemo(
     () =>
-      violations.filter(
-        (v) => v.status === 'Chờ xử lý' || (v.status as string) === 'PENDING',
-      ).length,
+      violations.filter((v) => v.status === 'Chờ xử lý' || (v.status as string) === 'PENDING')
+        .length,
     [violations],
   )
 

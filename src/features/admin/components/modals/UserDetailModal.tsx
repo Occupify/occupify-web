@@ -26,7 +26,8 @@ export function UserDetailModal({
 }: UserDetailModalProps) {
   if (!user) return null
 
-  const isLocked = user.status === 'Bị khóa' || user.status === 'SUSPENDED' || user.status === 'BANNED'
+  const isLocked =
+    user.status === 'Bị khóa' || user.status === 'SUSPENDED' || user.status === 'BANNED'
   const reports = user.reportCount ?? user.reportsCount ?? 0
   const flags = user.flagCount ?? 0
   const hasRisk = reports > 0 || flags > 0
@@ -87,9 +88,7 @@ export function UserDetailModal({
             {/* Chỉ số an toàn & vi phạm nền tảng */}
             <div
               className={`rounded-lg border p-3 text-xs ${
-                hasRisk
-                  ? 'border-[#FDE68A] bg-[#FEF7E0]'
-                  : 'border-[#DCFCE7] bg-[#F0FDF4]'
+                hasRisk ? 'border-[#FDE68A] bg-[#FEF7E0]' : 'border-[#DCFCE7] bg-[#F0FDF4]'
               }`}
             >
               <div className="flex items-center justify-between">
@@ -108,13 +107,17 @@ export function UserDetailModal({
               <div className="mt-2 grid grid-cols-2 gap-2 text-center">
                 <div className="rounded bg-white/70 p-2">
                   <span className="text-[11px] font-medium text-black/55">Số lượt bị tố cáo:</span>
-                  <div className={`text-sm font-extrabold ${reports > 0 ? 'text-[#C03A2B]' : 'text-black/80'}`}>
+                  <div
+                    className={`text-sm font-extrabold ${reports > 0 ? 'text-[#C03A2B]' : 'text-black/80'}`}
+                  >
                     {reports} lượt
                   </div>
                 </div>
                 <div className="rounded bg-white/70 p-2">
                   <span className="text-[11px] font-medium text-black/55">Số lần gắn cờ:</span>
-                  <div className={`text-sm font-extrabold ${flags > 0 ? 'text-[#B06000]' : 'text-black/80'}`}>
+                  <div
+                    className={`text-sm font-extrabold ${flags > 0 ? 'text-[#B06000]' : 'text-black/80'}`}
+                  >
                     {flags} lần
                   </div>
                 </div>

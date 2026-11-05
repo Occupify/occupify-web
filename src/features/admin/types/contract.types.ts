@@ -1,10 +1,5 @@
 export type ContractStatus =
-  | 'Đang thực hiện'
-  | 'Hoàn thành'
-  | 'Đã hủy / Thất bại'
-  | 'IN_PROGRESS'
-  | 'COMPLETED'
-  | 'CANCELLED'
+  'Đang thực hiện' | 'Hoàn thành' | 'Đã hủy / Thất bại' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
 
 export type ContractPaymentPeriod = 'Hàng tháng' | 'Hàng tuần' | 'Hàng quý' | 'Cố định'
 

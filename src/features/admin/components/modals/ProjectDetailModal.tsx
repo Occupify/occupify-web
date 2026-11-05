@@ -1,8 +1,4 @@
-import {
-  XIcon,
-  WarningIcon,
-  ShieldCheckIcon,
-} from '@phosphor-icons/react'
+import { XIcon, WarningIcon, ShieldCheckIcon } from '@phosphor-icons/react'
 import type { AdminProject } from '../../types'
 import { AdminStatusBadge } from '../shared'
 
@@ -112,7 +108,11 @@ export function ProjectDetailModal({ project, onClose, onDeleteClick }: ProjectD
           <div className="flex flex-col gap-2.5 border-t border-black/8 pt-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <WarningIcon size={16} weight="fill" className={reportCount > 0 ? 'text-[#B06000]' : 'text-black/45'} />
+                <WarningIcon
+                  size={16}
+                  weight="fill"
+                  className={reportCount > 0 ? 'text-[#B06000]' : 'text-black/45'}
+                />
                 <span className="text-sm font-bold text-black/90">
                   Báo cáo vi phạm & khiếu nại ({reportCount})
                 </span>
@@ -132,7 +132,8 @@ export function ProjectDetailModal({ project, onClose, onDeleteClick }: ProjectD
                 <div>
                   <div className="font-bold">Dự án tuân thủ tiêu chuẩn cộng đồng</div>
                   <div className="mt-0.5 text-[11px] text-[#15803D]/80">
-                    Chưa có bất kỳ tố cáo lừa đảo, đạo văn hay nội dung độc hại nào được gửi tới ban quản trị.
+                    Chưa có bất kỳ tố cáo lừa đảo, đạo văn hay nội dung độc hại nào được gửi tới ban
+                    quản trị.
                   </div>
                 </div>
               </div>
@@ -148,7 +149,10 @@ export function ProjectDetailModal({ project, onClose, onDeleteClick }: ProjectD
                         <span className="rounded bg-[#FEE2E2] px-2 py-0.5 text-[10.5px] font-bold text-[#B91C1C]">
                           {report.violationCategory}
                         </span>
-                        <AdminStatusBadge status={report.status} className="text-[10px] py-0 px-2" />
+                        <AdminStatusBadge
+                          status={report.status}
+                          className="text-[10px] py-0 px-2"
+                        />
                       </div>
                       <span className="text-[11px] text-black/50">{report.createdAt}</span>
                     </div>
@@ -160,7 +164,9 @@ export function ProjectDetailModal({ project, onClose, onDeleteClick }: ProjectD
                       >
                         {report.reporterInitials || 'ND'}
                       </div>
-                      <span className="font-semibold text-black/85">Người tố cáo: {report.reporterName}</span>
+                      <span className="font-semibold text-black/85">
+                        Người tố cáo: {report.reporterName}
+                      </span>
                       {report.reporterEmail && (
                         <span className="text-black/45">({report.reporterEmail})</span>
                       )}

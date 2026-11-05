@@ -9,22 +9,9 @@ export interface ProjectHistoryItem {
 }
 
 export type UserStatus =
-  | 'ACTIVE'
-  | 'FLAGGED'
-  | 'SUSPENDED'
-  | 'BANNED'
-  | 'Hoạt động'
-  | 'Bị gắn cờ'
-  | 'Bị khóa'
+  'ACTIVE' | 'FLAGGED' | 'SUSPENDED' | 'BANNED' | 'Hoạt động' | 'Bị gắn cờ' | 'Bị khóa'
 
-export type UserRole =
-  | 'Freelancer'
-  | 'Client'
-  | 'FREELANCER'
-  | 'CLIENT'
-  | 'ADMIN'
-  | 'USER'
-  | string
+export type UserRole = 'Freelancer' | 'Client' | 'FREELANCER' | 'CLIENT' | 'ADMIN' | 'USER' | string
 
 export interface AdminUser {
   id: EntityId
