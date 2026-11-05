@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict'
 import {
   readSavedIds,
-  saveSavedIds,
   toggleSaveJob,
   getSavedJobs,
   SAVED_PROJECT_IDS_KEY,
@@ -52,7 +51,10 @@ async function runRealUserSimulation() {
   const saveAction1 = await toggleSaveJob(1)
   assert.equal(saveAction1.isSaved, true, 'Job ID 1 should report isSaved: true')
   assert.deepEqual(readSavedIds(), [1], 'localStorage should contain [1]')
-  console.log('  ✔ Project 1 successfully saved to localStorage:', localStorage.getItem(SAVED_PROJECT_IDS_KEY))
+  console.log(
+    '  ✔ Project 1 successfully saved to localStorage:',
+    localStorage.getItem(SAVED_PROJECT_IDS_KEY),
+  )
 
   // ── Step 2: User bookmarks Project #2 as well ──
   console.log('  👤 User finds another interesting project (Job ID 2) and saves it')
@@ -67,7 +69,9 @@ async function runRealUserSimulation() {
   assert.equal(savedList.length, 2, 'SavedPage should show exactly 2 projects')
   console.log(`  ✔ SavedPage loaded ${savedList.length} projects:`)
   savedList.forEach((job) => {
-    console.log(`     - [ID ${job.id}] "${job.title}" | Client: ${job.clientName || job.company} | Budget: ${job.budget}`)
+    console.log(
+      `     - [ID ${job.id}] "${job.title}" | Client: ${job.clientName || job.company} | Budget: ${job.budget}`,
+    )
     assert.ok(job.title, 'Job must have a title')
     assert.ok(job.budget, 'Job must have budget display')
   })
@@ -75,10 +79,11 @@ async function runRealUserSimulation() {
   // ── Step 4: User searches within SavedPage ──
   console.log('  👤 User filters saved list by keyword "Redesign" or specific skill')
   const keyword = savedList[0].title.slice(0, 5).toLowerCase()
-  const filtered = savedList.filter((job) =>
-    job.title.toLowerCase().includes(keyword) ||
-    job.company.toLowerCase().includes(keyword) ||
-    job.description.toLowerCase().includes(keyword)
+  const filtered = savedList.filter(
+    (job) =>
+      job.title.toLowerCase().includes(keyword) ||
+      job.company.toLowerCase().includes(keyword) ||
+      job.description.toLowerCase().includes(keyword),
   )
   assert.ok(filtered.length >= 1, 'Search filter should find matching projects')
   console.log(`  ✔ Filter for "${keyword}" matched ${filtered.length} project(s)`)
