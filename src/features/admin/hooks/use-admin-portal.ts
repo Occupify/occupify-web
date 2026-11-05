@@ -6,7 +6,7 @@ import {
   ADMIN_CONTRACTS_DATA,
   ADMIN_VIOLATIONS_DATA,
 } from '../data'
-import type { AdminUser, AdminProject, AdminContract, AdminViolation, AdminTabId } from '../types'
+import type { AdminUser, AdminProject, AdminContract, AdminViolation, AdminTabId, EntityId } from '../types'
 
 const ROWS_PER_PAGE = 8
 
@@ -48,25 +48,34 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
   )
 
   const flaggedUsersCount = useMemo(
-    () => users.filter((u) => u.status === 'Bị gắn cờ').length,
+    () => users.filter((u) => u.status === 'Bị gắn cờ' || (u.status as string) === 'FLAGGED').length,
     [users],
   )
   const activeUsersCount = useMemo(
-    () => users.filter((u) => u.status === 'Hoạt động').length,
+    () => users.filter((u) => u.status === 'Hoạt động' || (u.status as string) === 'ACTIVE').length,
     [users],
   )
   const lockedUsersCount = useMemo(
-    () => users.filter((u) => u.status === 'Bị khóa').length,
+    () =>
+      users.filter(
+        (u) =>
+          u.status === 'Bị khóa' ||
+          (u.status as string) === 'SUSPENDED' ||
+          (u.status as string) === 'BANNED',
+      ).length,
     [users],
   )
 
-  const handleToggleFlag = useCallback((id: number) => {
+  const handleToggleFlag = useCallback((id: EntityId) => {
     setUsers((prev) =>
       prev.map((u) =>
         u.id === id
           ? {
               ...u,
-              status: u.status === 'Bị gắn cờ' ? 'Hoạt động' : 'Bị gắn cờ',
+              status:
+                u.status === 'Bị gắn cờ' || (u.status as string) === 'FLAGGED'
+                  ? 'Hoạt động'
+                  : 'Bị gắn cờ',
             }
           : u,
       ),
@@ -75,19 +84,26 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
       prev && prev.id === id
         ? {
             ...prev,
-            status: prev.status === 'Bị gắn cờ' ? 'Hoạt động' : 'Bị gắn cờ',
+            status:
+              prev.status === 'Bị gắn cờ' || (prev.status as string) === 'FLAGGED'
+                ? 'Hoạt động'
+                : 'Bị gắn cờ',
           }
         : prev,
     )
     toast.success('Đã cập nhật trạng thái cờ người dùng!')
   }, [])
 
-  const handleToggleLock = useCallback((id: number) => {
+  const handleToggleLock = useCallback((id: EntityId) => {
     let nextStatus: 'Hoạt động' | 'Bị khóa' = 'Hoạt động'
     setUsers((prev) =>
       prev.map((u) => {
         if (u.id === id) {
-          nextStatus = u.status === 'Bị khóa' ? 'Hoạt động' : 'Bị khóa'
+          const isCurrentlyLocked =
+            u.status === 'Bị khóa' ||
+            (u.status as string) === 'SUSPENDED' ||
+            (u.status as string) === 'BANNED'
+          nextStatus = isCurrentlyLocked ? 'Hoạt động' : 'Bị khóa'
           return { ...u, status: nextStatus }
         }
         return u
@@ -97,7 +113,12 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
       prev && prev.id === id
         ? {
             ...prev,
-            status: prev.status === 'Bị khóa' ? 'Hoạt động' : 'Bị khóa',
+            status:
+              prev.status === 'Bị khóa' ||
+              (prev.status as string) === 'SUSPENDED' ||
+              (prev.status as string) === 'BANNED'
+                ? 'Hoạt động'
+                : 'Bị khóa',
           }
         : prev,
     )
@@ -120,7 +141,13 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
         !userSearch.trim() ||
         u.name.toLowerCase().includes(userSearch.toLowerCase()) ||
         u.email.toLowerCase().includes(userSearch.toLowerCase())
-      const matchStatus = userStatusFilter === 'Tất cả' || u.status === userStatusFilter
+      const matchStatus =
+        userStatusFilter === 'Tất cả' ||
+        u.status === userStatusFilter ||
+        (userStatusFilter === 'Hoạt động' && (u.status as string) === 'ACTIVE') ||
+        (userStatusFilter === 'Bị gắn cờ' && (u.status as string) === 'FLAGGED') ||
+        (userStatusFilter === 'Bị khóa' &&
+          ((u.status as string) === 'SUSPENDED' || (u.status as string) === 'BANNED'))
       return matchSearch && matchStatus
     })
   }, [users, userSearch, userStatusFilter])
@@ -144,15 +171,24 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
   const [projectDeleteReason, setProjectDeleteReason] = useState('')
 
   const hiringProjectsCount = useMemo(
-    () => projects.filter((p) => p.status === 'Đang tuyển').length,
+    () =>
+      projects.filter(
+        (p) =>
+          p.status === 'Đang tuyển' ||
+          (p.status as string) === 'OPEN' ||
+          (p.status as string) === 'HIRING',
+      ).length,
     [projects],
   )
   const inProgressProjectsCount = useMemo(
-    () => projects.filter((p) => p.status === 'Đang thực hiện').length,
+    () =>
+      projects.filter(
+        (p) => p.status === 'Đang thực hiện' || (p.status as string) === 'IN_PROGRESS',
+      ).length,
     [projects],
   )
   const closedProjectsCount = useMemo(
-    () => projects.filter((p) => p.status === 'Đã đóng').length,
+    () => projects.filter((p) => p.status === 'Đã đóng' || (p.status as string) === 'CLOSED').length,
     [projects],
   )
 
@@ -171,7 +207,13 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
     return projects.filter((p) => {
       const matchQ =
         !q || p.title.toLowerCase().includes(q) || p.owner.name.toLowerCase().includes(q)
-      const matchS = projectStatusFilter === 'Tất cả' || p.status === projectStatusFilter
+      const matchS =
+        projectStatusFilter === 'Tất cả' ||
+        p.status === projectStatusFilter ||
+        (projectStatusFilter === 'Đang tuyển' &&
+          ((p.status as string) === 'OPEN' || (p.status as string) === 'HIRING')) ||
+        (projectStatusFilter === 'Đang thực hiện' && (p.status as string) === 'IN_PROGRESS') ||
+        (projectStatusFilter === 'Đã đóng' && (p.status as string) === 'CLOSED')
       return matchQ && matchS
     })
   }, [projects, projectSearch, projectStatusFilter])
@@ -184,11 +226,17 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
 
   const totalContractsCount = useMemo(() => contracts.length, [contracts])
   const inProgressContractsCount = useMemo(
-    () => contracts.filter((c) => c.status === 'Đang thực hiện').length,
+    () =>
+      contracts.filter(
+        (c) => c.status === 'Đang thực hiện' || (c.status as string) === 'IN_PROGRESS',
+      ).length,
     [contracts],
   )
   const completedContractsCount = useMemo(
-    () => contracts.filter((c) => c.status === 'Hoàn thành').length,
+    () =>
+      contracts.filter(
+        (c) => c.status === 'Hoàn thành' || (c.status as string) === 'COMPLETED',
+      ).length,
     [contracts],
   )
 
@@ -201,7 +249,11 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
         c.project.toLowerCase().includes(q) ||
         c.client.name.toLowerCase().includes(q) ||
         c.freelancer.name.toLowerCase().includes(q)
-      const matchS = contractStatusFilter === 'Tất cả' || c.status === contractStatusFilter
+      const matchS =
+        contractStatusFilter === 'Tất cả' ||
+        c.status === contractStatusFilter ||
+        (contractStatusFilter === 'Đang thực hiện' && (c.status as string) === 'IN_PROGRESS') ||
+        (contractStatusFilter === 'Hoàn thành' && (c.status as string) === 'COMPLETED')
       return matchQ && matchS
     })
   }, [contracts, contractSearch, contractStatusFilter])
@@ -221,7 +273,10 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
   const [notifyReporter, setNotifyReporter] = useState<boolean>(true)
 
   const pendingViolationsCount = useMemo(
-    () => violations.filter((v) => v.status === 'Chờ xử lý').length,
+    () =>
+      violations.filter(
+        (v) => v.status === 'Chờ xử lý' || (v.status as string) === 'PENDING',
+      ).length,
     [violations],
   )
 
@@ -301,7 +356,9 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
             const match =
               u.name.toLowerCase().includes(cleanTarget) ||
               u.email.toLowerCase().includes(cleanTarget)
-            return match && u.status === 'Hoạt động' ? { ...u, status: 'Bị gắn cờ' } : u
+            return match && (u.status === 'Hoạt động' || (u.status as string) === 'ACTIVE')
+              ? { ...u, status: 'Bị gắn cờ' }
+              : u
           }),
         )
       }
@@ -336,7 +393,13 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
         v.target.toLowerCase().includes(q)
       const matchCat =
         violationCategoryFilter === 'Tất cả' || v.category === violationCategoryFilter
-      const matchStatus = violationStatusFilter === 'Tất cả' || v.status === violationStatusFilter
+      const matchStatus =
+        violationStatusFilter === 'Tất cả' ||
+        v.status === violationStatusFilter ||
+        (violationStatusFilter === 'Chờ xử lý' && (v.status as string) === 'PENDING') ||
+        (violationStatusFilter === 'Đang xác minh' && (v.status as string) === 'INVESTIGATING') ||
+        (violationStatusFilter === 'Đã giải quyết' && (v.status as string) === 'RESOLVED') ||
+        (violationStatusFilter === 'Đã bác bỏ' && (v.status as string) === 'DISMISSED')
       return matchQ && matchCat && matchStatus
     })
   }, [violations, violationSearch, violationCategoryFilter, violationStatusFilter])
