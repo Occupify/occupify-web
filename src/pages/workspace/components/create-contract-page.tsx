@@ -127,7 +127,7 @@ export function CreateContractPage({
     value.trim().length > 0 &&
     activeRole.length > 0 &&
     jobDescription.trim().length > 0 &&
-    (!isInvite || freelancerEmail.trim().length > 0)
+    (!isInvite || (freelancerEmail.trim().length > 0 && Boolean(selectedJobId)))
 
   const projectNames = projects.map((p) => p.name)
 
@@ -667,8 +667,14 @@ export function CreateContractPage({
                 type="button"
                 onClick={() => {
                   if (isInvite) {
-                    toast.info('Tính năng đang phát triển')
-                    return
+                    if (!freelancerEmail.trim() || !freelancerEmail.includes('@')) {
+                      toast.error('Vui lòng nhập địa chỉ email hợp lệ của freelancer')
+                      return
+                    }
+                    if (!selectedJobId) {
+                      toast.error('Vui lòng chọn vị trí tuyển dụng cần mời')
+                      return
+                    }
                   }
                   if (canSubmit) {
                     onSubmit({
@@ -678,7 +684,7 @@ export function CreateContractPage({
                       startDate,
                       endDate,
                       role: activeRole,
-                      freelancerEmail: isInvite ? freelancerEmail : '',
+                      freelancerEmail: isInvite ? freelancerEmail.trim() : '',
                       candidateName: initialCandidateName,
                       project: selectedProject,
                       projectName: currentProjectObj?.name || selectedProject || undefined,
@@ -687,10 +693,11 @@ export function CreateContractPage({
                       jobDescription,
                       jobId: selectedJobId,
                       file: termsFile,
+                      invitationMessage: isInvite ? inviteMsg.trim() : undefined,
                     })
                   }
                 }}
-                disabled={!isInvite && !canSubmit}
+                disabled={!canSubmit}
                 className="cursor-pointer rounded-full px-7 py-2 text-xs font-bold !text-white transition-colors !bg-[var(--color-primary-500)] hover:!bg-[var(--color-primary-600)] disabled:cursor-not-allowed disabled:!bg-[rgba(0,0,0,0.12)] disabled:!text-[rgba(0,0,0,0.35)]"
               >
                 {isInvite ? 'Gửi lời mời hợp đồng' : 'Đăng tuyển dụng'}

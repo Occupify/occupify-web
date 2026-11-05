@@ -263,8 +263,9 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
           formData.candidateName || formData.candidateEmail || formData.freelancerEmail
         } thành công!`,
       )
-    } catch {
-      toast.error('Có lỗi xảy ra khi tạo hợp đồng.')
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Có lỗi xảy ra khi tạo hợp đồng.'
+      toast.error(msg)
     }
   }
 
