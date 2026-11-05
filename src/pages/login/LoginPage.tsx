@@ -2,6 +2,8 @@ import * as React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { OccupifyLogo } from '@/components/ui'
 import { LoginForm } from '@/features/auth'
+import type { AuthResponseData } from '@/features/auth/types'
+import { useAuthStore } from '@/stores'
 
 export interface LoginPageProps {
   onBack?: () => void
@@ -12,22 +14,52 @@ export interface LoginPageProps {
 
 export function LoginPage({ onSuccess, onGoogle, onSignUp }: LoginPageProps) {
   const navigate = useNavigate()
+  const { user, isAuthenticated } = useAuthStore()
 
-  const handleSuccess = React.useCallback(() => {
-    if (onSuccess) {
-      onSuccess()
-    } else {
-      navigate('/home')
+  // If already authenticated, redirect immediately according to role
+  React.useEffect(() => {
+    if (isAuthenticated && user) {
+      if (user.role?.toUpperCase() === 'ADMIN') {
+        navigate('/admin', { replace: true })
+      } else {
+        navigate('/home', { replace: true })
+      }
     }
-  }, [onSuccess, navigate])
+  }, [isAuthenticated, user, navigate])
 
-  const handleGoogle = React.useCallback(() => {
-    if (onGoogle) {
-      onGoogle()
-    } else {
-      navigate('/home')
-    }
-  }, [onGoogle, navigate])
+  const redirectByRole = React.useCallback(
+    (authData?: AuthResponseData) => {
+      const role = authData?.user?.role || useAuthStore.getState().user?.role
+      if (role?.toUpperCase() === 'ADMIN') {
+        navigate('/admin', { replace: true })
+      } else {
+        navigate('/home', { replace: true })
+      }
+    },
+    [navigate],
+  )
+
+  const handleSuccess = React.useCallback(
+    (authData?: AuthResponseData) => {
+      if (onSuccess) {
+        onSuccess()
+      } else {
+        redirectByRole(authData)
+      }
+    },
+    [onSuccess, redirectByRole],
+  )
+
+  const handleGoogle = React.useCallback(
+    (authData?: AuthResponseData) => {
+      if (onGoogle) {
+        onGoogle()
+      } else {
+        redirectByRole(authData)
+      }
+    },
+    [onGoogle, redirectByRole],
+  )
 
   const handleSignUp = React.useCallback(() => {
     if (onSignUp) {
