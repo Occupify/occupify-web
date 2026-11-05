@@ -5,10 +5,15 @@ import type {
   PendingProject,
   ProjectDetail,
   ProjectFilterParams,
+  ProjectJob,
   ProjectSummary,
 } from '../types'
 import { toMyProject } from '../types'
-import { MY_PROJECTS_DATA, EMPLOYEE_PROJECTS_DATA, PENDING_PROJECTS_DATA } from '../../mock-data'
+import {
+  getContracts,
+  toMyProjectFromContract,
+  toPendingProjectFromContract,
+} from '@/features/contracts'
 
 const CUSTOM_PROJECTS_KEY = 'occupify_custom_projects'
 
@@ -32,9 +37,9 @@ function savePersistedCustomProjects(projects: MyProject[]) {
   }
 }
 
-let myProjectsStore: MyProject[] = [...loadPersistedCustomProjects(), ...MY_PROJECTS_DATA]
-let employeeProjectsStore: MyProject[] = [...EMPLOYEE_PROJECTS_DATA]
-let pendingProjectsStore: PendingProject[] = [...PENDING_PROJECTS_DATA]
+let myProjectsStore: MyProject[] = [...loadPersistedCustomProjects()]
+let employeeProjectsStore: MyProject[] = []
+let pendingProjectsStore: PendingProject[] = []
 
 /**
  * Fetch paginated projects from backend API (/projects)
@@ -60,6 +65,15 @@ export async function getProjectDetail(id: string): Promise<ProjectDetail> {
  */
 export async function getProjectById(id: string | number): Promise<MyProject | null> {
   const detail = await getProjectDetail(String(id))
+  try {
+    // /projects/{id}/jobs filters out soft-deleted jobs (findByProjectIdAndDeletedAtIsNull)
+    const jobsRes = await apiClient.get<PageResponse<ProjectJob>>(`/projects/${id}/jobs?size=100`)
+    if (jobsRes?.data && Array.isArray(jobsRes.data)) {
+      detail.jobs = jobsRes.data
+    }
+  } catch {
+    // Fallback to detail.jobs
+  }
   return toMyProject(detail)
 }
 
@@ -77,17 +91,61 @@ export async function getMyProjects(employerId?: string): Promise<MyProject[]> {
     setInternalStores({ myProjects: backendProjects })
     return backendProjects
   }
+  return myProjectsStore
+}
+
+/**
+ * Get active contracts where the user participates as employee / contractor
+ */
+export async function getEmployeeProjects(currentUserId?: string): Promise<MyProject[]> {
+  try {
+    const res = await getContracts({ limit: 50, sort: 'createdAt,desc' })
+    if (res?.data && Array.isArray(res.data)) {
+      const activeContracts = res.data.filter(
+        (c) => c.status === 'IN_PROGRESS' || c.status === 'COMPLETED',
+      )
+      const mapped = activeContracts.map((c) => toMyProjectFromContract(c, currentUserId))
+      setInternalStores({ employeeProjects: mapped })
+      return mapped
+    }
+  } catch {
+    // Return empty on network error or unauthorized
+  }
   return []
 }
 
-export async function getEmployeeProjects(): Promise<MyProject[]> {
-  await new Promise((resolve) => setTimeout(resolve, 80))
-  return [...employeeProjectsStore]
-}
-
-export async function getPendingProjects(): Promise<PendingProject[]> {
-  await new Promise((resolve) => setTimeout(resolve, 80))
-  return [...pendingProjectsStore]
+/**
+ * Get pending contract invitations for current user
+ */
+export async function getPendingProjects(
+  currentUserId?: string,
+  userEmail?: string,
+): Promise<PendingProject[]> {
+  try {
+    const res = await getContracts({ status: 'PENDING', limit: 50, sort: 'createdAt,desc' })
+    if (res?.data && Array.isArray(res.data)) {
+      const pendingContracts = res.data.filter((c) => {
+        if (c.status !== 'PENDING') return false
+        if (currentUserId && c.employeeId && String(c.employeeId) === String(currentUserId)) {
+          return true
+        }
+        if (
+          userEmail &&
+          c.freelancerEmail &&
+          c.freelancerEmail.toLowerCase() === userEmail.toLowerCase()
+        ) {
+          return true
+        }
+        return !currentUserId && !userEmail
+      })
+      const mapped = pendingContracts.map(toPendingProjectFromContract)
+      setInternalStores({ pending: mapped })
+      return mapped
+    }
+  } catch {
+    // Return empty on network error or unauthorized
+  }
+  return []
 }
 
 export function setInternalStores(data: {

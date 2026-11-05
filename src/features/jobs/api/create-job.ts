@@ -1,95 +1,43 @@
-import type { JobListing, JobSalaryType, JobExperienceLevel, JobRoleItem } from '../types'
-import { addJobListing } from './get-jobs'
+import { apiClient } from '@/lib/api-client'
+import type { CreatedResponse } from '@/types'
+import type { JobSummaryResponse } from '../types'
 
-export interface CreateJobInput {
+export interface CreateJobPayload {
+  projectId: string
+  role: string
   title: string
-  description: string
-  skills?: string[]
-  budget?: string
-  salaryValue?: number
-  salaryType?: JobSalaryType
-  experienceLevel?: JobExperienceLevel
-  duration?: string
-  hoursPerDay?: number
-  openPositions?: number
-  status?: 'OPEN' | 'CLOSED'
-  location?: string
-  clientName?: string
-  company?: string
-  roles?: JobRoleItem[]
-  dueDate?: string
-  bidCloseDate?: string
-  tags?: string[]
-  contractDuration?: string
-  salaryDueDate?: string
-  completedProjectsCount?: number
+  description?: string
+  budget?: number
+  salaryType?: 'DAY' | 'FIXED' | 'HOURLY' | 'WEEKLY' | 'MONTHLY'
+  startedAt?: string
+  finishedAt?: string
+  skillIds?: string[]
+  file?: File | null
 }
 
-export async function createJob(input: CreateJobInput): Promise<JobListing> {
-  await new Promise((resolve) => setTimeout(resolve, 80))
-
-  const clientName = input.clientName || 'Tôi (Chủ dự án)'
-  const company = input.company || 'Dự án cá nhân'
-  const initials =
-    clientName
-      .split(' ')
-      .map((w) => w[0])
-      .filter(Boolean)
-      .join('')
-      .slice(0, 3)
-      .toUpperCase() || 'DA'
-
-  const salaryType = input.salaryType || 'monthly'
-  const cleanPrice = input.salaryValue || 0
-
-  let formattedBudget = input.budget
-  if (!formattedBudget && cleanPrice > 0) {
-    const cycleLabel =
-      salaryType === 'hourly'
-        ? '/ giờ'
-        : salaryType === 'weekly'
-          ? '/ tuần'
-          : salaryType === 'fixed'
-            ? '/ dự án'
-            : '/ tháng'
-    formattedBudget = `${cleanPrice.toLocaleString('vi-VN')} ₫ ${cycleLabel}`
-  }
-
-  const newJob: JobListing = {
-    id: Date.now(),
+export async function createJob(input: CreateJobPayload): Promise<JobSummaryResponse> {
+  const formData = new FormData()
+  const requestData = {
+    projectId: input.projectId,
+    role: input.role,
     title: input.title,
-    clientName,
-    company,
-    companyInitials: initials,
-    companyColor: '#0A66C2',
-    location: input.location || 'Toàn quốc',
-    postedAgo: 'Vừa xong',
-    budget: formattedBudget || 'Thỏa thuận',
-    avgBid:
-      cleanPrice > 0 ? `Avg ${Math.round(cleanPrice * 0.9).toLocaleString('vi-VN')} ₫` : undefined,
-    salaryType,
-    salaryValue: cleanPrice,
     description: input.description,
-    skills: input.skills && input.skills.length > 0 ? input.skills : ['Dự án mới'],
-    hiring: true,
-    viewsCount: 1,
-    submitsCount: 0,
-    openPositions: input.openPositions || 1,
-    filledPositions: 0,
-    status: input.status || 'OPEN',
-    experienceLevel: input.experienceLevel || 'intermediate',
-    clientRating: 5.0,
-    duration: input.duration || '1 - 3 tháng',
-    hoursPerDay: input.hoursPerDay || 4,
-    dueDate: input.dueDate,
-    bidCloseDate: input.bidCloseDate,
-    tags: input.tags,
-    contractDuration: input.contractDuration,
-    salaryDueDate: input.salaryDueDate,
-    completedProjectsCount: input.completedProjectsCount || 1,
-    roles: input.roles,
+    budget: input.budget,
+    salaryType: input.salaryType,
+    startedAt: input.startedAt,
+    finishedAt: input.finishedAt,
+    skillIds: input.skillIds,
   }
 
-  addJobListing(newJob)
-  return newJob
+  formData.append('data', new Blob([JSON.stringify(requestData)], { type: 'application/json' }))
+
+  if (input.file) {
+    formData.append('file', input.file)
+  }
+
+  const res = await apiClient.post<CreatedResponse<JobSummaryResponse>>('/jobs', formData)
+  if (!res.data) {
+    throw new Error(res.message || 'Không thể tạo tuyển dụng')
+  }
+  return res.data
 }

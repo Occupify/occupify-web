@@ -6,11 +6,14 @@ import {
   FileTextIcon,
   FolderPlusIcon,
   MagnifyingGlassIcon,
+  PaperPlaneTiltIcon,
   XIcon,
 } from '@phosphor-icons/react'
 import { toast } from '@/components/feedback'
 import { ApiError } from '@/types'
 import { useCurrentUser } from '@/features/auth'
+import { useMyBids, useCancelBid } from '@/features/bids'
+import { formatCurrencyVND } from '@/features/contracts'
 import {
   PendingProjectCard,
   ProjectInvitationModal,
@@ -71,6 +74,7 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
     initialCandidateEmail?: string
     initialBidValue?: string
     initialJobDescription?: string
+    initialJobId?: string
   } | null>(null)
 
   const subPage = searchParams.get('sub')
@@ -111,8 +115,24 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
     setSearchParams({ contract: String(p.id) })
   }
 
-  const [activeTab, setActiveTab] = useState<'all' | 'owner' | 'participant' | 'pending'>('all')
+  const [activeTab, setActiveTab] = useState<'all' | 'owner' | 'participant' | 'pending' | 'bids'>(
+    'all',
+  )
   const [searchKeyword, setSearchKeyword] = useState('')
+
+  const { data: myBidsData } = useMyBids()
+  const cancelBidMutation = useCancelBid()
+  const myBids = myBidsData?.data || []
+
+  const handleWithdrawBid = async (bidId: string) => {
+    try {
+      await cancelBidMutation.mutateAsync(bidId)
+      toast.info('Đã rút hồ sơ ứng tuyển thành công.')
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Có lỗi khi rút hồ sơ'
+      toast.error(msg)
+    }
+  }
 
   const handleAcceptInvitation = async (proj: PendingProject) => {
     try {
@@ -207,6 +227,16 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
     )
   })
 
+  const filteredBids = myBids.filter((b) => {
+    if (!searchKeyword.trim()) return true
+    const kw = searchKeyword.toLowerCase()
+    return (
+      (b.job?.title && b.job.title.toLowerCase().includes(kw)) ||
+      (b.project?.title && b.project.title.toLowerCase().includes(kw)) ||
+      (b.message && b.message.toLowerCase().includes(kw))
+    )
+  })
+
   const handleCreateProject = async (formData: CreateProjectFormData) => {
     try {
       await createProject(formData)
@@ -258,6 +288,7 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
         initialCandidateEmail={contractContext?.initialCandidateEmail}
         initialBidValue={contractContext?.initialBidValue}
         initialJobDescription={contractContext?.initialJobDescription}
+        initialJobId={contractContext?.initialJobId}
         projects={myProjects}
         onSubmit={handleCreateContract}
       />
@@ -280,6 +311,7 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
           candidateEmail,
           jobDescription,
           mode,
+          jobId,
         ) => {
           openCreateContract({
             mode: mode ?? 'create',
@@ -289,6 +321,7 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
             initialCandidateEmail: candidateEmail,
             initialBidValue: bidValue,
             initialJobDescription: jobDescription,
+            initialJobId: jobId,
           })
         }}
       />
@@ -341,8 +374,8 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
         </div>
       </div>
 
-      {/* 3 Metrics Top Cards */}
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      {/* 4 Metrics Top Cards */}
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* Metric 1 */}
         <div
           onClick={() => setActiveTab(activeTab === 'owner' ? 'all' : 'owner')}
@@ -411,6 +444,29 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
             </div>
           </div>
         </div>
+
+        {/* Metric 4 */}
+        <div
+          onClick={() => setActiveTab(activeTab === 'bids' ? 'all' : 'bids')}
+          className={`flex cursor-pointer items-center gap-4 rounded-xl border p-5 transition-all !bg-[var(--bg-elevated)] ${
+            activeTab === 'bids'
+              ? 'border-2 !border-[#8B5CF6] shadow-sm'
+              : '!border-[var(--border-default)] hover:!bg-[var(--bg-subtle)]'
+          }`}
+        >
+          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl !bg-[#F3E8FF] !text-[#8B5CF6]">
+            <PaperPlaneTiltIcon size={24} weight="bold" />
+          </div>
+          <div>
+            <div className="text-2xl font-extrabold leading-tight !text-[var(--text-primary)]">
+              {myBids.length}
+            </div>
+            <div className="mt-0.5 text-xs font-bold !text-[var(--text-primary)]">
+              Đơn đã ứng tuyển
+            </div>
+            <div className="text-[11px] !text-[var(--text-tertiary)]">Hồ sơ dự thầu cá nhân</div>
+          </div>
+        </div>
       </div>
 
       {/* Search Bar */}
@@ -444,7 +500,10 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
           {
             id: 'all',
             label: `Tất cả (${
-              filteredMyProjects.length + filteredEmpProjects.length + filteredPending.length
+              filteredMyProjects.length +
+              filteredEmpProjects.length +
+              filteredPending.length +
+              filteredBids.length
             })`,
           },
           {
@@ -458,6 +517,10 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
           {
             id: 'pending',
             label: `Chờ xử lý (${filteredPending.length})`,
+          },
+          {
+            id: 'bids',
+            label: `Đơn ứng tuyển (${filteredBids.length})`,
           },
         ].map(({ id, label }) => {
           const isActive = activeTab === id
@@ -618,6 +681,91 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
                 : 'Hiện tại không có lời mời hoặc đề xuất nào đang chờ duyệt.'}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Tab: Đơn ứng tuyển của tôi (GET /bids/my & DELETE /bids/{id}) */}
+      {!isLoading && activeTab === 'bids' && (
+        <div className="max-w-3xl space-y-3">
+          <div className="rounded-lg border p-5 !border-[var(--border-default)] !bg-[var(--bg-elevated)] shadow-sm">
+            <h3 className="mb-1 text-sm font-bold !text-[var(--text-primary)]">
+              Đơn ứng tuyển của tôi
+            </h3>
+            <p className="mb-4 text-xs !text-[var(--text-secondary)]">
+              Danh sách các vị trí công việc bạn đã gửi báo giá / hồ sơ ứng tuyển
+            </p>
+
+            {filteredBids.length === 0 ? (
+              <div className="rounded-lg border border-dashed p-8 text-center text-xs !border-[var(--border-default)] !bg-[var(--bg-subtle)] !text-[var(--text-tertiary)]">
+                {searchKeyword
+                  ? 'Không tìm thấy đơn ứng tuyển nào khớp với từ khóa.'
+                  : 'Bạn chưa nộp đơn ứng tuyển nào.'}
+              </div>
+            ) : (
+              <div className="divide-y !divide-[var(--border-subtle)]">
+                {filteredBids.map((bid) => {
+                  const isPending = bid.status === 'PENDING'
+                  return (
+                    <div
+                      key={bid.id}
+                      className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-bold !text-[var(--text-primary)]">
+                            {bid.job?.title || 'Vị trí tuyển dụng'}
+                          </span>
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
+                              bid.status === 'ACCEPTED'
+                                ? '!border !border-[#BBF7D0] !bg-[#E5F6E8] !text-[#057642]'
+                                : bid.status === 'REJECTED'
+                                  ? '!border !border-gray-200 !bg-gray-100 !text-gray-600'
+                                  : '!border !border-[#FDE68A] !bg-[#FFFBEB] !text-[#B45309]'
+                            }`}
+                          >
+                            {bid.status === 'ACCEPTED'
+                              ? 'Đã được duyệt'
+                              : bid.status === 'REJECTED'
+                                ? 'Từ chối'
+                                : 'Đang chờ duyệt'}
+                          </span>
+                        </div>
+                        {bid.project?.title && (
+                          <div className="mt-0.5 text-xs !text-[var(--text-secondary)]">
+                            Dự án: <span className="font-semibold">{bid.project.title}</span>
+                          </div>
+                        )}
+                        <div className="mt-1 flex flex-wrap items-center gap-3 text-[11.5px] !text-[var(--text-tertiary)]">
+                          <span>
+                            Báo giá:{' '}
+                            <strong className="!text-[var(--color-primary-500)]">
+                              {formatCurrencyVND(bid.proposedRate)}
+                            </strong>
+                          </span>
+                          {bid.createdAt && (
+                            <span>
+                              Ngày gửi: {new Date(bid.createdAt).toLocaleDateString('vi-VN')}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {isPending && (
+                        <button
+                          type="button"
+                          onClick={() => handleWithdrawBid(bid.id)}
+                          className="self-start cursor-pointer rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors !border-[#C03A2B] !text-[#C03A2B] hover:!bg-[#FBE2E2] sm:self-auto"
+                        >
+                          Rút hồ sơ
+                        </button>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
         </div>
       )}
 

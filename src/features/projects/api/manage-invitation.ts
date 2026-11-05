@@ -1,14 +1,25 @@
 import type { MyProject, PendingProject } from '../types'
 import { getInternalStores, setInternalStores } from './get-projects'
+import {
+  acceptContract as apiAcceptContract,
+  rejectContract as apiRejectContract,
+} from '@/features/contracts'
 
 export async function acceptInvitation(
   proj: PendingProject,
-): Promise<{ acceptedProject: MyProject; pendingId: number }> {
-  await new Promise((resolve) => setTimeout(resolve, 80))
+): Promise<{ acceptedProject: MyProject; pendingId: number | string }> {
+  try {
+    if (typeof proj.id === 'string' || Number.isNaN(Number(proj.id))) {
+      await apiAcceptContract(String(proj.id))
+    }
+  } catch {
+    // Fallback to local mutation
+  }
+
   const { employeeProjects, pending } = getInternalStores()
 
   const newProject: MyProject = {
-    id: Date.now(),
+    id: proj.id,
     name: proj.name,
     description: proj.description,
     owner: proj.owner,
@@ -32,7 +43,7 @@ export async function acceptInvitation(
     ],
   }
 
-  const updatedPending = pending.filter((p) => p.id !== proj.id)
+  const updatedPending = pending.filter((p) => String(p.id) !== String(proj.id))
   const updatedEmployeeProjects = [newProject, ...employeeProjects]
 
   setInternalStores({
@@ -43,10 +54,19 @@ export async function acceptInvitation(
   return { acceptedProject: newProject, pendingId: proj.id }
 }
 
-export async function rejectInvitation(projId: number): Promise<{ rejectedId: number }> {
-  await new Promise((resolve) => setTimeout(resolve, 60))
+export async function rejectInvitation(
+  projId: number | string,
+): Promise<{ rejectedId: number | string }> {
+  try {
+    if (typeof projId === 'string' || Number.isNaN(Number(projId))) {
+      await apiRejectContract(String(projId))
+    }
+  } catch {
+    // Fallback to local mutation
+  }
+
   const { pending } = getInternalStores()
-  const updatedPending = pending.filter((p) => p.id !== projId)
+  const updatedPending = pending.filter((p) => String(p.id) !== String(projId))
   setInternalStores({ pending: updatedPending })
   return { rejectedId: projId }
 }

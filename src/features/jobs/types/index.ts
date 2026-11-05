@@ -24,7 +24,7 @@ export interface JobRoleItem {
 }
 
 export interface JobListing {
-  id: number
+  id: string | number
   title: string
   clientName: string
   company: string
@@ -61,6 +61,7 @@ export interface JobListing {
 
 export interface GetJobsParams {
   search?: string
+  keyword?: string
   salaryType?: JobSalaryTypeFilter
   minSalary?: number
   time?: JobTimeFilter
@@ -69,6 +70,9 @@ export interface GetJobsParams {
   status?: 'all' | JobStatus
   budgetRange?: JobBudgetRange
   hoursPerDay?: JobHoursPerDay
+  skills?: string[]
+  page?: number
+  size?: number
 }
 
 export interface FilterOption<T = string> {
@@ -99,7 +103,7 @@ export interface Contract {
 export type JobSalaryCycle = 'monthly' | 'hourly' | 'daily' | 'weekly' | 'fixed'
 
 export interface ApplyJobInput {
-  jobId: number
+  jobId: string | number
   roleId: string
   salaryCycle: JobSalaryCycle
   bidPrice: string
@@ -119,7 +123,7 @@ export interface ApplyJobResponse {
 }
 
 export interface ReportJobInput {
-  jobId: number
+  jobId: string | number
   clientName: string
   jobTitle: string
   reason: string
@@ -133,3 +137,78 @@ export interface ReportJobResponse {
   reportId: string
   createdAt: string
 }
+
+// Backend DTO interfaces from occupify-core
+export interface EmployerSummaryResponse {
+  id: string
+  email?: string
+  fullName?: string
+  avatarUrl?: string
+}
+
+export interface JobSummaryResponse {
+  id: string
+  projectId?: string
+  title: string
+  description?: string
+  quantity?: number
+  salaryType?: 'DAY' | 'FIXED' | 'HOURLY' | 'WEEKLY' | 'MONTHLY'
+  budgetMin?: number
+  budgetMax?: number
+  status?: 'RECRUITING' | 'CLOSED'
+  bidCount?: number
+  skills?: string[]
+  requirements?: string[]
+  version?: number
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface ProjectApiResponse {
+  id: string
+  title: string
+  description?: string
+  period?: 'DAY' | 'FIXED' | 'HOURLY' | 'WEEKLY' | 'MONTHLY'
+  dueDate?: string
+  experienceLevel?: 'ENTRY' | 'INTERMEDIATE' | 'EXPERT'
+  status: 'OPEN' | 'CLOSED'
+  startDate?: string
+  endDate?: string
+  closedAt?: string
+  employer?: EmployerSummaryResponse
+  skills?: string[]
+  openJobsCount?: number
+  jobs?: JobSummaryResponse[]
+  hoursPerDay?: number
+  location?: string
+  duration?: string
+  tags?: string[]
+  version?: number
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface ProjectDetailApiResponse {
+  id: string
+  title: string
+  description?: string
+  startPrice?: number
+  period?: 'DAY' | 'FIXED' | 'HOURLY' | 'WEEKLY' | 'MONTHLY'
+  dueDate?: string
+  experienceLevel?: 'ENTRY' | 'INTERMEDIATE' | 'EXPERT'
+  status: 'OPEN' | 'CLOSED'
+  startDate?: string
+  endDate?: string
+  closedAt?: string
+  employer?: EmployerSummaryResponse
+  jobs?: JobSummaryResponse[]
+  hoursPerDay?: number
+  location?: string
+  duration?: string
+  tags?: string[]
+  version?: number
+  createdAt?: string
+  updatedAt?: string
+}
+
+export * from './projects-mapping.ts'

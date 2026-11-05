@@ -1,14 +1,15 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
-  BriefcaseIcon,
   DownloadSimpleIcon,
   FilePdfIcon,
   FileTextIcon,
   HandshakeIcon,
   LockIcon,
   PaperclipIcon,
+  PencilSimpleIcon,
   SealCheckIcon,
   StarIcon,
+  TrashIcon,
   UserPlusIcon,
   XIcon,
 } from '@phosphor-icons/react'
@@ -19,8 +20,18 @@ import type {
   ApplicantProposal,
   MyProject,
   ProjectMember,
+  ProjectRole,
   UpdateProjectPayload,
 } from '@/features/projects'
+import { useProjectBids, toApplicantProposalFromBid } from '@/features/bids'
+import {
+  useContracts,
+  toProjectMemberFromContract,
+  useCompleteContract,
+  useCancelContract,
+  useUpdateContract,
+} from '@/features/contracts'
+import { useCloseJob, useDeleteJob, useUpdateJob } from '@/features/jobs'
 
 interface MyProjectDetailPageProps {
   project: MyProject
@@ -32,6 +43,7 @@ interface MyProjectDetailPageProps {
     candidateEmail?: string,
     jobDescription?: string,
     mode?: 'create' | 'invite',
+    jobId?: string,
   ) => void
   onCancelProject?: (projectId: number | string, reason?: string) => void
   onUpdateProject?: (
@@ -49,7 +61,39 @@ export function MyProjectDetailPage({
   onUpdateProject,
   onUpdateMembers,
 }: MyProjectDetailPageProps) {
-  const [members, setMembers] = useState<ProjectMember[]>(project.members || [])
+  const isRealBackendProject = typeof project.id === 'string' && !project.id.startsWith('local-')
+
+  const { data: bidsData } = useProjectBids(isRealBackendProject ? String(project.id) : undefined)
+  const { data: contractsData } = useContracts(
+    isRealBackendProject ? { projectId: String(project.id) } : undefined,
+  )
+  const completeContractMutation = useCompleteContract()
+  const cancelContractMutation = useCancelContract()
+  const updateContractMutation = useUpdateContract()
+  const closeJobMutation = useCloseJob()
+  const deleteJobMutation = useDeleteJob()
+  const updateJobMutation = useUpdateJob()
+
+  const effectiveMembers = useMemo(() => {
+    if (contractsData?.data && Array.isArray(contractsData.data) && contractsData.data.length > 0) {
+      return contractsData.data.map(toProjectMemberFromContract)
+    }
+    return project.members || []
+  }, [contractsData, project.members])
+
+  const [membersOverride, setMembersOverride] = useState<ProjectMember[] | null>(null)
+  const members = membersOverride ?? effectiveMembers
+
+  const setMembers = (
+    newMembers: ProjectMember[] | ((prev: ProjectMember[]) => ProjectMember[]),
+  ) => {
+    if (typeof newMembers === 'function') {
+      setMembersOverride((prev) => newMembers(prev ?? effectiveMembers))
+    } else {
+      setMembersOverride(newMembers)
+    }
+  }
+
   const [cancelTarget, setCancelTarget] = useState<string | null>(null)
   const [closeRecruitConfirm, setCloseRecruitConfirm] = useState(false)
   const [recruitmentClosed, setRecruitmentClosed] = useState(false)
@@ -57,107 +101,96 @@ export function MyProjectDetailPage({
   const [contractDetailMember, setContractDetailMember] = useState<ProjectMember | null>(null)
   const [isEditingContract, setIsEditingContract] = useState(false)
 
+  // Edit / Delete role states
+  const [editingJobRole, setEditingJobRole] = useState<ProjectRole | null>(null)
+  const [deletingJobId, setDeletingJobId] = useState<string | null>(null)
+  const [deletedRoleIds, setDeletedRoleIds] = useState<Set<string>>(new Set())
+  const [closedRoleIds, setClosedRoleIds] = useState<Set<string>>(new Set())
+  const [roleOverrides, setRoleOverrides] = useState<Record<string, Partial<ProjectRole>>>({})
+
+  const roles: ProjectRole[] = useMemo(() => {
+    return (project.recruitingRoles || [])
+      .filter((r) => !deletedRoleIds.has(r.id))
+      .map((r) => {
+        let role = r
+        if (closedRoleIds.has(r.id)) {
+          role = { ...role, status: 'closed' }
+        }
+        if (roleOverrides[r.id]) {
+          role = { ...role, ...roleOverrides[r.id] }
+        }
+        return role
+      })
+  }, [project.recruitingRoles, deletedRoleIds, closedRoleIds, roleOverrides])
+
+  const [roleTitleInput, setRoleTitleInput] = useState('')
+  const [roleBudgetInput, setRoleBudgetInput] = useState('')
+  const [roleDescInput, setRoleDescInput] = useState('')
+
+  // Edit contract states
+  const [editContractMsg, setEditContractMsg] = useState('')
+  const [editContractTermsFile, setEditContractTermsFile] = useState<File | null>(null)
+
   // Rating modal state
   const [ratingTarget, setRatingTarget] = useState<string | null>(null)
   const [ratingStars, setRatingStars] = useState(5)
   const [ratingOnTime, setRatingOnTime] = useState(true)
   const [ratingComment, setRatingComment] = useState('')
 
-  // Applicants state and filter
-  const [applicants, setApplicants] = useState<ApplicantProposal[]>([
-    {
-      id: 1,
-      name: 'Trần Minh Khoa',
-      bid: '38.000.000 ₫',
-      salaryCycle: 'Theo tháng',
-      salaryCycleType: 'monthly',
-      rawBidValue: '38000000',
-      rating: 4.9,
-      ratingCount: 27,
-      occupation: 'Senior UI/UX Designer · Fintech Specialist',
-      roleApplied: 'Backend Developer',
-      commitment: 'Dài hạn (> 6 tháng) · Bắt đầu ngay',
-      cvFileName: 'CV_TranMinhKhoa_SeniorUX.pdf',
-      cvFileSize: '2.4 MB',
-      portfolioUrl: 'https://behance.net/minhkhoa_ux',
-      status: 'pending',
-      comment:
-        'Tôi có hơn 5 năm kinh nghiệm trong lĩnh vực UI/UX Design cho các sản phẩm Fintech & Banking. Đã từng lead thiết kế ứng dụng cho VNPAY và Momo. Tôi hiểu sâu về design system, quy trình thanh toán và tối ưu hóa trải nghiệm người dùng.',
-      email: 'khoa.tran@gmail.com',
-      phone: '0912 345 678',
-      location: 'Hà Nội, Việt Nam',
-      appliedDate: 'Hôm nay, 14:30',
-    },
-    {
-      id: 2,
-      name: 'Lê Thị Bảo Châu',
-      bid: '42.000.000 ₫',
-      salaryCycle: 'Theo tháng',
-      salaryCycleType: 'monthly',
-      rawBidValue: '42000000',
-      rating: 4.7,
-      ratingCount: 19,
-      occupation: 'Product Designer · Mobile App Expert',
-      roleApplied: 'Frontend Developer',
-      commitment: 'Dài hạn (> 6 tháng) · Bắt đầu ngay',
-      cvFileName: 'CV_LeThiBaoChau_ProductDesigner.pdf',
-      cvFileSize: '3.1 MB',
-      portfolioUrl: 'https://dribbble.com/baochau_design',
-      status: 'pending',
-      comment:
-        'Portfolio của tôi bao gồm hơn 30 dự án mobile app và web app tại Đông Nam Á. Tôi chú trọng vào trải nghiệm người dùng, accessibility chuẩn WCAG và giao diện trực quan, hiện đại.',
-      email: 'baochau.le@gmail.com',
-      phone: '0987 654 321',
-      location: 'TP. Hồ Chí Minh',
-      appliedDate: 'Hôm qua, 09:15',
-    },
-    {
-      id: 3,
-      name: 'Nguyễn Đức Hùng',
-      bid: '450.000 ₫',
-      salaryCycle: 'Theo giờ',
-      salaryCycleType: 'hourly',
-      rawBidValue: '450000',
-      rating: 4.5,
-      ratingCount: 11,
-      occupation: 'UX Researcher · Design System Specialist',
-      roleApplied: 'UI/UX Designer',
-      commitment: 'Linh hoạt (~30h / tuần) · Bắt đầu ngay',
-      cvFileName: 'CV_NguyenDucHung_UXResearcher.pdf',
-      cvFileSize: '1.9 MB',
-      status: 'pending',
-      comment:
-        'Chào anh/chị! Với nền tảng UX Research và từng xây dựng Design System quy mô lớn tại VNG Corporation, tôi tự tin giúp dự án chuẩn hóa luồng người dùng và giảm thiểu sai sót giao diện.',
-      email: 'hung.nd@gmail.com',
-      phone: '0903 889 901',
-      location: 'Đà Nẵng, Việt Nam',
-      appliedDate: '2 ngày trước',
-    },
-  ])
+  const effectiveApplicants: ApplicantProposal[] = useMemo(() => {
+    if (bidsData?.data && Array.isArray(bidsData.data) && bidsData.data.length > 0) {
+      return bidsData.data.map(toApplicantProposalFromBid)
+    }
+    return []
+  }, [bidsData])
+
+  const [applicantOverrides, setApplicantOverrides] = useState<
+    Record<string | number, 'accepted' | 'rejected'>
+  >({})
+
+  const applicants: ApplicantProposal[] = useMemo(() => {
+    return effectiveApplicants.map((a: ApplicantProposal) => {
+      const override = applicantOverrides[a.id]
+      return override ? { ...a, status: override } : a
+    })
+  }, [effectiveApplicants, applicantOverrides])
+
+  const setApplicants = (updater: (prev: ApplicantProposal[]) => ApplicantProposal[]) => {
+    const updated = updater(applicants)
+    const newOverrides: Record<string | number, 'accepted' | 'rejected'> = { ...applicantOverrides }
+    updated.forEach((a: ApplicantProposal) => {
+      if (a.status !== 'pending') {
+        newOverrides[a.id] = a.status
+      }
+    })
+    setApplicantOverrides(newOverrides)
+  }
 
   const [selectedApplicant, setSelectedApplicant] = useState<ApplicantProposal | null>(null)
   const [applicantRoleFilter, setApplicantRoleFilter] = useState('all')
 
   const availableRoles = Array.from(
     new Set([
-      ...(project.recruitingRoles?.map((r) => r.title) || []),
-      ...applicants.map((a) => a.roleApplied),
+      ...(roles.map((r) => r.title) || []),
+      ...applicants.map((a: ApplicantProposal) => a.roleApplied),
     ]),
   )
 
-  const filteredApplicants = applicants.filter((a) => {
+  const filteredApplicants = applicants.filter((a: ApplicantProposal) => {
     if (applicantRoleFilter === 'all') return true
     return a.roleApplied === applicantRoleFilter
   })
 
-  const handleRejectApplicant = (applicantId: number) => {
-    setApplicants((prev) =>
-      prev.map((a) => (a.id === applicantId ? { ...a, status: 'rejected' as const } : a)),
+  const handleRejectApplicant = (applicantId: number | string) => {
+    setApplicants((prev: ApplicantProposal[]) =>
+      prev.map((a: ApplicantProposal) =>
+        a.id === applicantId ? { ...a, status: 'rejected' as const } : a,
+      ),
     )
     if (selectedApplicant?.id === applicantId) {
       setSelectedApplicant((prev) => (prev ? { ...prev, status: 'rejected' } : null))
     }
-    const target = applicants.find((a) => a.id === applicantId)
+    const target = applicants.find((a: ApplicantProposal) => a.id === applicantId)
     toast.info(`Đã từ chối đơn ứng tuyển của ${target?.name || 'ứng viên'}.`)
   }
 
@@ -175,11 +208,12 @@ export function MyProjectDetailPage({
         applicant.email,
         `Đảm nhiệm vị trí ${applicant.roleApplied} cho dự án ${project.name}. Cam kết thực hiện công việc theo thoả thuận ứng tuyển và bàn giao chất lượng.`,
         'invite',
+        applicant.jobId,
       )
     }
   }
 
-  const handleConfirmCancel = (reason?: string) => {
+  const handleConfirmCancel = async (reason?: string) => {
     if (cancelTarget === 'project') {
       if (onCancelProject) {
         onCancelProject(project.id, reason)
@@ -190,12 +224,138 @@ export function MyProjectDetailPage({
       return
     }
     if (cancelTarget) {
-      const updatedMembers = members.filter((m) => m.email !== cancelTarget)
+      const targetContract = contractsData?.data?.find(
+        (c) =>
+          c.freelancerEmail?.toLowerCase() === cancelTarget.toLowerCase() ||
+          String(c.id) === String(cancelTarget),
+      )
+      if (targetContract) {
+        try {
+          await cancelContractMutation.mutateAsync({
+            contractId: targetContract.id,
+            reason: reason || 'Chủ dự án hủy hợp đồng',
+          })
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : 'Có lỗi khi hủy hợp đồng'
+          toast.error(msg)
+          return
+        }
+      }
+      const updatedMembers = members.filter(
+        (m) =>
+          m.email?.toLowerCase() !== cancelTarget.toLowerCase() &&
+          m.contractId !== cancelTarget &&
+          m.id !== cancelTarget,
+      )
       setMembers(updatedMembers)
       onUpdateMembers?.(project.id, updatedMembers)
       toast.info('Đã hủy hợp đồng với thành viên.')
       setCancelTarget(null)
     }
+  }
+
+  const handleCloseRoleRecruiting = async (roleId: string) => {
+    try {
+      await closeJobMutation.mutateAsync(roleId)
+      setClosedRoleIds((prev) => new Set([...prev, roleId]))
+      toast.info('Đã đóng tuyển dụng cho vị trí này.')
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Có lỗi khi đóng tuyển dụng'
+      toast.error(msg)
+    }
+  }
+
+  const handleCloseAllRecruitment = async () => {
+    try {
+      if (roles && roles.length > 0) {
+        await Promise.all(
+          roles
+            .filter((r) => r.status === 'recruiting')
+            .map((r) => closeJobMutation.mutateAsync(r.id)),
+        )
+      }
+      setClosedRoleIds((prev) => new Set([...prev, ...roles.map((r) => r.id)]))
+      setRecruitmentClosed(true)
+      setCloseRecruitConfirm(false)
+      toast.info('Đã đóng tuyển dụng cho toàn bộ dự án.')
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Có lỗi khi đóng tuyển dụng'
+      toast.error(msg)
+    }
+  }
+
+  const handleSaveRole = async () => {
+    if (!editingJobRole) return
+    try {
+      await updateJobMutation.mutateAsync({
+        jobId: editingJobRole.id,
+        payload: {
+          title: roleTitleInput,
+          role: roleTitleInput,
+          description: roleDescInput,
+          budget: Number(roleBudgetInput.replace(/[^0-9]/g, '')) || undefined,
+        },
+      })
+      setRoleOverrides((prev) => ({
+        ...prev,
+        [editingJobRole.id]: {
+          title: roleTitleInput,
+          jobDescription: roleDescInput,
+          salaryRange: roleBudgetInput
+            ? `${Number(roleBudgetInput.replace(/[^0-9]/g, '')).toLocaleString('vi-VN')} ₫`
+            : editingJobRole.salaryRange,
+        },
+      }))
+      toast.success('Đã cập nhật vị trí tuyển dụng!')
+      setEditingJobRole(null)
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Có lỗi khi cập nhật vị trí'
+      toast.error(msg)
+    }
+  }
+
+  const handleConfirmDeleteJob = async () => {
+    if (!deletingJobId) return
+    const idToDelete = deletingJobId
+    try {
+      await deleteJobMutation.mutateAsync(idToDelete)
+      setDeletedRoleIds((prev) => new Set([...prev, idToDelete]))
+      toast.success('Đã xóa vị trí tuyển dụng!')
+      setDeletingJobId(null)
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Có lỗi khi xóa vị trí'
+      toast.error(msg)
+    }
+  }
+
+  const handleSaveContract = async () => {
+    if (!contractDetailMember) return
+    const targetContract = contractsData?.data?.find(
+      (c) =>
+        c.freelancerEmail?.toLowerCase() === contractDetailMember.email?.toLowerCase() ||
+        c.id === contractDetailMember.contractId ||
+        c.id === contractDetailMember.id,
+    )
+    if (targetContract) {
+      try {
+        await updateContractMutation.mutateAsync({
+          contractId: targetContract.id,
+          payload: {
+            jobId: targetContract.jobId,
+            message: editContractMsg || undefined,
+            freelancerEmail: contractDetailMember.email,
+            file: editContractTermsFile,
+          },
+        })
+        toast.success('Đã cập nhật hợp đồng thành công!')
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Có lỗi khi cập nhật hợp đồng'
+        toast.error(msg)
+      }
+    } else {
+      toast.info('Đã cập nhật hợp đồng.')
+    }
+    setIsEditingContract(false)
   }
 
   const cancelMember = members.find((m) => m.email === cancelTarget)
@@ -258,17 +418,34 @@ export function MyProjectDetailPage({
                       <span>Không thể hủy khi còn nhân sự ({members.length})</span>
                     </div>
                   )}
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onCreateContract?.(
+                        undefined,
+                        undefined,
+                        undefined,
+                        undefined,
+                        undefined,
+                        'create',
+                      )
+                    }
+                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-full px-5 py-2 text-sm font-bold transition-colors !bg-[var(--color-primary-500)] !text-white hover:!bg-[var(--color-primary-600)] shadow-xs"
+                  >
+                    <span>Thêm hợp đồng</span>
+                  </button>
                 </>
               )}
             </div>
           </div>
 
           {/* Section: Vị trí tuyển dụng trong dự án */}
-          {project.recruitingRoles && project.recruitingRoles.length > 0 && (
+          {roles && roles.length > 0 && (
             <div className="border-b p-6 sm:px-7 !border-[var(--border-default)] !bg-[var(--bg-subtle)]/50">
               <div className="mb-3.5">
                 <h2 className="text-[15px] font-bold !text-[var(--text-primary)]">
-                  Vị trí tuyển dụng trong dự án ({project.recruitingRoles.length} vai trò)
+                  Vị trí tuyển dụng trong dự án ({roles.length} vai trò)
                 </h2>
                 <p className="mt-0.5 text-[13px] !text-[var(--text-secondary)]">
                   Các role cần thiết lập hợp đồng và chiêu mộ nhân sự
@@ -276,8 +453,9 @@ export function MyProjectDetailPage({
               </div>
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {project.recruitingRoles.map((r) => {
+                {roles.map((r) => {
                   const isRecruiting = r.status === 'recruiting'
+                  const isClosed = r.status === 'closed'
                   return (
                     <div
                       key={r.id}
@@ -296,14 +474,20 @@ export function MyProjectDetailPage({
                             className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
                               isRecruiting
                                 ? '!border !border-[#BBF7D0] !bg-[#E5F6E8] !text-[#057642]'
-                                : '!border !border-[var(--border-default)] !bg-[var(--bg-subtle)] !text-[var(--text-secondary)]'
+                                : isClosed
+                                  ? '!border !border-[#FED7AA] !bg-[#FFF7ED] !text-[#C2410C]'
+                                  : '!border !border-[var(--border-default)] !bg-[var(--bg-subtle)] !text-[var(--text-secondary)]'
                             }`}
                           >
-                            {isRecruiting ? 'Đang tuyển' : 'Đã có nhân sự'}
+                            {isRecruiting
+                              ? 'Đang tuyển'
+                              : isClosed
+                                ? 'Đã đóng tuyển'
+                                : 'Đã có nhân sự'}
                           </span>
                         </div>
 
-                        {!isRecruiting && (
+                        {!isRecruiting && !isClosed && (
                           <div className="mb-2 inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[11.5px] font-semibold !border-[#DCFCE7] !bg-[#F0FDF4] !text-[#057642]">
                             <SealCheckIcon size={13} weight="fill" className="text-[#057642]" />
                             <span>
@@ -358,6 +542,7 @@ export function MyProjectDetailPage({
                               undefined,
                               defaultJd,
                               'invite',
+                              r.id,
                             )
                           }}
                           className="mt-1 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-bold transition-colors !border-[var(--color-primary-500)] !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)] hover:!bg-[var(--color-primary-500)] hover:!text-white"
@@ -366,134 +551,53 @@ export function MyProjectDetailPage({
                           <span>Mời hợp đồng cho vai trò này</span>
                         </button>
                       )}
+
+                      {/* Role Management Actions (PUT, DELETE, CLOSE /jobs) */}
+                      <div className="mt-2.5 flex items-center justify-between border-t pt-2 !border-[var(--border-subtle)] text-[11.5px]">
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingJobRole(r)
+                              setRoleTitleInput(r.title)
+                              setRoleBudgetInput(
+                                r.salaryRange ? r.salaryRange.replace(/[^0-9]/g, '') : '',
+                              )
+                              setRoleDescInput(r.jobDescription || '')
+                            }}
+                            className="inline-flex cursor-pointer items-center gap-1 font-semibold !text-[var(--text-secondary)] hover:!text-[var(--color-primary-500)]"
+                          >
+                            <PencilSimpleIcon size={13} />
+                            <span>Sửa</span>
+                          </button>
+                          <span className="!text-[var(--border-default)]">·</span>
+                          <button
+                            type="button"
+                            onClick={() => setDeletingJobId(r.id)}
+                            className="inline-flex cursor-pointer items-center gap-1 font-semibold !text-[#C03A2B] hover:underline"
+                          >
+                            <TrashIcon size={13} />
+                            <span>Xóa</span>
+                          </button>
+                        </div>
+
+                        {isRecruiting && (
+                          <button
+                            type="button"
+                            onClick={() => handleCloseRoleRecruiting(r.id)}
+                            className="inline-flex cursor-pointer items-center gap-1 font-semibold !text-[#D97706] hover:underline"
+                          >
+                            <LockIcon size={13} />
+                            <span>Đóng tuyển</span>
+                          </button>
+                        )}
+                      </div>
                     </div>
                   )
                 })}
               </div>
             </div>
           )}
-
-          {/* Section: Danh sách thành viên */}
-          <div className="border-b p-6 sm:px-7 !border-[var(--border-default)]">
-            <div className="mb-4 flex items-center justify-between">
-              <span className="text-[15px] font-bold !text-[var(--text-primary)]">
-                Danh sách thành viên
-              </span>
-              <button
-                type="button"
-                onClick={() => onCreateContract?.()}
-                className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors !border-[var(--color-primary-500)] !text-[var(--color-primary-500)] hover:!bg-[var(--color-primary-50)]"
-              >
-                <UserPlusIcon size={15} />
-                <span>Mời thành viên</span>
-              </button>
-            </div>
-
-            {members.length === 0 ? (
-              <p className="text-[13px] !text-[var(--text-tertiary)]">Không còn thành viên nào.</p>
-            ) : (
-              <div className="flex flex-col gap-3">
-                {members.map((m) => (
-                  <div
-                    key={m.email}
-                    className="rounded-lg border p-4.5 !border-[var(--border-subtle)] !bg-[var(--bg-subtle)]/40"
-                  >
-                    {/* Name row */}
-                    <div className="mb-2.5 flex flex-wrap items-center gap-2">
-                      <span className="text-[15px] font-bold !text-[var(--text-primary)]">
-                        {m.name}
-                      </span>
-                      {m.role && (
-                        <span className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-bold !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)]">
-                          <BriefcaseIcon size={12} weight="bold" />
-                          {m.role}
-                        </span>
-                      )}
-                      <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)]">
-                        {m.status ?? 'Đang làm'}
-                      </span>
-                    </div>
-
-                    {/* Info grid */}
-                    <div className="mb-3.5 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                      <div>
-                        <div className="mb-0.5 text-[11px] font-bold tracking-wider uppercase !text-[var(--text-tertiary)]">
-                          Giá trị HĐ
-                        </div>
-                        <div className="text-sm font-bold !text-[var(--text-primary)]">
-                          {m.price}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="mb-0.5 text-[11px] font-bold tracking-wider uppercase !text-[var(--text-tertiary)]">
-                          Chu kỳ
-                        </div>
-                        <div className="text-sm !text-[var(--text-secondary)]">
-                          {project.period}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="mb-0.5 text-[11px] font-bold tracking-wider uppercase !text-[var(--text-tertiary)]">
-                          Hạn hoàn thành
-                        </div>
-                        <div className="text-sm !text-[var(--text-secondary)]">
-                          {m.dueDate ?? project.dueDate ?? '—'}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="mb-0.5 text-[11px] font-bold tracking-wider uppercase !text-[var(--text-tertiary)]">
-                          Hạn trả lương
-                        </div>
-                        <div className="text-sm font-bold !text-[var(--color-primary-500)]">
-                          {m.salaryDueDate ??
-                            (project.period === 'Hàng tháng'
-                              ? 'Ngày 05 hàng tháng'
-                              : project.period === 'Hàng tuần'
-                                ? 'Thứ 6 hàng tuần'
-                                : project.dueDate
-                                  ? `Trước ${project.dueDate}`
-                                  : 'Theo thỏa thuận')}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex flex-wrap items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setRatingTarget(m.email)
-                          setRatingStars(5)
-                          setRatingOnTime(true)
-                          setRatingComment('')
-                        }}
-                        className="cursor-pointer rounded-full border px-4 py-1.5 text-[13px] font-semibold transition-colors !border-[#44712E] !text-[#44712E] hover:!bg-[#E5F6E8]"
-                      >
-                        Hoàn thành dự án
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setCancelTarget(m.email)}
-                        className="cursor-pointer rounded-full border px-4 py-1.5 text-[13px] font-semibold transition-colors !border-[#C03A2B] !text-[#C03A2B] hover:!bg-[#FBE2E2]"
-                      >
-                        Hủy hợp đồng
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setContractDetailMember(m)
-                          setIsEditingContract(false)
-                        }}
-                        className="cursor-pointer rounded-full border px-4 py-1.5 text-[13px] font-semibold transition-colors !border-[var(--color-primary-500)] !text-[var(--color-primary-500)] hover:!bg-[var(--color-primary-50)]"
-                      >
-                        Xem chi tiết hợp đồng
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
 
           {/* Section: Danh sách ứng viên */}
           <div className="p-6 sm:px-7">
@@ -517,7 +621,9 @@ export function MyProjectDetailPage({
                 >
                   <option value="all">Tất cả vai trò ({applicants.length})</option>
                   {availableRoles.map((role) => {
-                    const count = applicants.filter((a) => a.roleApplied === role).length
+                    const count = applicants.filter(
+                      (a: ApplicantProposal) => a.roleApplied === role,
+                    ).length
                     return (
                       <option key={role} value={role}>
                         {role} ({count})
@@ -539,7 +645,7 @@ export function MyProjectDetailPage({
               </div>
             ) : (
               <div className="flex flex-col gap-3">
-                {filteredApplicants.map((proposal) => {
+                {filteredApplicants.map((proposal: ApplicantProposal) => {
                   const isSelected = selectedApplicant?.id === proposal.id
                   return (
                     <div
@@ -785,7 +891,13 @@ export function MyProjectDetailPage({
                   </div>
                   <button
                     type="button"
-                    onClick={() => toast.info(`Đang mở file "${selectedApplicant.cvFileName}"...`)}
+                    onClick={() => {
+                      if (selectedApplicant.cvFileUrl) {
+                        window.open(selectedApplicant.cvFileUrl, '_blank')
+                      } else {
+                        toast.info(`Đang mở file "${selectedApplicant.cvFileName}"...`)
+                      }
+                    }}
                     className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-bold transition-colors !border-[var(--color-primary-500)] !bg-white !text-[var(--color-primary-500)] hover:!bg-[var(--color-primary-50)]"
                   >
                     <DownloadSimpleIcon size={14} weight="bold" />
@@ -863,11 +975,7 @@ export function MyProjectDetailPage({
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setCloseRecruitConfirm(false)
-                  setRecruitmentClosed(true)
-                  toast.info('Đã đóng tuyển dụng cho dự án.')
-                }}
+                onClick={handleCloseAllRecruitment}
                 className="cursor-pointer rounded-full px-5 py-2 text-sm font-bold !text-white !bg-[var(--color-primary-500)] hover:!bg-[var(--color-primary-600)]"
               >
                 Xác nhận đóng
@@ -878,221 +986,309 @@ export function MyProjectDetailPage({
       )}
 
       {/* Contract Detail Modal */}
-      {contractDetailMember && (
+      {contractDetailMember &&
+        (() => {
+          const targetContract = contractsData?.data?.find(
+            (c) =>
+              c.freelancerEmail?.toLowerCase() === contractDetailMember.email?.toLowerCase() ||
+              c.id === contractDetailMember.contractId ||
+              c.id === contractDetailMember.id,
+          )
+
+          return (
+            <div
+              role="dialog"
+              aria-modal="true"
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 !bg-[var(--bg-overlay)]"
+              onClick={() => {
+                setContractDetailMember(null)
+                setIsEditingContract(false)
+              }}
+            >
+              <div
+                className="max-h-[90vh] w-full max-w-[520px] overflow-y-auto rounded-xl p-7 shadow-2xl !bg-[var(--bg-elevated)]"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h3 className="mb-5 text-xl font-bold !text-[var(--text-primary)]">
+                  Chi tiết hợp đồng
+                </h3>
+
+                {isEditingContract ? (
+                  <div className="flex flex-col gap-4">
+                    <div>
+                      <label className="mb-1.5 block text-xs font-bold !text-[var(--text-secondary)]">
+                        Lời nhắn / Thỏa thuận bổ sung
+                      </label>
+                      <textarea
+                        value={editContractMsg}
+                        onChange={(e) => setEditContractMsg(e.target.value)}
+                        rows={3}
+                        placeholder="Nhập thông điệp trao đổi hoặc điều khoản bổ sung..."
+                        className="w-full rounded border p-2 text-sm outline-none !border-[var(--border-default)] !bg-[var(--bg-elevated)] !text-[var(--text-primary)] focus:!border-[var(--color-primary-500)]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-1.5 block text-xs font-bold !text-[var(--text-secondary)]">
+                        Tài liệu hợp đồng mới (PDF/DOCX)
+                      </label>
+                      <label className="flex min-h-[90px] cursor-pointer flex-col items-center justify-center gap-1.5 rounded border border-dashed p-4 !border-[var(--border-default)] !bg-[var(--bg-subtle)] hover:!border-[var(--color-primary-500)]">
+                        <PaperclipIcon size={20} className="!text-[var(--text-tertiary)]" />
+                        <span className="text-xs font-semibold !text-[var(--text-secondary)]">
+                          {editContractTermsFile
+                            ? editContractTermsFile.name
+                            : 'Tải lên file điều khoản mới (thay thế)'}
+                        </span>
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept=".pdf,.doc,.docx"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file) setEditContractTermsFile(file)
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2.5 text-sm !text-[var(--text-secondary)]">
+                    <div>
+                      <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
+                        Tiêu đề hợp đồng:{' '}
+                      </span>
+                      <span className="!text-[var(--text-primary)]">
+                        Hợp đồng {contractDetailMember.role || 'thành viên'} - {project.name}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
+                        Chủ dự án:{' '}
+                      </span>
+                      <span className="font-bold !text-[var(--text-primary)]">
+                        {project.owner ?? 'Tôi (Chủ dự án)'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
+                        Thông tin Freelancer:{' '}
+                      </span>
+                      <span className="!text-[var(--text-primary)]">
+                        {contractDetailMember.name} ({contractDetailMember.email})
+                      </span>
+                    </div>
+                    <div>
+                      <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
+                        Giá trị hợp đồng:{' '}
+                      </span>
+                      <span className="font-bold !text-[var(--text-primary)]">
+                        {contractDetailMember.price}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
+                        Chu kỳ:{' '}
+                      </span>
+                      <span className="!text-[var(--text-primary)]">
+                        {project.period || 'Theo dự án'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
+                        Hạn trả lương:{' '}
+                      </span>
+                      <span className="font-bold !text-[var(--color-primary-500)]">
+                        {contractDetailMember.salaryDueDate ?? 'Ngày 05 hàng tháng'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
+                        Ngày kết thúc:{' '}
+                      </span>
+                      <span className="!text-[var(--text-primary)]">
+                        {contractDetailMember.dueDate ?? project.dueDate ?? '—'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
+                        File hợp đồng:{' '}
+                      </span>
+                      {targetContract?.termsFileUrl ? (
+                        <a
+                          href={targetContract.termsFileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex cursor-pointer items-center gap-1.5 rounded px-2.5 py-1 text-xs font-bold no-underline transition-colors hover:opacity-80 !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)]"
+                        >
+                          <DownloadSimpleIcon size={14} weight="bold" />
+                          <span>Tải tài liệu hợp đồng</span>
+                        </a>
+                      ) : (
+                        <span className="text-xs !text-[var(--text-tertiary)]">
+                          Chưa đính kèm file
+                        </span>
+                      )}
+                    </div>
+                    <div>
+                      <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
+                        Trạng thái hợp đồng:{' '}
+                      </span>
+                      <span className="rounded px-2 py-0.5 text-xs font-bold !bg-[var(--bg-subtle)] !text-[var(--color-primary-500)]">
+                        {contractDetailMember.status ?? 'Đang làm'}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="mt-6 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setContractDetailMember(null)
+                      setIsEditingContract(false)
+                    }}
+                    className="cursor-pointer rounded-full border px-5 py-2 text-sm font-semibold !border-[var(--border-default)] !text-[var(--text-secondary)] hover:!bg-[var(--bg-subtle)]"
+                  >
+                    Đóng
+                  </button>
+                  {isEditingContract ? (
+                    <button
+                      type="button"
+                      onClick={handleSaveContract}
+                      className="cursor-pointer rounded-full px-5 py-2 text-sm font-bold !text-white !bg-[var(--color-primary-500)] hover:!bg-[var(--color-primary-600)]"
+                    >
+                      Lưu thay đổi
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditContractMsg(targetContract?.message || '')
+                        setEditContractTermsFile(null)
+                        setIsEditingContract(true)
+                      }}
+                      className="cursor-pointer rounded-full px-5 py-2 text-sm font-bold !text-white !bg-[var(--color-primary-500)] hover:!bg-[var(--color-primary-600)]"
+                    >
+                      Chỉnh sửa
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )
+        })()}
+
+      {/* Edit Job Role Modal */}
+      {editingJobRole && (
         <div
           role="dialog"
           aria-modal="true"
           className="fixed inset-0 z-50 flex items-center justify-center p-4 !bg-[var(--bg-overlay)]"
-          onClick={() => {
-            setContractDetailMember(null)
-            setIsEditingContract(false)
-          }}
+          onClick={() => setEditingJobRole(null)}
         >
           <div
-            className="max-h-[90vh] w-full max-w-[520px] overflow-y-auto rounded-xl p-7 shadow-2xl !bg-[var(--bg-elevated)]"
+            className="w-full max-w-[480px] rounded-xl p-6 shadow-2xl !bg-[var(--bg-elevated)]"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="mb-5 text-xl font-bold !text-[var(--text-primary)]">
-              Chi tiết hợp đồng
+            <h3 className="mb-4 text-lg font-bold !text-[var(--text-primary)]">
+              Chỉnh sửa vị trí tuyển dụng
             </h3>
 
-            {isEditingContract ? (
-              <div className="flex flex-col gap-4">
-                <div>
-                  <label className="mb-1.5 block text-xs font-bold !text-[var(--text-secondary)]">
-                    Tiêu đề hợp đồng *
-                  </label>
-                  <input
-                    defaultValue={`Hợp đồng thiết kế - ${project.name}`}
-                    className="w-full rounded border p-2 text-sm outline-none !border-[var(--border-default)] !bg-[var(--bg-elevated)] !text-[var(--text-primary)] focus:!border-[var(--color-primary-500)]"
-                  />
-                </div>
-
-                <div className="flex gap-4">
-                  <div className="flex-2">
-                    <label className="mb-1.5 block text-xs font-bold !text-[var(--text-secondary)]">
-                      Giá trị hợp đồng (VNĐ) *
-                    </label>
-                    <input
-                      defaultValue={contractDetailMember.price.replace(/[^0-9]/g, '')}
-                      className="w-full rounded border p-2 text-sm outline-none !border-[var(--border-default)] !bg-[var(--bg-elevated)] !text-[var(--text-primary)] focus:!border-[var(--color-primary-500)]"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <label className="mb-1.5 block text-xs font-bold !text-[var(--text-secondary)]">
-                      Chu kỳ
-                    </label>
-                    <select
-                      defaultValue="Dự án"
-                      className="w-full rounded border p-2 text-sm outline-none !border-[var(--border-default)] !bg-[var(--bg-elevated)] !text-[var(--text-primary)] focus:!border-[var(--color-primary-500)]"
-                    >
-                      <option value="Giờ">Giờ</option>
-                      <option value="Ngày">Ngày</option>
-                      <option value="Tuần">Tuần</option>
-                      <option value="Tháng">Tháng</option>
-                      <option value="Dự án">Dự án</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <div className="flex-1">
-                    <label className="mb-1.5 block text-xs font-bold !text-[var(--text-secondary)]">
-                      Ngày bắt đầu
-                    </label>
-                    <input
-                      type="date"
-                      defaultValue="2026-10-01"
-                      className="w-full rounded border p-2 text-sm outline-none !border-[var(--border-default)] !bg-[var(--bg-elevated)] !text-[var(--text-primary)] focus:!border-[var(--color-primary-500)]"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <label className="mb-1.5 block text-xs font-bold !text-[var(--text-secondary)]">
-                      Ngày kết thúc
-                    </label>
-                    <input
-                      type="date"
-                      defaultValue="2026-12-31"
-                      className="w-full rounded border p-2 text-sm outline-none !border-[var(--border-default)] !bg-[var(--bg-elevated)] !text-[var(--text-primary)] focus:!border-[var(--color-primary-500)]"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="mb-1.5 block text-xs font-bold !text-[var(--text-secondary)]">
-                    Tài liệu hợp đồng đính kèm (File) *
-                  </label>
-                  <div className="flex min-h-[90px] cursor-pointer flex-col items-center justify-center gap-1.5 rounded border border-dashed p-4 !border-[var(--border-default)] !bg-[var(--bg-subtle)]">
-                    <PaperclipIcon size={20} className="!text-[var(--text-tertiary)]" />
-                    <span className="text-xs font-semibold !text-[var(--text-secondary)]">
-                      Tải lên file tài liệu đính kèm
-                    </span>
-                    <span className="text-[11px] !text-[var(--text-tertiary)]">
-                      PDF, DOC, DOCX, TXT (tối đa 10MB)
-                    </span>
-                  </div>
-                </div>
+            <div className="flex flex-col gap-3.5">
+              <div>
+                <label className="mb-1 block text-xs font-bold !text-[var(--text-secondary)]">
+                  Tên vị trí tuyển dụng *
+                </label>
+                <input
+                  type="text"
+                  value={roleTitleInput}
+                  onChange={(e) => setRoleTitleInput(e.target.value)}
+                  className="w-full rounded border p-2 text-sm outline-none !border-[var(--border-default)] !bg-[var(--bg-elevated)] !text-[var(--text-primary)] focus:!border-[var(--color-primary-500)]"
+                  placeholder="VD: Senior React Developer"
+                />
               </div>
-            ) : (
-              <div className="flex flex-col gap-2.5 text-sm !text-[var(--text-secondary)]">
-                <div>
-                  <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
-                    Tiêu đề hợp đồng:{' '}
-                  </span>
-                  <span className="!text-[var(--text-primary)]">
-                    Hợp đồng thiết kế - {project.name}
-                  </span>
-                </div>
-                <div>
-                  <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
-                    Chủ dự án:{' '}
-                  </span>
-                  <span className="font-bold !text-[var(--text-primary)]">
-                    {project.owner ?? 'Tôi (Chủ dự án)'}
-                  </span>
-                </div>
-                <div>
-                  <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
-                    Thông tin Freelancer:{' '}
-                  </span>
-                  <span className="!text-[var(--text-primary)]">
-                    {contractDetailMember.name} ({contractDetailMember.email})
-                  </span>
-                </div>
-                <div>
-                  <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
-                    Giá trị hợp đồng:{' '}
-                  </span>
-                  <span className="font-bold !text-[var(--text-primary)]">
-                    {contractDetailMember.price}
-                  </span>
-                </div>
-                <div>
-                  <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
-                    Chu kỳ:{' '}
-                  </span>
-                  <span className="!text-[var(--text-primary)]">Theo dự án (1 lần)</span>
-                </div>
-                <div>
-                  <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
-                    Hạn trả lương:{' '}
-                  </span>
-                  <span className="font-bold !text-[var(--color-primary-500)]">
-                    {contractDetailMember.salaryDueDate ?? 'Ngày 05 hàng tháng'}
-                  </span>
-                </div>
-                <div>
-                  <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
-                    Ngày bắt đầu:{' '}
-                  </span>
-                  <span className="!text-[var(--text-primary)]">01/10/2026</span>
-                </div>
-                <div>
-                  <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
-                    Ngày kết thúc:{' '}
-                  </span>
-                  <span className="!text-[var(--text-primary)]">
-                    {contractDetailMember.dueDate ?? project.dueDate ?? '—'}
-                  </span>
-                </div>
-                <div>
-                  <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
-                    File hợp đồng:{' '}
-                  </span>
-                  <a
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      alert('Mở file tài liệu: DieuKhoan_HopDong.pdf')
-                    }}
-                    className="inline-flex cursor-pointer items-center gap-1.5 rounded px-2.5 py-1 text-xs font-bold no-underline transition-colors hover:opacity-80 !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)]"
-                  >
-                    <FileTextIcon size={14} />
-                    <span>DieuKhoan_HopDong.pdf</span>
-                  </a>
-                </div>
-                <div>
-                  <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
-                    Trạng thái hợp đồng:{' '}
-                  </span>
-                  <span className="rounded px-2 py-0.5 text-xs font-bold !bg-[var(--bg-subtle)] !text-[var(--color-primary-500)]">
-                    {contractDetailMember.status ?? 'Đang làm'}
-                  </span>
-                </div>
+
+              <div>
+                <label className="mb-1 block text-xs font-bold !text-[var(--text-secondary)]">
+                  Ngân sách (VNĐ)
+                </label>
+                <input
+                  type="text"
+                  value={roleBudgetInput}
+                  onChange={(e) => setRoleBudgetInput(e.target.value)}
+                  className="w-full rounded border p-2 text-sm outline-none !border-[var(--border-default)] !bg-[var(--bg-elevated)] !text-[var(--text-primary)] focus:!border-[var(--color-primary-500)]"
+                  placeholder="VD: 30000000"
+                />
               </div>
-            )}
+
+              <div>
+                <label className="mb-1 block text-xs font-bold !text-[var(--text-secondary)]">
+                  Mô tả công việc & yêu cầu
+                </label>
+                <textarea
+                  value={roleDescInput}
+                  onChange={(e) => setRoleDescInput(e.target.value)}
+                  rows={3}
+                  className="w-full resize-y rounded border p-2 text-sm outline-none !border-[var(--border-default)] !bg-[var(--bg-elevated)] !text-[var(--text-primary)] focus:!border-[var(--color-primary-500)]"
+                  placeholder="Mô tả trách nhiệm công việc..."
+                />
+              </div>
+            </div>
 
             <div className="mt-6 flex justify-end gap-3">
               <button
                 type="button"
-                onClick={() => {
-                  setContractDetailMember(null)
-                  setIsEditingContract(false)
-                }}
-                className="cursor-pointer rounded-full border px-5 py-2 text-sm font-semibold !border-[var(--border-default)] !text-[var(--text-secondary)] hover:!bg-[var(--bg-subtle)]"
+                onClick={() => setEditingJobRole(null)}
+                className="cursor-pointer rounded-full border px-4 py-2 text-xs font-semibold !border-[var(--border-default)] !text-[var(--text-secondary)] hover:!bg-[var(--bg-subtle)]"
               >
-                Đóng
+                Hủy
               </button>
-              {isEditingContract ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsEditingContract(false)
-                    toast.success('Đã cập nhật hợp đồng')
-                  }}
-                  className="cursor-pointer rounded-full px-5 py-2 text-sm font-bold !text-white !bg-[var(--color-primary-500)] hover:!bg-[var(--color-primary-600)]"
-                >
-                  Lưu thay đổi
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setIsEditingContract(true)}
-                  className="cursor-pointer rounded-full px-5 py-2 text-sm font-bold !text-white !bg-[var(--color-primary-500)] hover:!bg-[var(--color-primary-600)]"
-                >
-                  Chỉnh sửa
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={handleSaveRole}
+                className="cursor-pointer rounded-full px-5 py-2 text-xs font-bold !text-white !bg-[var(--color-primary-500)] hover:!bg-[var(--color-primary-600)]"
+              >
+                Lưu thay đổi
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Job Confirm Modal */}
+      {deletingJobId && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 !bg-[var(--bg-overlay)]"
+          onClick={() => setDeletingJobId(null)}
+        >
+          <div
+            className="w-full max-w-[420px] rounded-xl p-6 shadow-2xl !bg-[var(--bg-elevated)]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="mb-2 text-lg font-bold !text-[var(--text-primary)]">
+              Xóa vị trí tuyển dụng
+            </h3>
+            <p className="mb-6 text-sm !text-[var(--text-secondary)]">
+              Bạn có chắc chắn muốn xóa vị trí này khỏi dự án? Vị trí sẽ bị gỡ bỏ và các hồ sơ ứng
+              tuyển liên quan sẽ bị hủy.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setDeletingJobId(null)}
+                className="cursor-pointer rounded-full border px-4 py-2 text-xs font-semibold !border-[var(--border-default)] !text-[var(--text-secondary)] hover:!bg-[var(--bg-subtle)]"
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDeleteJob}
+                className="cursor-pointer rounded-full px-5 py-2 text-xs font-bold !text-white !bg-[#C03A2B] hover:!bg-[#A0281A]"
+              >
+                Xác nhận xóa
+              </button>
             </div>
           </div>
         </div>
@@ -1166,8 +1362,21 @@ export function MyProjectDetailPage({
               </button>
               <button
                 type="button"
-                onClick={() => {
+                onClick={async () => {
                   const targetMember = members.find((m) => m.email === ratingTarget)
+                  const targetContract = contractsData?.data?.find(
+                    (c) => c.freelancerEmail?.toLowerCase() === ratingTarget?.toLowerCase(),
+                  )
+                  if (targetContract) {
+                    try {
+                      await completeContractMutation.mutateAsync({
+                        contractId: targetContract.id,
+                        payload: { rating: ratingStars, comment: ratingComment },
+                      })
+                    } catch {
+                      // Handled gracefully
+                    }
+                  }
                   setMembers((prev) => prev.filter((m) => m.email !== ratingTarget))
                   setRatingTarget(null)
                   toast.success(

@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { BriefcaseIcon, FileTextIcon } from '@phosphor-icons/react'
+import { BriefcaseIcon, DownloadSimpleIcon, FileTextIcon } from '@phosphor-icons/react'
 import { Avatar } from '@/components/ui'
 import type { MyProject } from '@/features/projects'
 import { CancelModal } from '@/features/projects'
+import { useContractDetail } from '@/features/contracts'
 
 interface EmployeeProjectDetailPageProps {
   project: MyProject
@@ -16,7 +17,19 @@ export function EmployeeProjectDetailPage({
   onCancelContract,
 }: EmployeeProjectDetailPageProps) {
   const [showCancel, setShowCancel] = useState(false)
+  const isRealBackendContract = typeof project.id === 'string' && !project.id.startsWith('local-')
+  const { data: contractDetail } = useContractDetail(
+    isRealBackendContract ? String(project.id) : undefined,
+  )
+
   const myContract = project.members[0]
+  const effectiveStartedAt = contractDetail?.startedAt
+    ? new Date(contractDetail.startedAt).toLocaleDateString('vi-VN')
+    : '01/10/2026'
+  const effectiveFinishedAt = contractDetail?.finishedAt
+    ? new Date(contractDetail.finishedAt).toLocaleDateString('vi-VN')
+    : (project.dueDate ?? '—')
+  const termsUrl = contractDetail?.termsFileUrl
 
   return (
     <div className="min-h-full px-4 py-7 pb-12 !bg-[var(--bg-base)]">
@@ -71,7 +84,7 @@ export function EmployeeProjectDetailPage({
               </button>
             </div>
 
-            {/* Chi tiết hợp đồng chi tiết */}
+            {/* Chi tiết hợp đồng */}
             <div className="mt-4 border-t pt-4 !border-[var(--border-subtle)]">
               <h3 className="mb-3 text-sm font-bold !text-[var(--text-primary)]">
                 Chi tiết hợp đồng
@@ -126,31 +139,43 @@ export function EmployeeProjectDetailPage({
                   <span className="w-44 font-semibold !text-[var(--text-secondary)]">
                     Ngày bắt đầu:
                   </span>
-                  <span>01/10/2026</span>
+                  <span>{effectiveStartedAt}</span>
                 </div>
 
                 <div className="flex flex-col sm:flex-row sm:items-center">
                   <span className="w-44 font-semibold !text-[var(--text-secondary)]">
                     Ngày kết thúc:
                   </span>
-                  <span>{project.dueDate ?? '—'}</span>
+                  <span>{effectiveFinishedAt}</span>
                 </div>
 
                 <div className="flex flex-col sm:flex-row sm:items-center">
                   <span className="w-44 font-semibold !text-[var(--text-secondary)]">
-                    File hợp đồng:
+                    File điều khoản hợp đồng:
                   </span>
-                  <a
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      alert(`Mở tài liệu: HopDong_${project.id}.pdf`)
-                    }}
-                    className="inline-flex items-center gap-1.5 rounded px-3 py-1 font-bold no-underline transition-colors !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)] hover:!bg-[var(--color-primary-100)]"
-                  >
-                    <FileTextIcon size={15} weight="bold" />
-                    <span>HopDong_{project.id}.pdf</span>
-                  </a>
+                  {termsUrl ? (
+                    <a
+                      href={termsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded px-3 py-1 font-bold no-underline transition-colors !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)] hover:!bg-[var(--color-primary-100)]"
+                    >
+                      <DownloadSimpleIcon size={15} weight="bold" />
+                      <span>Tải tài liệu hợp đồng ký kết</span>
+                    </a>
+                  ) : (
+                    <a
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        alert(`Mở tài liệu: HopDong_${project.id}.pdf`)
+                      }}
+                      className="inline-flex items-center gap-1.5 rounded px-3 py-1 font-bold no-underline transition-colors !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)] hover:!bg-[var(--color-primary-100)]"
+                    >
+                      <FileTextIcon size={15} weight="bold" />
+                      <span>HopDong_{project.id}.pdf</span>
+                    </a>
+                  )}
                 </div>
 
                 <div className="flex flex-col sm:flex-row sm:items-center">

@@ -15,6 +15,7 @@ import {
   rejectInvitation,
 } from '../api'
 import type { UpdateProjectPayload } from '../types'
+import { contractKeys } from '@/features/contracts'
 
 export const projectKeys = {
   all: ['projects'] as const,
@@ -41,13 +42,13 @@ export function useProjects(employerId?: string) {
   })
 
   const employeeProjectsQuery = useQuery({
-    queryKey: projectKeys.employee(),
-    queryFn: getEmployeeProjects,
+    queryKey: employerId ? [...projectKeys.employee(), employerId] : projectKeys.employee(),
+    queryFn: () => getEmployeeProjects(employerId),
   })
 
   const pendingQuery = useQuery({
-    queryKey: projectKeys.pending(),
-    queryFn: getPendingProjects,
+    queryKey: employerId ? [...projectKeys.pending(), employerId] : projectKeys.pending(),
+    queryFn: () => getPendingProjects(employerId),
   })
 
   const createProjectMutation = useMutation({
@@ -77,8 +78,13 @@ export function useProjects(employerId?: string) {
 
   const createContractMutation = useMutation({
     mutationFn: createContract,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: projectKeys.my() })
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.all })
+      queryClient.invalidateQueries({ queryKey: ['jobs'] })
+      queryClient.invalidateQueries({ queryKey: contractKeys.all })
+      if (variables?.projectId) {
+        queryClient.invalidateQueries({ queryKey: projectKeys.detail(variables.projectId) })
+      }
     },
   })
 
@@ -95,6 +101,7 @@ export function useProjects(employerId?: string) {
       cancelEmployeeProject(projectId, reason),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: projectKeys.employee() })
+      queryClient.invalidateQueries({ queryKey: contractKeys.all })
     },
   })
 
@@ -116,6 +123,7 @@ export function useProjects(employerId?: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: projectKeys.pending() })
       queryClient.invalidateQueries({ queryKey: projectKeys.employee() })
+      queryClient.invalidateQueries({ queryKey: contractKeys.all })
     },
   })
 
@@ -123,6 +131,7 @@ export function useProjects(employerId?: string) {
     mutationFn: rejectInvitation,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: projectKeys.pending() })
+      queryClient.invalidateQueries({ queryKey: contractKeys.all })
     },
   })
 

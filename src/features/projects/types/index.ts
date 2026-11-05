@@ -7,12 +7,14 @@ export interface ProjectRole {
   salaryRange?: string
   slotsTotal?: number
   slotsFilled?: number
-  status?: 'recruiting' | 'filled'
+  status?: 'recruiting' | 'filled' | 'closed'
   assignedMemberName?: string
   jobDescription?: string
 }
 
 export interface ProjectMember {
+  id?: string
+  contractId?: string
   name: string
   email: string
   price: string
@@ -23,7 +25,7 @@ export interface ProjectMember {
 }
 
 export interface PendingProject {
-  id: number
+  id: number | string
   name: string
   owner: string
   ownerAvatar?: string
@@ -67,7 +69,7 @@ export interface FreelancerReview {
 }
 
 export interface ApplicantProposal {
-  id: number
+  id: number | string
   name: string
   bid: string
   salaryCycle: string
@@ -87,6 +89,9 @@ export interface ApplicantProposal {
   phone: string
   location: string
   appliedDate: string
+  projectId?: string
+  jobId?: string
+  cvFileUrl?: string
 }
 
 export interface CreateProjectFormData {
@@ -101,6 +106,7 @@ export interface CreateProjectFormData {
 }
 
 export interface CreateContractFormData {
+  projectId?: string
   title: string
   value: string
   period: string
@@ -121,6 +127,8 @@ export interface CreateContractFormData {
   termsFileName?: string
   paymentType?: 'milestone' | 'period'
   invitationMessage?: string
+  jobId?: string
+  file?: File | null
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -155,6 +163,7 @@ export interface ProjectJob {
   budget?: number
   status?: string
   skills?: string[] | JobSkill[]
+  deletedAt?: string | null
   createdAt?: string
 }
 
@@ -165,6 +174,8 @@ export interface ProjectSummary {
   startPrice?: number
   period: ProjectPeriod
   dueDate?: string
+  startDate?: string
+  endDate?: string
   experienceLevel?: ProjectExperienceLevel
   status: ProjectStatus
   closedAt?: string | null
@@ -180,6 +191,8 @@ export interface ProjectDetail {
   startPrice?: number
   period: ProjectPeriod
   dueDate?: string
+  startDate?: string
+  endDate?: string
   experienceLevel?: ProjectExperienceLevel
   status: ProjectStatus
   closedAt?: string | null
@@ -195,6 +208,8 @@ export interface CreateProjectPayload {
   startPrice?: number
   period: ProjectPeriod
   dueDate?: string
+  startDate?: string
+  endDate?: string
   bidCloseDate?: string
   experienceLevel?: ProjectExperienceLevel
   skillIds?: string[]
@@ -206,6 +221,8 @@ export interface UpdateProjectPayload {
   startPrice?: number
   period?: ProjectPeriod
   dueDate?: string
+  startDate?: string
+  endDate?: string
   bidCloseDate?: string
   experienceLevel?: ProjectExperienceLevel
 }
@@ -261,37 +278,47 @@ export function toMyProject(detail: ProjectDetail | ProjectSummary): MyProject {
 
   const recruitingRoles =
     'jobs' in detail && detail.jobs && detail.jobs.length > 0
-      ? detail.jobs.map((job) => {
-          const rawSkills: Array<string | JobSkill> = job.skills || []
-          const skills: string[] = rawSkills
-            .map((s) => (typeof s === 'string' ? s : s?.name))
-            .filter((s): s is string => Boolean(s))
+      ? detail.jobs
+          .filter((job) => !job.deletedAt)
+          .map((job) => {
+            const rawSkills: Array<string | JobSkill> = job.skills || []
+            const skills: string[] = rawSkills
+              .map((s) => (typeof s === 'string' ? s : s?.name))
+              .filter((s): s is string => Boolean(s))
 
-          let salaryRange = formattedSalary
-          if (job.budgetMin != null && job.budgetMax != null) {
-            salaryRange = `${job.budgetMin.toLocaleString('vi-VN')} - ${job.budgetMax.toLocaleString('vi-VN')} ₫`
-          } else if (job.budgetMin != null) {
-            salaryRange = `Từ ${job.budgetMin.toLocaleString('vi-VN')} ₫`
-          } else if (job.budget != null) {
-            salaryRange = `${job.budget.toLocaleString('vi-VN')} ₫`
-          }
+            let salaryRange = formattedSalary
+            if (job.budgetMin != null && job.budgetMax != null) {
+              salaryRange = `${job.budgetMin.toLocaleString('vi-VN')} - ${job.budgetMax.toLocaleString('vi-VN')} ₫`
+            } else if (job.budgetMin != null) {
+              salaryRange = `Từ ${job.budgetMin.toLocaleString('vi-VN')} ₫`
+            } else if (job.budget != null) {
+              salaryRange = `${job.budget.toLocaleString('vi-VN')} ₫`
+            }
 
-          const isFilled = String(job.status || '').toUpperCase() === 'FILLED'
-          const roleStatus: 'recruiting' | 'filled' = isFilled ? 'filled' : 'recruiting'
-          const slots = job.quantity || job.headcount || 1
+            const rawStatus = String(job.status || '').toUpperCase()
+            const roleStatus: 'recruiting' | 'filled' | 'closed' =
+              rawStatus === 'FILLED' ? 'filled' : rawStatus === 'CLOSED' ? 'closed' : 'recruiting'
+            const slots = job.quantity || job.headcount || 1
 
-          return {
-            id: job.id,
-            title: job.title,
-            skills,
-            salaryRange,
-            slotsTotal: slots,
-            slotsFilled: isFilled ? slots : 0,
-            status: roleStatus,
-            jobDescription: job.description,
-          }
-        })
+            return {
+              id: job.id,
+              title: job.title,
+              skills,
+              salaryRange,
+              slotsTotal: slots,
+              slotsFilled: rawStatus === 'FILLED' ? slots : 0,
+              status: roleStatus,
+              jobDescription: job.description,
+            }
+          })
       : []
+
+  const rawStartDate = 'startDate' in detail ? detail.startDate : undefined
+  const bidCloseDate = rawStartDate
+    ? rawStartDate.split('T')[0]
+    : 'bidCloseDate' in detail
+      ? (detail as { bidCloseDate?: string }).bidCloseDate
+      : undefined
 
   return {
     id: detail.id,
@@ -302,6 +329,7 @@ export function toMyProject(detail: ProjectDetail | ProjectSummary): MyProject {
     ownerRating: 5.0,
     period: periodLabel,
     dueDate: detail.dueDate,
+    bidCloseDate,
     startPrice: detail.startPrice,
     status: detail.status,
     closedAt: 'closedAt' in detail ? detail.closedAt : null,
