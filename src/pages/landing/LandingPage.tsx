@@ -4,7 +4,7 @@ import type { CredentialResponse } from '@react-oauth/google'
 import { BrandPanel, AuthPanel } from './components'
 import { useGoogleLogin } from '@/features/auth/hooks'
 import { getAuthErrorMessage } from '@/features/auth/utils'
-import { toast } from '@/stores'
+import { toast, useAuthStore } from '@/stores'
 
 export interface LandingPageProps {
   onLogin?: () => void
@@ -43,7 +43,12 @@ export function LandingPage({ onLogin, onSignUp, onGoogle, onAdmin }: LandingPag
     if (onGoogle) {
       onGoogle()
     } else {
-      navigate('/home')
+      const user = useAuthStore.getState().user
+      if (user?.role?.toUpperCase() === 'ADMIN') {
+        navigate('/admin')
+      } else {
+        navigate('/home')
+      }
     }
   }, [onGoogle, navigate])
 
@@ -54,11 +59,16 @@ export function LandingPage({ onLogin, onSignUp, onGoogle, onAdmin }: LandingPag
         return
       }
       try {
-        await googleLoginMutation.mutateAsync(credentialResponse.credential)
+        const data = await googleLoginMutation.mutateAsync(credentialResponse.credential)
         if (onGoogle) {
           onGoogle()
         } else {
-          navigate('/home')
+          const role = data?.user?.role || useAuthStore.getState().user?.role
+          if (role?.toUpperCase() === 'ADMIN') {
+            navigate('/admin')
+          } else {
+            navigate('/home')
+          }
         }
       } catch (err: unknown) {
         toast.error(getAuthErrorMessage(err, 'Đăng nhập bằng Google không thành công.'))
