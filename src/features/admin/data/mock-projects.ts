@@ -2,9 +2,9 @@ import type { AdminProject } from '../types'
 
 export const ADMIN_PROJECTS_DATA: AdminProject[] = [
   {
-    id: 1,
+    id: 'd0100000-0000-0000-0000-000000000001',
     title: 'Thiết kế UI/UX cho ứng dụng quản lý nội bộ',
-    owner: { name: 'Phạm Quỳnh Anh', initials: 'QA', color: '#8B5CF6' },
+    owner: { name: 'Phạm Quỳnh Anh', initials: 'QA', color: '#8B5CF6', email: 'quynhanh@shopee.com' },
     budget: '15.000.000 ₫',
     budgetType: 'Cố định',
     field: 'Thiết kế',
@@ -14,6 +14,8 @@ export const ADMIN_PROJECTS_DATA: AdminProject[] = [
     description:
       'Cần designer có kinh nghiệm thiết kế hệ thống quản lý nội bộ cho doanh nghiệp vừa và nhỏ. Hệ thống bao gồm dashboard, báo cáo, và quản lý nhân sự.',
     skills: ['Figma', 'UI/UX', 'Design System', 'Prototyping'],
+    reportCount: 0,
+    reports: [],
     applicantList: [
       {
         name: 'Lê Văn Đức',
@@ -32,9 +34,9 @@ export const ADMIN_PROJECTS_DATA: AdminProject[] = [
     ],
   },
   {
-    id: 2,
+    id: 'd0100000-0000-0000-0000-000000000002',
     title: 'Phát triển backend API cho hệ thống thương mại điện tử',
-    owner: { name: 'Trần Thị Hương', initials: 'TH', color: '#057642' },
+    owner: { name: 'Trần Thị Hương', initials: 'TH', color: '#057642', email: 'thuong.tran@tiki.vn' },
     budget: '25.000.000 ₫',
     budgetType: 'Hàng tháng',
     field: 'Lập trình',
@@ -44,6 +46,8 @@ export const ADMIN_PROJECTS_DATA: AdminProject[] = [
     description:
       'Cần backend developer với kinh nghiệm Node.js hoặc Golang để xây dựng hệ thống API RESTful, tích hợp cổng thanh toán, và xử lý đơn hàng.',
     skills: ['Node.js', 'PostgreSQL', 'Redis', 'Docker'],
+    reportCount: 0,
+    reports: [],
     applicantList: [
       {
         name: 'Ngô Đức Hải',
@@ -55,9 +59,9 @@ export const ADMIN_PROJECTS_DATA: AdminProject[] = [
     ],
   },
   {
-    id: 3,
+    id: 'd0100000-0000-0000-0000-000000000003',
     title: 'Marketing content cho chiến dịch ra mắt sản phẩm Q4',
-    owner: { name: 'Đỗ Thị Lan Anh', initials: 'LA', color: '#0891B2' },
+    owner: { name: 'Đỗ Thị Lan Anh', initials: 'LA', color: '#0891B2', email: 'lananh.do@gmail.com' },
     budget: '8.000.000 ₫',
     budgetType: 'Cố định',
     field: 'Marketing',
@@ -67,6 +71,8 @@ export const ADMIN_PROJECTS_DATA: AdminProject[] = [
     description:
       'Cần content writer và marketer để xây dựng chiến lược nội dung, viết bài blog, email marketing và quản lý mạng xã hội cho chiến dịch Q4.',
     skills: ['Content Writing', 'SEO', 'Social Media', 'Email Marketing'],
+    reportCount: 0,
+    reports: [],
     applicantList: [
       {
         name: 'Bùi Thị Ngọc',
@@ -85,9 +91,9 @@ export const ADMIN_PROJECTS_DATA: AdminProject[] = [
     ],
   },
   {
-    id: 4,
+    id: 'd0100000-0000-0000-0000-000000000004',
     title: 'Xây dựng hệ thống CRM cho doanh nghiệp bảo hiểm',
-    owner: { name: 'Cao Trung Kiên', initials: 'CK', color: '#16A34A' },
+    owner: { name: 'Cao Trung Kiên', initials: 'CK', color: '#16A34A', email: 'kien.cao@fpt.com' },
     budget: '40.000.000 ₫',
     budgetType: 'Hàng tháng',
     field: 'Lập trình',
@@ -97,12 +103,27 @@ export const ADMIN_PROJECTS_DATA: AdminProject[] = [
     description:
       'Cần team full-stack xây dựng CRM tích hợp với hệ thống bảo hiểm hiện có, bao gồm quản lý khách hàng, hợp đồng, và tự động hóa quy trình.',
     skills: ['React', 'Django', 'PostgreSQL', 'AWS'],
+    reportCount: 1,
+    reports: [
+      {
+        id: 'rep-00000000-0000-0000-0000-000000000001',
+        reporterName: 'Lê Văn Đức',
+        reporterEmail: 'leduc.dev@gmail.com',
+        reporterInitials: 'LĐ',
+        reporterColor: '#B06000',
+        violationCategory: 'Giao dịch ngoài nền tảng',
+        description:
+          'Chủ dự án chủ động gửi link nhóm Telegram và yêu cầu lập trình viên chuyển sang Zalo trao đổi, muốn chuyển khoản ngoài để né phí sàn.',
+        createdAt: '15/09/2026 10:20',
+        status: 'PENDING',
+      },
+    ],
     applicantList: [],
   },
   {
-    id: 5,
+    id: 'd0100000-0000-0000-0000-000000000005',
     title: 'Thiết kế logo và bộ nhận diện thương hiệu startup fintech',
-    owner: { name: 'Đinh Thị Thu', initials: 'DT', color: '#EC4899' },
+    owner: { name: 'Đinh Thị Thu', initials: 'DT', color: '#EC4899', email: 'dinhthu@fintech.vn' },
     budget: '6.000.000 ₫',
     budgetType: 'Cố định',
     field: 'Thiết kế',
@@ -112,6 +133,8 @@ export const ADMIN_PROJECTS_DATA: AdminProject[] = [
     description:
       'Cần graphic designer thiết kế logo, bảng màu, typography, và các tài liệu truyền thông cơ bản cho startup fintech mới thành lập.',
     skills: ['Illustrator', 'Branding', 'Logo Design', 'Typography'],
+    reportCount: 0,
+    reports: [],
     applicantList: [
       {
         name: 'Nguyễn Minh Khoa',
@@ -123,9 +146,9 @@ export const ADMIN_PROJECTS_DATA: AdminProject[] = [
     ],
   },
   {
-    id: 6,
+    id: 'd0100000-0000-0000-0000-000000000006',
     title: 'Data Analytics dashboard cho hệ thống logistics',
-    owner: { name: 'Vũ Tiến Dũng', initials: 'VD', color: '#C03A2B' },
+    owner: { name: 'Vũ Tiến Dũng', initials: 'VD', color: '#C03A2B', email: 'tiendung.vu@vnpay.vn' },
     budget: '20.000.000 ₫',
     budgetType: 'Cố định',
     field: 'Data / AI',
@@ -135,6 +158,33 @@ export const ADMIN_PROJECTS_DATA: AdminProject[] = [
     description:
       'Cần data analyst xây dựng dashboard theo dõi hiệu suất vận chuyển, phân tích tuyến đường, và dự báo nhu cầu bằng Power BI hoặc Tableau.',
     skills: ['Power BI', 'SQL', 'Python', 'Data Visualization'],
+    reportCount: 2,
+    reports: [
+      {
+        id: 'rep-00000000-0000-0000-0000-000000000002',
+        reporterName: 'Nguyễn Minh Khoa',
+        reporterEmail: 'minhkhoa@gmail.com',
+        reporterInitials: 'NK',
+        reporterColor: '#0A66C2',
+        violationCategory: 'Dấu hiệu lừa đảo / Chiếm đoạt',
+        description:
+          'Chủ dự án yêu cầu ứng viên làm bài test thực tế toàn bộ luồng phân tích dữ liệu kho bãi (chiếm hơn 2 tuần làm việc) không trả phí, sau khi nhận code xong thì cắt đứt liên lạc.',
+        createdAt: '09/09/2026 14:45',
+        status: 'INVESTIGATING',
+      },
+      {
+        id: 'rep-00000000-0000-0000-0000-000000000003',
+        reporterName: 'Đinh Thị Thu',
+        reporterEmail: 'dinhthu@fintech.vn',
+        reporterInitials: 'DT',
+        reporterColor: '#EC4899',
+        violationCategory: 'Spam / Dự án ảo',
+        description:
+          'Tài khoản này liên tục đăng lại nội dung dự án giống hệt nhau dưới nhiều danh xưng khác nhau để thu thập CV ứng viên.',
+        createdAt: '11/09/2026 09:15',
+        status: 'PENDING',
+      },
+    ],
     applicantList: [
       {
         name: 'Cao Trung Kiên',
