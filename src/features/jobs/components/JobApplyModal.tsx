@@ -59,10 +59,10 @@ export function JobApplyModal({ isOpen, onClose, job, role, onApplySuccess }: Jo
   )
   const [fixedDeliveryDays, setFixedDeliveryDays] = React.useState('14 ngày')
   const [weeklyHours, setWeeklyHours] = React.useState('30 - 40 giờ / tuần (Toàn thời gian)')
-  const [cvFile, setCvFile] = React.useState<{ name: string; size: string } | null>({
-    name: 'CV_UngVien_ChuyenNghiep.pdf',
-    size: '1.8 MB',
-  })
+  const [message, setMessage] = React.useState(
+    `Xin chào nhà tuyển dụng! Tôi rất quan tâm đến vị trí ${role.title} trong dự án "${job.title}". Với kỹ năng và kinh nghiệm thực chiến phù hợp, tôi rất mong có cơ hội được cùng hợp tác để đưa dự án đạt kết quả tốt nhất.`,
+  )
+  const [selectedCvFile, setSelectedCvFile] = React.useState<File | null>(null)
   const [portfolioLink, setPortfolioLink] = React.useState('')
   const cvFileInputRef = React.useRef<HTMLInputElement>(null)
 
@@ -84,9 +84,44 @@ export function JobApplyModal({ isOpen, onClose, job, role, onApplySuccess }: Jo
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      const sizeMb = (file.size / (1024 * 1024)).toFixed(1)
-      setCvFile({ name: file.name, size: `${sizeMb} MB` })
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error('Dung lượng file CV không được vượt quá 10MB')
+        return
+      }
+      setSelectedCvFile(file)
     }
+  }
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const file = e.dataTransfer.files?.[0]
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error('Dung lượng file CV không được vượt quá 10MB')
+        return
+      }
+      setSelectedCvFile(file)
+    }
+  }
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  const handleClearCvFile = () => {
+    setSelectedCvFile(null)
+    if (cvFileInputRef.current) {
+      cvFileInputRef.current.value = ''
+    }
+  }
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024 * 1024) {
+      return `${Math.round(bytes / 1024)} KB`
+    }
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
   }
 
   const handleSubmit = (e: React.SyntheticEvent) => {
@@ -96,16 +131,29 @@ export function JobApplyModal({ isOpen, onClose, job, role, onApplySuccess }: Jo
       return
     }
 
+    const cleanPrice = Number(bidPrice.replace(/\D/g, ''))
+    if (!cleanPrice || cleanPrice <= 0) {
+      toast.error('Mức thù lao mong muốn phải lớn hơn 0')
+      return
+    }
+
+    if (!message.trim()) {
+      toast.error('Vui lòng nhập thư giới thiệu / lời nhắn ứng tuyển')
+      return
+    }
+
     applyMutation(
       {
         jobId: job.id,
         roleId: role.id,
         salaryCycle,
         bidPrice,
+        proposedRate: cleanPrice,
+        message: message.trim(),
         commitment: salaryCycle !== 'fixed' ? commitment : undefined,
         fixedDeliveryDays: salaryCycle === 'fixed' ? fixedDeliveryDays : undefined,
         weeklyHours: salaryCycle === 'hourly' ? weeklyHours : undefined,
-        cvFile,
+        cvFile: selectedCvFile,
         portfolioLink: portfolioLink.trim() || undefined,
       },
       {
@@ -113,11 +161,32 @@ export function JobApplyModal({ isOpen, onClose, job, role, onApplySuccess }: Jo
           onApplySuccess(role.id, role.title)
           onClose()
           toast.success(
-            `Đã nộp hồ sơ ứng tuyển vai trò "${role.title}" thành công! Khách hàng sẽ phản hồi qua tin nhắn.`,
+            `Đã nộp hồ sơ ứng tuyển vai trò "${role.title}" thành công! Nhà tuyển dụng sẽ phản hồi qua hệ thống.`,
           )
         },
-        onError: () => {
-          toast.error('Có lỗi xảy ra khi nộp hồ sơ, vui lòng thử lại sau.')
+        onError: (err: unknown) => {
+          const apiError = err as { message?: string; errorCode?: string }
+          if (apiError?.errorCode === 'BID_004' || apiError?.message?.includes('already')) {
+            toast.error('Bạn đã nộp hồ sơ ứng tuyển cho vị trí này rồi.')
+          } else if (apiError?.errorCode === 'BID_003' || apiError?.message?.includes('own')) {
+            toast.error('Bạn không thể tự ứng tuyển vào dự án của chính mình.')
+          } else if (
+            apiError?.errorCode === 'BID_007' ||
+            apiError?.message?.includes('recruiting')
+          ) {
+            toast.error('Vị trí này hiện tại không còn nhận thêm hồ sơ tuyển dụng.')
+          } else if (apiError?.errorCode === 'BID_008' || apiError?.message?.includes('closed')) {
+            toast.error('Dự án đã đóng hoặc đã hết thời hạn nhận hồ sơ.')
+          } else if (
+            apiError?.message?.includes('Only users are permitted') ||
+            apiError?.errorCode === 'SYS_004'
+          ) {
+            toast.error('Chỉ tài khoản người tìm việc (freelancer) mới có thể nộp đơn ứng tuyển.')
+          } else if (apiError?.message) {
+            toast.error(apiError.message)
+          } else {
+            toast.error('Có lỗi xảy ra khi nộp hồ sơ, vui lòng thử lại sau.')
+          }
         },
       },
     )
@@ -263,6 +332,7 @@ export function JobApplyModal({ isOpen, onClose, job, role, onApplySuccess }: Jo
                 id="apply-salary-cycle"
                 value={salaryCycle}
                 onChange={(e) => handleCycleChange(e.target.value as JobSalaryCycle)}
+                disabled={isPending}
                 style={{
                   width: '100%',
                   padding: '9px 12px',
@@ -312,6 +382,7 @@ export function JobApplyModal({ isOpen, onClose, job, role, onApplySuccess }: Jo
                 type="text"
                 value={bidPrice}
                 onChange={(e) => setBidPrice(e.target.value)}
+                disabled={isPending}
                 placeholder={salaryCycle === 'hourly' ? 'VD: 450.000 ₫' : 'VD: 35.000.000 ₫'}
                 style={{
                   width: '100%',
@@ -349,6 +420,7 @@ export function JobApplyModal({ isOpen, onClose, job, role, onApplySuccess }: Jo
                 type="text"
                 value={fixedDeliveryDays}
                 onChange={(e) => setFixedDeliveryDays(e.target.value)}
+                disabled={isPending}
                 placeholder="Ví dụ: 14 ngày hoặc 1 tháng"
                 style={{
                   width: '100%',
@@ -388,6 +460,7 @@ export function JobApplyModal({ isOpen, onClose, job, role, onApplySuccess }: Jo
                   id="apply-commitment"
                   value={commitment}
                   onChange={(e) => setCommitment(e.target.value)}
+                  disabled={isPending}
                   style={{
                     width: '100%',
                     padding: '9px 12px',
@@ -434,6 +507,7 @@ export function JobApplyModal({ isOpen, onClose, job, role, onApplySuccess }: Jo
                     id="apply-weekly-hours"
                     value={weeklyHours}
                     onChange={(e) => setWeeklyHours(e.target.value)}
+                    disabled={isPending}
                     style={{
                       width: '100%',
                       padding: '9px 12px',
@@ -462,7 +536,55 @@ export function JobApplyModal({ isOpen, onClose, job, role, onApplySuccess }: Jo
             </div>
           )}
 
-          {/* Row 3: Đính kèm File CV */}
+          {/* Row 3: Lời nhắn / Thư giới thiệu */}
+          <div>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: 6,
+              }}
+            >
+              <label
+                htmlFor="apply-message"
+                style={{
+                  fontSize: 12.5,
+                  fontWeight: 700,
+                  color: 'var(--text-primary)',
+                }}
+              >
+                Thư giới thiệu / Lời nhắn ứng tuyển{' '}
+                <span style={{ color: 'var(--color-error-fg)' }}>*</span>
+              </label>
+              <span style={{ fontSize: 11.5, color: 'var(--text-tertiary)' }}>
+                {message.length}/5000 ký tự
+              </span>
+            </div>
+            <textarea
+              id="apply-message"
+              rows={4}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              disabled={isPending}
+              placeholder="Giới thiệu kinh nghiệm, thế mạnh và lý do bạn là ứng viên phù hợp nhất cho vai trò này..."
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                borderRadius: 6,
+                border: '1px solid var(--border-strong)',
+                fontSize: 13.5,
+                outline: 'none',
+                fontFamily: 'inherit',
+                boxSizing: 'border-box',
+                resize: 'vertical',
+                lineHeight: 1.5,
+              }}
+              required
+            />
+          </div>
+
+          {/* Row 4: Đính kèm File CV */}
           <div>
             <div
               style={{
@@ -480,10 +602,12 @@ export function JobApplyModal({ isOpen, onClose, job, role, onApplySuccess }: Jo
                 }}
               >
                 Đính kèm File CV (Curriculum Vitae){' '}
-                <span style={{ color: 'var(--color-error-fg)' }}>*</span>
+                <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-tertiary)' }}>
+                  (Tùy chọn)
+                </span>
               </label>
               <span style={{ fontSize: 11.5, color: 'var(--text-tertiary)' }}>
-                Hỗ trợ file .PDF, .DOCX (Tối đa 10MB)
+                Hỗ trợ file .PDF, .DOC, .DOCX (Tối đa 10MB)
               </span>
             </div>
 
@@ -495,7 +619,7 @@ export function JobApplyModal({ isOpen, onClose, job, role, onApplySuccess }: Jo
               onChange={handleFileChange}
             />
 
-            {cvFile ? (
+            {selectedCvFile ? (
               <div
                 style={{
                   display: 'flex',
@@ -530,7 +654,7 @@ export function JobApplyModal({ isOpen, onClose, job, role, onApplySuccess }: Jo
                         color: 'var(--text-primary)',
                       }}
                     >
-                      {cvFile.name}
+                      {selectedCvFile.name}
                     </div>
                     <div
                       style={{
@@ -539,7 +663,7 @@ export function JobApplyModal({ isOpen, onClose, job, role, onApplySuccess }: Jo
                         marginTop: 1,
                       }}
                     >
-                      {cvFile.size} · Đã đính kèm sẵn sàng gửi
+                      {formatFileSize(selectedCvFile.size)} · Đã đính kèm sẵn sàng gửi
                     </div>
                   </div>
                 </div>
@@ -547,6 +671,7 @@ export function JobApplyModal({ isOpen, onClose, job, role, onApplySuccess }: Jo
                   <button
                     type="button"
                     onClick={() => cvFileInputRef.current?.click()}
+                    disabled={isPending}
                     style={{
                       background: '#fff',
                       border: '1px solid var(--border-strong)',
@@ -563,7 +688,8 @@ export function JobApplyModal({ isOpen, onClose, job, role, onApplySuccess }: Jo
                   </button>
                   <button
                     type="button"
-                    onClick={() => setCvFile(null)}
+                    onClick={handleClearCvFile}
+                    disabled={isPending}
                     aria-label="Xóa file đính kèm"
                     style={{
                       background: 'none',
@@ -581,6 +707,8 @@ export function JobApplyModal({ isOpen, onClose, job, role, onApplySuccess }: Jo
             ) : (
               <div
                 onClick={() => cvFileInputRef.current?.click()}
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => {
@@ -595,16 +723,20 @@ export function JobApplyModal({ isOpen, onClose, job, role, onApplySuccess }: Jo
                   padding: '16px 14px',
                   textAlign: 'center',
                   background: 'var(--bg-subtle)',
-                  cursor: 'pointer',
+                  cursor: isPending ? 'not-allowed' : 'pointer',
                   transition: 'all 150ms ease',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--color-primary-500)'
-                  e.currentTarget.style.background = 'var(--color-primary-50)'
+                  if (!isPending) {
+                    e.currentTarget.style.borderColor = 'var(--color-primary-500)'
+                    e.currentTarget.style.background = 'var(--color-primary-50)'
+                  }
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--border-strong)'
-                  e.currentTarget.style.background = 'var(--bg-subtle)'
+                  if (!isPending) {
+                    e.currentTarget.style.borderColor = 'var(--border-strong)'
+                    e.currentTarget.style.background = 'var(--bg-subtle)'
+                  }
                 }}
               >
                 <UploadSimpleIcon
@@ -636,7 +768,7 @@ export function JobApplyModal({ isOpen, onClose, job, role, onApplySuccess }: Jo
             )}
           </div>
 
-          {/* Row 4: Link Portfolio / GitHub */}
+          {/* Row 5: Link Portfolio / GitHub */}
           <div>
             <label
               htmlFor="apply-portfolio"
@@ -669,6 +801,7 @@ export function JobApplyModal({ isOpen, onClose, job, role, onApplySuccess }: Jo
                 type="url"
                 value={portfolioLink}
                 onChange={(e) => setPortfolioLink(e.target.value)}
+                disabled={isPending}
                 placeholder="https://behance.net/your-profile hoặc https://github.com/..."
                 style={{
                   width: '100%',
@@ -705,14 +838,18 @@ export function JobApplyModal({ isOpen, onClose, job, role, onApplySuccess }: Jo
                 border: '1px solid var(--border-default)',
                 background: '#fff',
                 color: 'var(--text-secondary)',
-                cursor: 'pointer',
+                cursor: isPending ? 'not-allowed' : 'pointer',
                 fontSize: 13.5,
                 fontWeight: 600,
                 fontFamily: 'inherit',
                 transition: 'all 120ms ease',
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-base)')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = '#fff')}
+              onMouseEnter={(e) => {
+                if (!isPending) e.currentTarget.style.background = 'var(--bg-base)'
+              }}
+              onMouseLeave={(e) => {
+                if (!isPending) e.currentTarget.style.background = '#fff'
+              }}
             >
               Hủy
             </button>
