@@ -90,4 +90,3 @@ test('toPendingProjectFromContract maps PENDING contract to PendingProject', () 
   assert.equal(pending.invitedRole, 'DevOps Lead')
   assert.equal(pending.price, '40.000.000 ₫')
 })
-

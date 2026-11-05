@@ -39,10 +39,7 @@ export async function updateContract(
     message: payload.message,
     freelancer_gmail: payload.freelancerEmail,
   }
-  formData.append(
-    'data',
-    new Blob([JSON.stringify(requestData)], { type: 'application/json' }),
-  )
+  formData.append('data', new Blob([JSON.stringify(requestData)], { type: 'application/json' }))
   if (payload.file) {
     formData.append('file', payload.file)
   }
@@ -86,4 +83,3 @@ export async function completeContract(
 export async function deleteContract(contractId: string): Promise<SuccessResponse> {
   return await apiClient.delete<SuccessResponse>(`/contracts/${contractId}`)
 }
-

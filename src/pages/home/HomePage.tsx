@@ -171,7 +171,8 @@ export function HomePage({
 
   // Local saved jobs fallback if not controlled by parent
   const [localSavedJobIds, setLocalSavedJobIds] = React.useState<(string | number)[]>([])
-  const activeSavedJobIds: (string | number)[] = (savedJobIds as (string | number)[] | undefined) ?? localSavedJobIds
+  const activeSavedJobIds: (string | number)[] =
+    (savedJobIds as (string | number)[] | undefined) ?? localSavedJobIds
 
   const handleToggleSave = (id: string | number) => {
     if (onToggleSaveJob) {
@@ -184,7 +185,6 @@ export function HomePage({
     const isNowSaved = !activeSavedJobIds.includes(id)
     toast.info(isNowSaved ? 'Đã lưu công việc vào danh sách yêu thích' : 'Đã bỏ lưu công việc')
   }
-
 
   const handleCreateProject = async (formData: CreateProjectFormData) => {
     try {

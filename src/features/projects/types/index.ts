@@ -297,11 +297,7 @@ export function toMyProject(detail: ProjectDetail | ProjectSummary): MyProject {
 
             const rawStatus = String(job.status || '').toUpperCase()
             const roleStatus: 'recruiting' | 'filled' | 'closed' =
-              rawStatus === 'FILLED'
-                ? 'filled'
-                : rawStatus === 'CLOSED'
-                  ? 'closed'
-                  : 'recruiting'
+              rawStatus === 'FILLED' ? 'filled' : rawStatus === 'CLOSED' ? 'closed' : 'recruiting'
             const slots = job.quantity || job.headcount || 1
 
             return {

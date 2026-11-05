@@ -115,9 +115,9 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
     setSearchParams({ contract: String(p.id) })
   }
 
-  const [activeTab, setActiveTab] = useState<
-    'all' | 'owner' | 'participant' | 'pending' | 'bids'
-  >('all')
+  const [activeTab, setActiveTab] = useState<'all' | 'owner' | 'participant' | 'pending' | 'bids'>(
+    'all',
+  )
   const [searchKeyword, setSearchKeyword] = useState('')
 
   const { data: myBidsData } = useMyBids()
@@ -464,9 +464,7 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
             <div className="mt-0.5 text-xs font-bold !text-[var(--text-primary)]">
               Đơn đã ứng tuyển
             </div>
-            <div className="text-[11px] !text-[var(--text-tertiary)]">
-              Hồ sơ dự thầu cá nhân
-            </div>
+            <div className="text-[11px] !text-[var(--text-tertiary)]">Hồ sơ dự thầu cá nhân</div>
           </div>
         </div>
       </div>

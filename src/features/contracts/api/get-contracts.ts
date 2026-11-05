@@ -13,4 +13,3 @@ export async function getContracts(
     params: params as Record<string, string | number | boolean | undefined | null>,
   })
 }
-

@@ -68,4 +68,3 @@ test('toApplicantProposalFromBid handles ACCEPTED status and HOURLY salary type'
   assert.equal(proposal.status, 'accepted')
   assert.equal(proposal.bid, '300.000 ₫')
 })
-

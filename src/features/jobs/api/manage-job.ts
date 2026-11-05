@@ -47,14 +47,10 @@ export async function updateJob(
     finishedAt: payload.finishedAt,
     skillIds: payload.skillIds,
   }
-  formData.append(
-    'data',
-    new Blob([JSON.stringify(requestData)], { type: 'application/json' }),
-  )
+  formData.append('data', new Blob([JSON.stringify(requestData)], { type: 'application/json' }))
   if (payload.file) {
     formData.append('file', payload.file)
   }
   const res = await apiClient.put<SingleResponse<JobSummaryResponse>>(`/jobs/${jobId}`, formData)
   return res.data
 }
-

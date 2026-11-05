@@ -1,10 +1,5 @@
 import * as React from 'react'
-import {
-  MagnifyingGlassIcon,
-  XIcon,
-  BriefcaseMetalIcon,
-  TrendUpIcon,
-} from '@phosphor-icons/react'
+import { MagnifyingGlassIcon, XIcon, BriefcaseMetalIcon, TrendUpIcon } from '@phosphor-icons/react'
 
 export interface HomeHeroBannerProps {
   searchKeyword: string
@@ -137,8 +132,6 @@ export function HomeHeroBanner({
             )
           })}
         </div>
-
-        
       </div>
     </div>
   )

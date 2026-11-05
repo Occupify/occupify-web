@@ -31,11 +31,7 @@ import {
   useCancelContract,
   useUpdateContract,
 } from '@/features/contracts'
-import {
-  useCloseJob,
-  useDeleteJob,
-  useUpdateJob,
-} from '@/features/jobs'
+import { useCloseJob, useDeleteJob, useUpdateJob } from '@/features/jobs'
 
 interface MyProjectDetailPageProps {
   project: MyProject
@@ -483,7 +479,11 @@ export function MyProjectDetailPage({
                                   : '!border !border-[var(--border-default)] !bg-[var(--bg-subtle)] !text-[var(--text-secondary)]'
                             }`}
                           >
-                            {isRecruiting ? 'Đang tuyển' : isClosed ? 'Đã đóng tuyển' : 'Đã có nhân sự'}
+                            {isRecruiting
+                              ? 'Đang tuyển'
+                              : isClosed
+                                ? 'Đã đóng tuyển'
+                                : 'Đã có nhân sự'}
                           </span>
                         </div>
 
@@ -560,7 +560,9 @@ export function MyProjectDetailPage({
                             onClick={() => {
                               setEditingJobRole(r)
                               setRoleTitleInput(r.title)
-                              setRoleBudgetInput(r.salaryRange ? r.salaryRange.replace(/[^0-9]/g, '') : '')
+                              setRoleBudgetInput(
+                                r.salaryRange ? r.salaryRange.replace(/[^0-9]/g, '') : '',
+                              )
                               setRoleDescInput(r.jobDescription || '')
                             }}
                             className="inline-flex cursor-pointer items-center gap-1 font-semibold !text-[var(--text-secondary)] hover:!text-[var(--color-primary-500)]"
@@ -596,8 +598,6 @@ export function MyProjectDetailPage({
               </div>
             </div>
           )}
-
-
 
           {/* Section: Danh sách ứng viên */}
           <div className="p-6 sm:px-7">
@@ -986,190 +986,197 @@ export function MyProjectDetailPage({
       )}
 
       {/* Contract Detail Modal */}
-      {contractDetailMember && (() => {
-        const targetContract = contractsData?.data?.find(
-          (c) =>
-            c.freelancerEmail?.toLowerCase() === contractDetailMember.email?.toLowerCase() ||
-            c.id === contractDetailMember.contractId ||
-            c.id === contractDetailMember.id,
-        )
+      {contractDetailMember &&
+        (() => {
+          const targetContract = contractsData?.data?.find(
+            (c) =>
+              c.freelancerEmail?.toLowerCase() === contractDetailMember.email?.toLowerCase() ||
+              c.id === contractDetailMember.contractId ||
+              c.id === contractDetailMember.id,
+          )
 
-        return (
-          <div
-            role="dialog"
-            aria-modal="true"
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 !bg-[var(--bg-overlay)]"
-            onClick={() => {
-              setContractDetailMember(null)
-              setIsEditingContract(false)
-            }}
-          >
+          return (
             <div
-              className="max-h-[90vh] w-full max-w-[520px] overflow-y-auto rounded-xl p-7 shadow-2xl !bg-[var(--bg-elevated)]"
-              onClick={(e) => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 !bg-[var(--bg-overlay)]"
+              onClick={() => {
+                setContractDetailMember(null)
+                setIsEditingContract(false)
+              }}
             >
-              <h3 className="mb-5 text-xl font-bold !text-[var(--text-primary)]">
-                Chi tiết hợp đồng
-              </h3>
+              <div
+                className="max-h-[90vh] w-full max-w-[520px] overflow-y-auto rounded-xl p-7 shadow-2xl !bg-[var(--bg-elevated)]"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h3 className="mb-5 text-xl font-bold !text-[var(--text-primary)]">
+                  Chi tiết hợp đồng
+                </h3>
 
-              {isEditingContract ? (
-                <div className="flex flex-col gap-4">
-                  <div>
-                    <label className="mb-1.5 block text-xs font-bold !text-[var(--text-secondary)]">
-                      Lời nhắn / Thỏa thuận bổ sung
-                    </label>
-                    <textarea
-                      value={editContractMsg}
-                      onChange={(e) => setEditContractMsg(e.target.value)}
-                      rows={3}
-                      placeholder="Nhập thông điệp trao đổi hoặc điều khoản bổ sung..."
-                      className="w-full rounded border p-2 text-sm outline-none !border-[var(--border-default)] !bg-[var(--bg-elevated)] !text-[var(--text-primary)] focus:!border-[var(--color-primary-500)]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="mb-1.5 block text-xs font-bold !text-[var(--text-secondary)]">
-                      Tài liệu hợp đồng mới (PDF/DOCX)
-                    </label>
-                    <label className="flex min-h-[90px] cursor-pointer flex-col items-center justify-center gap-1.5 rounded border border-dashed p-4 !border-[var(--border-default)] !bg-[var(--bg-subtle)] hover:!border-[var(--color-primary-500)]">
-                      <PaperclipIcon size={20} className="!text-[var(--text-tertiary)]" />
-                      <span className="text-xs font-semibold !text-[var(--text-secondary)]">
-                        {editContractTermsFile ? editContractTermsFile.name : 'Tải lên file điều khoản mới (thay thế)'}
-                      </span>
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept=".pdf,.doc,.docx"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0]
-                          if (file) setEditContractTermsFile(file)
-                        }}
-                      />
-                    </label>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex flex-col gap-2.5 text-sm !text-[var(--text-secondary)]">
-                  <div>
-                    <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
-                      Tiêu đề hợp đồng:{' '}
-                    </span>
-                    <span className="!text-[var(--text-primary)]">
-                      Hợp đồng {contractDetailMember.role || 'thành viên'} - {project.name}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
-                      Chủ dự án:{' '}
-                    </span>
-                    <span className="font-bold !text-[var(--text-primary)]">
-                      {project.owner ?? 'Tôi (Chủ dự án)'}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
-                      Thông tin Freelancer:{' '}
-                    </span>
-                    <span className="!text-[var(--text-primary)]">
-                      {contractDetailMember.name} ({contractDetailMember.email})
-                    </span>
-                  </div>
-                  <div>
-                    <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
-                      Giá trị hợp đồng:{' '}
-                    </span>
-                    <span className="font-bold !text-[var(--text-primary)]">
-                      {contractDetailMember.price}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
-                      Chu kỳ:{' '}
-                    </span>
-                    <span className="!text-[var(--text-primary)]">{project.period || 'Theo dự án'}</span>
-                  </div>
-                  <div>
-                    <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
-                      Hạn trả lương:{' '}
-                    </span>
-                    <span className="font-bold !text-[var(--color-primary-500)]">
-                      {contractDetailMember.salaryDueDate ?? 'Ngày 05 hàng tháng'}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
-                      Ngày kết thúc:{' '}
-                    </span>
-                    <span className="!text-[var(--text-primary)]">
-                      {contractDetailMember.dueDate ?? project.dueDate ?? '—'}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
-                      File hợp đồng:{' '}
-                    </span>
-                    {targetContract?.termsFileUrl ? (
-                      <a
-                        href={targetContract.termsFileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex cursor-pointer items-center gap-1.5 rounded px-2.5 py-1 text-xs font-bold no-underline transition-colors hover:opacity-80 !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)]"
-                      >
-                        <DownloadSimpleIcon size={14} weight="bold" />
-                        <span>Tải tài liệu hợp đồng</span>
-                      </a>
-                    ) : (
-                      <span className="text-xs !text-[var(--text-tertiary)]">Chưa đính kèm file</span>
-                    )}
-                  </div>
-                  <div>
-                    <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
-                      Trạng thái hợp đồng:{' '}
-                    </span>
-                    <span className="rounded px-2 py-0.5 text-xs font-bold !bg-[var(--bg-subtle)] !text-[var(--color-primary-500)]">
-                      {contractDetailMember.status ?? 'Đang làm'}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              <div className="mt-6 flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setContractDetailMember(null)
-                    setIsEditingContract(false)
-                  }}
-                  className="cursor-pointer rounded-full border px-5 py-2 text-sm font-semibold !border-[var(--border-default)] !text-[var(--text-secondary)] hover:!bg-[var(--bg-subtle)]"
-                >
-                  Đóng
-                </button>
                 {isEditingContract ? (
-                  <button
-                    type="button"
-                    onClick={handleSaveContract}
-                    className="cursor-pointer rounded-full px-5 py-2 text-sm font-bold !text-white !bg-[var(--color-primary-500)] hover:!bg-[var(--color-primary-600)]"
-                  >
-                    Lưu thay đổi
-                  </button>
+                  <div className="flex flex-col gap-4">
+                    <div>
+                      <label className="mb-1.5 block text-xs font-bold !text-[var(--text-secondary)]">
+                        Lời nhắn / Thỏa thuận bổ sung
+                      </label>
+                      <textarea
+                        value={editContractMsg}
+                        onChange={(e) => setEditContractMsg(e.target.value)}
+                        rows={3}
+                        placeholder="Nhập thông điệp trao đổi hoặc điều khoản bổ sung..."
+                        className="w-full rounded border p-2 text-sm outline-none !border-[var(--border-default)] !bg-[var(--bg-elevated)] !text-[var(--text-primary)] focus:!border-[var(--color-primary-500)]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-1.5 block text-xs font-bold !text-[var(--text-secondary)]">
+                        Tài liệu hợp đồng mới (PDF/DOCX)
+                      </label>
+                      <label className="flex min-h-[90px] cursor-pointer flex-col items-center justify-center gap-1.5 rounded border border-dashed p-4 !border-[var(--border-default)] !bg-[var(--bg-subtle)] hover:!border-[var(--color-primary-500)]">
+                        <PaperclipIcon size={20} className="!text-[var(--text-tertiary)]" />
+                        <span className="text-xs font-semibold !text-[var(--text-secondary)]">
+                          {editContractTermsFile
+                            ? editContractTermsFile.name
+                            : 'Tải lên file điều khoản mới (thay thế)'}
+                        </span>
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept=".pdf,.doc,.docx"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file) setEditContractTermsFile(file)
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
                 ) : (
+                  <div className="flex flex-col gap-2.5 text-sm !text-[var(--text-secondary)]">
+                    <div>
+                      <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
+                        Tiêu đề hợp đồng:{' '}
+                      </span>
+                      <span className="!text-[var(--text-primary)]">
+                        Hợp đồng {contractDetailMember.role || 'thành viên'} - {project.name}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
+                        Chủ dự án:{' '}
+                      </span>
+                      <span className="font-bold !text-[var(--text-primary)]">
+                        {project.owner ?? 'Tôi (Chủ dự án)'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
+                        Thông tin Freelancer:{' '}
+                      </span>
+                      <span className="!text-[var(--text-primary)]">
+                        {contractDetailMember.name} ({contractDetailMember.email})
+                      </span>
+                    </div>
+                    <div>
+                      <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
+                        Giá trị hợp đồng:{' '}
+                      </span>
+                      <span className="font-bold !text-[var(--text-primary)]">
+                        {contractDetailMember.price}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
+                        Chu kỳ:{' '}
+                      </span>
+                      <span className="!text-[var(--text-primary)]">
+                        {project.period || 'Theo dự án'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
+                        Hạn trả lương:{' '}
+                      </span>
+                      <span className="font-bold !text-[var(--color-primary-500)]">
+                        {contractDetailMember.salaryDueDate ?? 'Ngày 05 hàng tháng'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
+                        Ngày kết thúc:{' '}
+                      </span>
+                      <span className="!text-[var(--text-primary)]">
+                        {contractDetailMember.dueDate ?? project.dueDate ?? '—'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
+                        File hợp đồng:{' '}
+                      </span>
+                      {targetContract?.termsFileUrl ? (
+                        <a
+                          href={targetContract.termsFileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex cursor-pointer items-center gap-1.5 rounded px-2.5 py-1 text-xs font-bold no-underline transition-colors hover:opacity-80 !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)]"
+                        >
+                          <DownloadSimpleIcon size={14} weight="bold" />
+                          <span>Tải tài liệu hợp đồng</span>
+                        </a>
+                      ) : (
+                        <span className="text-xs !text-[var(--text-tertiary)]">
+                          Chưa đính kèm file
+                        </span>
+                      )}
+                    </div>
+                    <div>
+                      <span className="inline-block w-40 font-semibold !text-[var(--text-secondary)]">
+                        Trạng thái hợp đồng:{' '}
+                      </span>
+                      <span className="rounded px-2 py-0.5 text-xs font-bold !bg-[var(--bg-subtle)] !text-[var(--color-primary-500)]">
+                        {contractDetailMember.status ?? 'Đang làm'}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="mt-6 flex justify-end gap-3">
                   <button
                     type="button"
                     onClick={() => {
-                      setEditContractMsg(targetContract?.message || '')
-                      setEditContractTermsFile(null)
-                      setIsEditingContract(true)
+                      setContractDetailMember(null)
+                      setIsEditingContract(false)
                     }}
-                    className="cursor-pointer rounded-full px-5 py-2 text-sm font-bold !text-white !bg-[var(--color-primary-500)] hover:!bg-[var(--color-primary-600)]"
+                    className="cursor-pointer rounded-full border px-5 py-2 text-sm font-semibold !border-[var(--border-default)] !text-[var(--text-secondary)] hover:!bg-[var(--bg-subtle)]"
                   >
-                    Chỉnh sửa
+                    Đóng
                   </button>
-                )}
+                  {isEditingContract ? (
+                    <button
+                      type="button"
+                      onClick={handleSaveContract}
+                      className="cursor-pointer rounded-full px-5 py-2 text-sm font-bold !text-white !bg-[var(--color-primary-500)] hover:!bg-[var(--color-primary-600)]"
+                    >
+                      Lưu thay đổi
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditContractMsg(targetContract?.message || '')
+                        setEditContractTermsFile(null)
+                        setIsEditingContract(true)
+                      }}
+                      className="cursor-pointer rounded-full px-5 py-2 text-sm font-bold !text-white !bg-[var(--color-primary-500)] hover:!bg-[var(--color-primary-600)]"
+                    >
+                      Chỉnh sửa
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        )
-      })()}
+          )
+        })()}
 
       {/* Edit Job Role Modal */}
       {editingJobRole && (
@@ -1264,7 +1271,8 @@ export function MyProjectDetailPage({
               Xóa vị trí tuyển dụng
             </h3>
             <p className="mb-6 text-sm !text-[var(--text-secondary)]">
-              Bạn có chắc chắn muốn xóa vị trí này khỏi dự án? Vị trí sẽ bị gỡ bỏ và các hồ sơ ứng tuyển liên quan sẽ bị hủy.
+              Bạn có chắc chắn muốn xóa vị trí này khỏi dự án? Vị trí sẽ bị gỡ bỏ và các hồ sơ ứng
+              tuyển liên quan sẽ bị hủy.
             </p>
             <div className="flex justify-end gap-3">
               <button

@@ -35,4 +35,3 @@ export async function getBidDetail(id: string): Promise<BidResponse> {
 export async function cancelBid(id: string): Promise<SuccessResponse> {
   return await apiClient.delete<SuccessResponse>(`/bids/${id}`)
 }
-

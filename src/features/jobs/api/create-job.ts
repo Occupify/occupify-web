@@ -29,10 +29,7 @@ export async function createJob(input: CreateJobPayload): Promise<JobSummaryResp
     skillIds: input.skillIds,
   }
 
-  formData.append(
-    'data',
-    new Blob([JSON.stringify(requestData)], { type: 'application/json' }),
-  )
+  formData.append('data', new Blob([JSON.stringify(requestData)], { type: 'application/json' }))
 
   if (input.file) {
     formData.append('file', input.file)

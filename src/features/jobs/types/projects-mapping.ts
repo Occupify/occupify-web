@@ -149,7 +149,10 @@ export function formatBudgetDisplay(
   return `Lên đến ${formatCurrencyVND(max)} ${cycleLabel}`.trim()
 }
 
-export function mapJobsToRoles(jobs?: JobSummaryResponse[] | null, projectId?: string): JobRoleItem[] {
+export function mapJobsToRoles(
+  jobs?: JobSummaryResponse[] | null,
+  projectId?: string,
+): JobRoleItem[] {
   if (!jobs || jobs.length === 0) {
     return [
       {
@@ -258,7 +261,9 @@ export function toJobListingFromProject(project: ProjectApiResponse): JobListing
     status: project.status === 'OPEN' ? 'OPEN' : 'CLOSED',
     experienceLevel: mapExperienceLevel(project.experienceLevel),
     clientRating: 5.0,
-    duration: project.duration || (project.period ? getSalaryTypeLabel(project.period).replace('/', 'Theo') : 'Linh hoạt'),
+    duration:
+      project.duration ||
+      (project.period ? getSalaryTypeLabel(project.period).replace('/', 'Theo') : 'Linh hoạt'),
     hoursPerDay: project.hoursPerDay ? Number(project.hoursPerDay) : undefined,
     dueDate: formatDueDate(project.dueDate),
     bidCloseDate: formatDueDate(project.startDate || project.dueDate),

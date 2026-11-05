@@ -9,4 +9,3 @@ export async function getContractDetail(id: string): Promise<ContractDetailRespo
   const res = await apiClient.get<SingleResponse<ContractDetailResponse>>(`/contracts/${id}`)
   return res.data
 }
-

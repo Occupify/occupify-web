@@ -35,9 +35,7 @@ export async function updateProject(
   // Map bidCloseDate to backend startDate (LocalDateTime)
   const apiPayload: UpdateProjectPayload = {
     ...payload,
-    startDate: payload.bidCloseDate
-      ? `${payload.bidCloseDate}T00:00:00`
-      : payload.startDate,
+    startDate: payload.bidCloseDate ? `${payload.bidCloseDate}T00:00:00` : payload.startDate,
   }
   delete apiPayload.bidCloseDate
 
