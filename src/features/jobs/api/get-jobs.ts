@@ -26,11 +26,16 @@ export function resetJobsStore(): void {
   localCustomJobs = []
 }
 
-/**
- * Fetches the paginated list of projects from backend API (/projects),
- * mapped to the JobListing view model for the homepage feed.
- */
-export async function getJobs(params?: GetJobsParams): Promise<JobListing[]> {
+/** Result type for paginated job queries */
+export interface GetJobsPageResult {
+  jobs: JobListing[]
+  page: number
+  totalPages: number
+  total: number
+}
+
+/** Builds the query params record shared by getJobs and getJobsPage */
+function buildJobQueryParams(params?: GetJobsParams): Record<string, string | number | undefined> {
   const queryParams: Record<string, string | number | undefined> = {
     page: params?.page ?? 0,
     size: params?.size ?? 20,
@@ -73,6 +78,16 @@ export async function getJobs(params?: GetJobsParams): Promise<JobListing[]> {
     }
   }
 
+  return queryParams
+}
+
+/**
+ * Fetches the paginated list of projects from backend API (/projects),
+ * mapped to the JobListing view model for the homepage feed.
+ */
+export async function getJobs(params?: GetJobsParams): Promise<JobListing[]> {
+  const queryParams = buildJobQueryParams(params)
+
   try {
     const response = await apiClient.get<PageResponse<ProjectApiResponse>>('/projects', {
       params: queryParams,
@@ -89,6 +104,40 @@ export async function getJobs(params?: GetJobsParams): Promise<JobListing[]> {
     // If backend returns empty or network fails, return localCustomJobs or rethrow
     if (localCustomJobs.length > 0) {
       return localCustomJobs
+    }
+    throw error
+  }
+}
+
+/**
+ * Fetches a single page of projects with pagination metadata.
+ * Used by useInfiniteQuery for infinite scroll on the homepage.
+ */
+export async function getJobsPage(params?: GetJobsParams): Promise<GetJobsPageResult> {
+  const queryParams = buildJobQueryParams(params)
+
+  try {
+    const response = await apiClient.get<PageResponse<ProjectApiResponse>>('/projects', {
+      params: queryParams,
+    })
+
+    const apiJobs = (response?.data || []).map(toJobListingFromProject)
+    const paging = response?.paging || { page: 0, limit: 20, total: 0, totalPages: 0 }
+
+    // Prepend local custom jobs only on the first page
+    const page = paging.page ?? 0
+    const jobs =
+      page === 0 && localCustomJobs.length > 0 ? [...localCustomJobs, ...apiJobs] : apiJobs
+
+    return {
+      jobs,
+      page,
+      totalPages: paging.totalPages ?? 0,
+      total: paging.total ?? 0,
+    }
+  } catch (error) {
+    if (localCustomJobs.length > 0) {
+      return { jobs: localCustomJobs, page: 0, totalPages: 0, total: localCustomJobs.length }
     }
     throw error
   }
