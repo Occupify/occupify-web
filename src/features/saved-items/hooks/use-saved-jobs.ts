@@ -20,7 +20,7 @@ export function useSavedJobs() {
   })
 
   const toggleMutation = useMutation({
-    mutationFn: toggleSaveJob,
+    mutationFn: (jobId: string | number) => toggleSaveJob(jobId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: savedJobsKeys.all })
       queryClient.invalidateQueries({ queryKey: savedJobsKeys.ids })
