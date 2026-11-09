@@ -29,8 +29,7 @@ export function useInfiniteJobs(params?: GetJobsParams) {
 
   return useInfiniteQuery({
     queryKey: JOB_QUERY_KEYS.infinite(params),
-    queryFn: ({ pageParam = 0 }) =>
-      getJobsPage({ ...params, page: pageParam, size: pageSize }),
+    queryFn: ({ pageParam = 0 }) => getJobsPage({ ...params, page: pageParam, size: pageSize }),
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {
       const nextPage = lastPage.page + 1
