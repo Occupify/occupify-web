@@ -11,6 +11,8 @@ export function useApplyJob() {
     onSuccess: (_data, variables) => {
       // Invalidate relevant job query
       queryClient.invalidateQueries({ queryKey: JOB_QUERY_KEYS.detail(variables.jobId) })
+      // Invalidate bids queries so candidate and employer views update immediately
+      queryClient.invalidateQueries({ queryKey: ['bids'] })
     },
   })
 }

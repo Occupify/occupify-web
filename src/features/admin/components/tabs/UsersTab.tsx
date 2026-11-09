@@ -118,6 +118,7 @@ export function UsersTab({
                 <th className="px-4 py-3">Người dùng</th>
                 <th className="px-4 py-3">Email</th>
                 <th className="px-4 py-3">Trạng thái</th>
+                <th className="px-4 py-3 text-center">Cảnh báo vi phạm</th>
                 <th className="px-4 py-3">Ngày tham gia</th>
                 <th className="px-4 py-3 text-right">Thao tác</th>
               </tr>
@@ -125,46 +126,59 @@ export function UsersTab({
             <tbody className="divide-y divide-black/6">
               {users.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-12 text-center italic text-black/45">
+                  <td colSpan={6} className="py-12 text-center italic text-black/45">
                     Không tìm thấy người dùng nào phù hợp.
                   </td>
                 </tr>
               ) : (
-                users.map((u) => (
-                  <tr key={u.id} className="transition-colors hover:bg-[#FAFAF8]">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2.5">
-                        <div
-                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[10.5px] font-extrabold text-white"
-                          style={{ backgroundColor: u.color }}
-                        >
-                          {u.initials}
+                users.map((u) => {
+                  const reports = u.reportCount ?? u.reportsCount ?? 0
+
+                  return (
+                    <tr key={u.id} className="transition-colors hover:bg-[#FAFAF8]">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2.5">
+                          <div
+                            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[10.5px] font-extrabold text-white"
+                            style={{ backgroundColor: u.color }}
+                          >
+                            {u.initials}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => onSelectUser(u)}
+                            className="font-bold text-black/90 hover:text-[#0A66C2] hover:underline"
+                          >
+                            {u.name}
+                          </button>
                         </div>
+                      </td>
+                      <td className="px-4 py-3 text-black/70">{u.email}</td>
+                      <td className="px-4 py-3">
+                        <AdminStatusBadge status={u.status} />
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        {reports > 0 ? (
+                          <span className="inline-flex min-w-[22px] items-center justify-center rounded-full bg-[#FEF7E0] px-2 py-0.5 text-xs font-bold text-[#B06000]">
+                            {reports}
+                          </span>
+                        ) : (
+                          <span className="text-xs font-medium text-black/40">0</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-black/60">{u.joined}</td>
+                      <td className="px-4 py-3 text-right">
                         <button
                           type="button"
                           onClick={() => onSelectUser(u)}
-                          className="font-bold text-black/90 hover:text-[#0A66C2] hover:underline"
+                          className="font-bold text-[#0A66C2] hover:underline"
                         >
-                          {u.name}
+                          Chi tiết
                         </button>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-black/70">{u.email}</td>
-                    <td className="px-4 py-3">
-                      <AdminStatusBadge status={u.status} />
-                    </td>
-                    <td className="px-4 py-3 text-black/60">{u.joined}</td>
-                    <td className="px-4 py-3 text-right">
-                      <button
-                        type="button"
-                        onClick={() => onSelectUser(u)}
-                        className="font-bold text-[#0A66C2] hover:underline"
-                      >
-                        Chi tiết
-                      </button>
-                    </td>
-                  </tr>
-                ))
+                      </td>
+                    </tr>
+                  )
+                })
               )}
             </tbody>
           </table>

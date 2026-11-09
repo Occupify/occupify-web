@@ -4,10 +4,11 @@ import { AuthInput } from './auth-input'
 import { GoogleButton } from './google-button'
 import { useLogin, useGoogleLogin } from '../hooks'
 import { getAuthErrorMessage } from '../utils'
+import type { AuthResponseData } from '../types'
 
 export interface LoginFormProps {
-  onSuccess?: () => void
-  onGoogle?: () => void
+  onSuccess?: (authData?: AuthResponseData) => void
+  onGoogle?: (authData?: AuthResponseData) => void
   onSignUp?: () => void
 }
 
@@ -31,13 +32,13 @@ export function LoginForm({ onSuccess, onGoogle, onSignUp }: LoginFormProps) {
 
     try {
       setError(null)
-      await loginMutation.mutateAsync({
+      const data = await loginMutation.mutateAsync({
         email: email.trim(),
         password,
         rememberMe,
       })
       if (onSuccess) {
-        onSuccess()
+        onSuccess(data)
       }
     } catch (err: unknown) {
       setError(getAuthErrorMessage(err, 'Đăng nhập không thành công.'))
@@ -51,11 +52,11 @@ export function LoginForm({ onSuccess, onGoogle, onSignUp }: LoginFormProps) {
     }
     try {
       setError(null)
-      await googleLoginMutation.mutateAsync(credentialResponse.credential)
+      const data = await googleLoginMutation.mutateAsync(credentialResponse.credential)
       if (onGoogle) {
-        onGoogle()
+        onGoogle(data)
       } else if (onSuccess) {
-        onSuccess()
+        onSuccess(data)
       }
     } catch (err: unknown) {
       setError(getAuthErrorMessage(err, 'Đăng nhập bằng Google không thành công.'))

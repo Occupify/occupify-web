@@ -107,10 +107,12 @@ export interface ApplyJobInput {
   roleId: string
   salaryCycle: JobSalaryCycle
   bidPrice: string
+  proposedRate?: number
+  message?: string
   commitment?: string
   fixedDeliveryDays?: string
   weeklyHours?: string
-  cvFile?: { name: string; size: string } | null
+  cvFile?: File | { name: string; size: string } | null
   portfolioLink?: string
 }
 

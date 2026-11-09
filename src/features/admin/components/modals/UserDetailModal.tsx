@@ -5,14 +5,16 @@ import {
   PhoneIcon,
   StarIcon,
   BriefcaseMetalIcon,
+  WarningIcon,
+  ShieldCheckIcon,
 } from '@phosphor-icons/react'
-import type { AdminUser } from '../../types'
+import type { AdminUser, EntityId } from '../../types'
 import { AdminStatusBadge } from '../shared'
 
 interface UserDetailModalProps {
   user: AdminUser | null
   onClose: () => void
-  onToggleLock: (id: number) => void
+  onToggleLock: (id: EntityId) => void
   onDeleteClick: (user: AdminUser) => void
 }
 
@@ -24,7 +26,11 @@ export function UserDetailModal({
 }: UserDetailModalProps) {
   if (!user) return null
 
-  const isLocked = user.status === 'Bị khóa'
+  const isLocked =
+    user.status === 'Bị khóa' || user.status === 'SUSPENDED' || user.status === 'BANNED'
+  const reports = user.reportCount ?? user.reportsCount ?? 0
+  const flags = user.flagCount ?? 0
+  const hasRisk = reports > 0 || flags > 0
 
   return (
     <div
@@ -73,7 +79,46 @@ export function UserDetailModal({
                   </div>
                   <div className="flex items-center gap-1.5">
                     <PhoneIcon size={14} className="shrink-0 text-black/45" />
-                    <span>{user.phone}</span>
+                    <span>{user.phone || 'Chưa cập nhật số điện thoại'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Chỉ số an toàn & vi phạm nền tảng */}
+            <div
+              className={`rounded-lg border p-3 text-xs ${
+                hasRisk ? 'border-[#FDE68A] bg-[#FEF7E0]' : 'border-[#DCFCE7] bg-[#F0FDF4]'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 font-bold">
+                  {hasRisk ? (
+                    <WarningIcon size={16} weight="fill" className="text-[#B06000]" />
+                  ) : (
+                    <ShieldCheckIcon size={16} weight="fill" className="text-[#15803D]" />
+                  )}
+                  <span className={hasRisk ? 'text-[#B06000]' : 'text-[#15803D]'}>
+                    {hasRisk ? 'Cảnh báo vi phạm tài khoản' : 'Tài khoản an toàn'}
+                  </span>
+                </div>
+                <span className="text-[11px] font-semibold text-black/50">Kiểm duyệt Admin</span>
+              </div>
+              <div className="mt-2 grid grid-cols-2 gap-2 text-center">
+                <div className="rounded bg-white/70 p-2">
+                  <span className="text-[11px] font-medium text-black/55">Số lượt bị tố cáo:</span>
+                  <div
+                    className={`text-sm font-extrabold ${reports > 0 ? 'text-[#C03A2B]' : 'text-black/80'}`}
+                  >
+                    {reports} lượt
+                  </div>
+                </div>
+                <div className="rounded bg-white/70 p-2">
+                  <span className="text-[11px] font-medium text-black/55">Số lần gắn cờ:</span>
+                  <div
+                    className={`text-sm font-extrabold ${flags > 0 ? 'text-[#B06000]' : 'text-black/80'}`}
+                  >
+                    {flags} lần
                   </div>
                 </div>
               </div>
@@ -113,19 +158,29 @@ export function UserDetailModal({
               </div>
             </div>
 
-            {/* Cash flow: Tiền vào & Tiền ra */}
-            <div className="grid grid-cols-2 gap-2.5 text-center">
-              <div className="rounded-lg border border-[#DCFCE7] bg-[#F0FDF4] p-2.5">
-                <div className="text-[10.5px] font-bold uppercase tracking-wider text-[#166534]">
-                  Tiền vào
-                </div>
-                <div className="mt-0.5 text-sm font-extrabold text-[#15803D]">{user.moneyIn}</div>
+            {/* Cash flow: Tiền vào & Tiền ra (Tham chiếu ví Payment) */}
+            <div>
+              <div className="mb-1 flex items-center justify-between text-[11px] text-black/45">
+                <span className="font-medium">Thông tin dòng tiền</span>
+                <span className="italic">*Tham chiếu Ví Occupify Payment</span>
               </div>
-              <div className="rounded-lg border border-[#FEE2E2] bg-[#FEF2F2] p-2.5">
-                <div className="text-[10.5px] font-bold uppercase tracking-wider text-[#991B1B]">
-                  Tiền ra
+              <div className="grid grid-cols-2 gap-2.5 text-center">
+                <div className="rounded-lg border border-[#DCFCE7] bg-[#F0FDF4] p-2.5">
+                  <div className="text-[10.5px] font-bold uppercase tracking-wider text-[#166534]">
+                    Tiền vào
+                  </div>
+                  <div className="mt-0.5 text-sm font-extrabold text-[#15803D]">
+                    {user.moneyIn || '--'}
+                  </div>
                 </div>
-                <div className="mt-0.5 text-sm font-extrabold text-[#B91C1C]">{user.moneyOut}</div>
+                <div className="rounded-lg border border-[#FEE2E2] bg-[#FEF2F2] p-2.5">
+                  <div className="text-[10.5px] font-bold uppercase tracking-wider text-[#991B1B]">
+                    Tiền ra
+                  </div>
+                  <div className="mt-0.5 text-sm font-extrabold text-[#B91C1C]">
+                    {user.moneyOut || '--'}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -145,22 +200,22 @@ export function UserDetailModal({
             <div className="mb-3 flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm font-bold text-black/85">
                 <BriefcaseMetalIcon size={16} className="text-[#0A66C2]" weight="fill" />
-                <span>Lịch sử dự án tham gia</span>
+                <span>Lịch sử hợp đồng & dự án</span>
               </div>
               <span className="rounded-full bg-[#EAF1FA] px-2 py-0.5 text-[11px] font-bold text-[#0A66C2]">
-                {user.projectHistory.length} dự án
+                {user.projectHistory?.length ?? 0} hợp đồng
               </span>
             </div>
 
             <div className="flex max-h-[360px] flex-col gap-2.5 overflow-y-auto pr-1">
-              {user.projectHistory.length === 0 ? (
+              {!user.projectHistory || user.projectHistory.length === 0 ? (
                 <div className="py-8 text-center text-xs italic text-black/45">
-                  Chưa có lịch sử dự án tham gia nào.
+                  Chưa có lịch sử hợp đồng nào được ghi nhận.
                 </div>
               ) : (
                 user.projectHistory.map((item) => (
                   <div
-                    key={item.id}
+                    key={String(item.id)}
                     className="flex flex-col gap-1.5 rounded-lg border border-black/6 bg-white p-3 shadow-xs"
                   >
                     <div className="text-xs font-bold text-black/90 line-clamp-2">{item.title}</div>

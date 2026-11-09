@@ -40,8 +40,7 @@ export function ProjectsTab({
       <div className="mb-5">
         <h1 className="text-2xl font-extrabold tracking-[-0.02em] text-black/90">Quản lý dự án</h1>
         <p className="mt-1 text-sm text-black/60">
-          Kiểm duyệt dự án đăng tuyển, kiểm tra danh sách người tham gia và loại bỏ các dự án vi
-          phạm chính sách
+          Kiểm duyệt dự án đăng tuyển, tiếp nhận và xử lý tố cáo vi phạm chính sách nền tảng
         </p>
       </div>
 
@@ -100,7 +99,7 @@ export function ProjectsTab({
                 <th className="px-4 py-3">Chủ dự án</th>
                 <th className="px-4 py-3">Ngân sách</th>
                 <th className="px-4 py-3">Lĩnh vực</th>
-                <th className="px-4 py-3">Người tham gia</th>
+                <th className="px-4 py-3 text-center">Khiếu nại / Tố cáo</th>
                 <th className="px-4 py-3">Trạng thái</th>
                 <th className="px-4 py-3">Ngày đăng</th>
                 <th className="px-4 py-3 text-right">Thao tác</th>
@@ -114,57 +113,75 @@ export function ProjectsTab({
                   </td>
                 </tr>
               ) : (
-                projects.map((p) => (
-                  <tr key={p.id} className="transition-colors hover:bg-[#FAFAF8]">
-                    <td className="px-4 py-3">
-                      <button
-                        type="button"
-                        onClick={() => onSelectProject(p)}
-                        className="max-w-[280px] text-left font-bold text-black/90 truncate hover:text-[#0A66C2] hover:underline"
-                      >
-                        {p.title}
-                      </button>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-extrabold text-white"
-                          style={{ backgroundColor: p.owner.color }}
-                        >
-                          {p.owner.initials}
+                projects.map((p) => {
+                  const reports = p.reportCount ?? p.reports?.length ?? 0
+                  return (
+                    <tr key={String(p.id)} className="transition-colors hover:bg-[#FAFAF8]">
+                      <td className="px-4 py-3">
+                        <div className="flex flex-col gap-0.5">
+                          <button
+                            type="button"
+                            onClick={() => onSelectProject(p)}
+                            className="max-w-[280px] text-left font-bold text-black/90 truncate hover:text-[#0A66C2] hover:underline"
+                          >
+                            {p.title}
+                          </button>
+                          {p.skills && p.skills.length > 0 && (
+                            <span className="text-[10.5px] text-black/50 truncate max-w-[260px]">
+                              {p.skills.slice(0, 3).join(', ')}
+                            </span>
+                          )}
                         </div>
-                        <span className="font-semibold text-black/80 truncate">{p.owner.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="font-bold text-[#057642]">{p.budget}</div>
-                      <div className="text-[10px] text-black/50">{p.budgetType}</div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="rounded bg-black/5 px-2 py-0.5 text-[11px] font-medium text-black/70">
-                        {p.field}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="rounded-full bg-[#EAF1FA] px-2.5 py-0.5 text-[11px] font-bold text-[#0A66C2]">
-                        {p.applicants} người
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <AdminStatusBadge status={p.status} />
-                    </td>
-                    <td className="px-4 py-3 text-black/60">{p.date}</td>
-                    <td className="px-4 py-3 text-right">
-                      <button
-                        type="button"
-                        onClick={() => onSelectProject(p)}
-                        className="font-bold text-[#0A66C2] hover:underline"
-                      >
-                        Chi tiết
-                      </button>
-                    </td>
-                  </tr>
-                ))
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-extrabold text-white"
+                            style={{ backgroundColor: p.owner.color }}
+                          >
+                            {p.owner.initials}
+                          </div>
+                          <span className="font-semibold text-black/80 truncate">
+                            {p.owner.name}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="font-bold text-[#057642]">{p.budget || 'Thỏa thuận'}</div>
+                        {p.budgetType && (
+                          <div className="text-[10px] text-black/50">{p.budgetType}</div>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="rounded bg-black/5 px-2 py-0.5 text-[11px] font-medium text-black/70">
+                          {p.field || 'Đa ngành'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        {reports > 0 ? (
+                          <span className="inline-flex min-w-[22px] items-center justify-center rounded-full bg-[#FEF7E0] px-2 py-0.5 text-xs font-bold text-[#B06000]">
+                            {reports}
+                          </span>
+                        ) : (
+                          <span className="text-xs font-medium text-black/40">0</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <AdminStatusBadge status={p.status} />
+                      </td>
+                      <td className="px-4 py-3 text-black/60">{p.date}</td>
+                      <td className="px-4 py-3 text-right">
+                        <button
+                          type="button"
+                          onClick={() => onSelectProject(p)}
+                          className="font-bold text-[#0A66C2] hover:underline"
+                        >
+                          Chi tiết
+                        </button>
+                      </td>
+                    </tr>
+                  )
+                })
               )}
             </tbody>
           </table>

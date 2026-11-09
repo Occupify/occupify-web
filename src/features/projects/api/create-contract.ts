@@ -10,7 +10,10 @@ export async function createContract(
 
   // 1. If jobId and freelancerEmail exist -> Invite Mode: invoke backend POST /contracts
   if (formData.jobId && formData.freelancerEmail) {
-    try {
+    const isMock = formData.jobId.startsWith('role-') || formData.jobId.startsWith('mock-')
+    if (isMock) {
+      backendContractId = `ct-${Date.now()}`
+    } else {
       const created = await apiCreateContract({
         jobId: formData.jobId,
         freelancerEmail: formData.freelancerEmail,
@@ -18,8 +21,6 @@ export async function createContract(
         file: formData.file ?? null,
       })
       backendContractId = created.id
-    } catch {
-      // Fallback to local store if backend call fails
     }
   } else if (formData.projectId) {
     // 2. If NO freelancerEmail -> Recruitment Mode: invoke backend POST /jobs

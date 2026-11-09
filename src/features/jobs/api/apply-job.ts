@@ -1,20 +1,17 @@
+import { apiClient } from '@/lib/api-client'
+import type { CreatedResponse } from '@/types'
+import type { BidResponse } from '@/features/bids/types'
 import type { ApplyJobInput, ApplyJobResponse } from '../types'
+import { buildBidFormData, toApplyJobResponse } from './apply-job-mapping'
+
+export { buildBidFormData, toApplyJobResponse } from './apply-job-mapping'
 
 /**
- * Submits an application for a specific role in a job project.
- *
- * Simulates network transmission with standard client-side response.
+ * Submits an application/proposal for a specific job role (POST /bids)
+ * Consumes multipart/form-data matching CreateBidRequest in backend.
  */
 export async function applyToJob(input: ApplyJobInput): Promise<ApplyJobResponse> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        success: true,
-        message: 'Nộp hồ sơ ứng tuyển thành công',
-        applicationId: `app-${Date.now()}`,
-        roleId: input.roleId,
-        submittedAt: new Date().toISOString(),
-      })
-    }, 120)
-  })
+  const formData = buildBidFormData(input)
+  const response = await apiClient.post<CreatedResponse<BidResponse>>('/bids', formData)
+  return toApplyJobResponse(response, input.roleId)
 }

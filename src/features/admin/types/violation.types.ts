@@ -1,5 +1,13 @@
 export type ViolationCategory = 'Tài khoản' | 'Dự án'
-export type ViolationStatus = 'Chờ xử lý' | 'Đã giải quyết' | 'Đã bác bỏ'
+export type ViolationStatus =
+  | 'Chờ xử lý'
+  | 'Đang xác minh'
+  | 'Đã giải quyết'
+  | 'Đã bác bỏ'
+  | 'PENDING'
+  | 'INVESTIGATING'
+  | 'RESOLVED'
+  | 'DISMISSED'
 
 export interface AdminViolation {
   id: string
