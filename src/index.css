@@ -462,6 +462,19 @@ h6 {
   animation: slideOutRight 0.22s cubic-bezier(0.4, 0, 1, 1) forwards;
 }
 
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spinSlow 3s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

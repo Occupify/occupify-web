@@ -386,8 +386,7 @@ export function HomePage({
                   {isFetchingNextPage && (
                     <div className="flex items-center gap-2.5 text-slate-400 text-sm">
                       <svg
-                        className="animate-spin h-4.5 w-4.5 text-slate-400"
-                        style={{ animationDuration: '2.5s' }}
+                        className="animate-spin-slow h-4.5 w-4.5 text-slate-400"
                         viewBox="0 0 24 24"
                         fill="none"
                       >
