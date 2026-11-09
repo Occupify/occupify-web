@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
-  useJobs,
+  useInfiniteJobs,
   useJob,
   JobCard,
   JobEmptyState,
@@ -130,8 +130,40 @@ export function HomePage({
     ],
   )
 
-  // Fetch jobs from server state (TanStack Query) with filter & sort params
-  const { data: displayJobs = [], isLoading } = useJobs(jobParams)
+  // Fetch jobs from server state (TanStack Query) with infinite scroll pagination
+  const {
+    data: jobPages,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  } = useInfiniteJobs({ ...jobParams, size: 20 })
+
+  // Flatten all pages into a single array for rendering
+  const displayJobs = React.useMemo(
+    () => jobPages?.pages.flatMap((page) => page.jobs) ?? [],
+    [jobPages],
+  )
+
+  // Infinite scroll: IntersectionObserver triggers fetchNextPage when sentinel is visible
+  const loadMoreRef = React.useRef<HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    const sentinel = loadMoreRef.current
+    if (!sentinel) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage()
+        }
+      },
+      { rootMargin: '300px' },
+    )
+
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
   // Parse jobId from URL query parameters
   const jobIdParam = searchParams.get('jobId')
@@ -346,6 +378,41 @@ export function HomePage({
 
               {!isLoading && displayJobs.length === 0 && (
                 <JobEmptyState onResetFilters={handleResetFilters} />
+              )}
+
+              {/* Infinite scroll sentinel & loading indicator */}
+              {!isLoading && displayJobs.length > 0 && (
+                <div ref={loadMoreRef} className="py-6 flex justify-center">
+                  {isFetchingNextPage && (
+                    <div className="flex items-center gap-2.5 text-slate-400 text-sm">
+                      <svg
+                        className="animate-spin h-4.5 w-4.5"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                        />
+                      </svg>
+                      Đang tải thêm dự án...
+                    </div>
+                  )}
+                  {!hasNextPage && !isFetchingNextPage && displayJobs.length > 20 && (
+                    <p className="text-xs text-slate-400">
+                      Đã hiển thị tất cả {displayJobs.length} dự án
+                    </p>
+                  )}
+                </div>
               )}
             </div>
           </main>
