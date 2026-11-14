@@ -8,8 +8,9 @@ import {
   ThumbsUpIcon,
   ThumbsDownIcon,
   UserIcon,
+  DownloadSimpleIcon,
 } from '@phosphor-icons/react'
-import type { AiChatMessage } from '@/features/occupify-ai'
+import { AI_AGENTIC_BASE_URL, type AiChatMessage } from '@/features/occupify-ai'
 
 interface AiMessageItemProps {
   message: AiChatMessage
@@ -87,10 +88,49 @@ export function AiMessageItem({ message, onRegenerate }: AiMessageItemProps) {
     })
   }
 
-  // Parse **bold** and *italic*
+  const resolveUrl = (rawUrl: string): string => {
+    if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) {
+      return rawUrl
+    }
+    const baseUrl = (AI_AGENTIC_BASE_URL || '').replace(/\/+$/, '')
+    const path = rawUrl.startsWith('/') ? rawUrl : `/${rawUrl}`
+    return `${baseUrl}${path}`
+  }
+
+  // Parse markdown links [label](url), **bold**, *italic*, and `code`
   const renderInlineFormatted = (text: string) => {
-    const parts = text.split(/(\*\*.*?\*\*|\*.*?\*)/g)
+    const parts = text.split(/(\[[^\]]+\]\([^)]+\)|\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g)
     return parts.map((part, i) => {
+      if (!part) return null
+
+      // Markdown Link: [label](url)
+      const linkMatch = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/)
+      if (linkMatch) {
+        const [, label, rawUrl] = linkMatch
+        const resolvedUrl = resolveUrl(rawUrl)
+        const isDownload =
+          rawUrl.includes('/download/') || /\.(pdf|tex|docx?|zip|png|jpe?g)$/i.test(rawUrl)
+
+        return (
+          <a
+            key={i}
+            href={resolvedUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            download={isDownload ? true : undefined}
+            className={
+              isDownload
+                ? 'inline-flex items-center gap-1.5 font-semibold text-[var(--color-primary-600)] hover:text-[var(--color-primary-700)] bg-[var(--color-primary-50)] hover:bg-[var(--color-primary-100)] border border-[var(--color-primary-200)] px-2.5 py-0.5 rounded-md text-xs transition-colors my-0.5 align-middle cursor-pointer'
+                : 'font-semibold text-[var(--color-primary-600)] hover:text-[var(--color-primary-700)] underline underline-offset-2 transition-colors cursor-pointer'
+            }
+          >
+            {isDownload && <DownloadSimpleIcon size={13} weight="bold" className="shrink-0" />}
+            <span>{label}</span>
+          </a>
+        )
+      }
+
+      // Bold: **text**
       if (part.startsWith('**') && part.endsWith('**')) {
         return (
           <strong key={i} className="font-bold text-slate-900">
@@ -98,6 +138,8 @@ export function AiMessageItem({ message, onRegenerate }: AiMessageItemProps) {
           </strong>
         )
       }
+
+      // Italic: *text*
       if (part.startsWith('*') && part.endsWith('*')) {
         return (
           <em key={i} className="italic text-slate-700">
@@ -105,6 +147,19 @@ export function AiMessageItem({ message, onRegenerate }: AiMessageItemProps) {
           </em>
         )
       }
+
+      // Inline code: `code`
+      if (part.startsWith('`') && part.endsWith('`') && part.length > 2) {
+        return (
+          <code
+            key={i}
+            className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-800 text-[11px] font-mono"
+          >
+            {part.slice(1, -1)}
+          </code>
+        )
+      }
+
       return part
     })
   }
