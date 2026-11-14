@@ -1,3 +1,4 @@
+import { env } from '../../../config/env.ts'
 import { useAuthStore } from '../../../stores/auth.ts'
 import {
   chatSessionsPageEnvelopeSchema,
@@ -17,12 +18,7 @@ import type {
   StreamCallbacks,
 } from '../types/index.ts'
 
-/**
- * AI Agentic Microservice URL (hardcoded localhost as specified by prompt, with env override)
- */
-export const AI_AGENTIC_BASE_URL =
-  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_AI_AGENTIC_BASE_URL) ||
-  'http://localhost:8186'
+const getAiChatBaseUrl = () => env.apiBaseUrl.replace(/\/+$/, '')
 
 /**
  * Helper to construct authentication headers from user store
@@ -46,7 +42,7 @@ export function getAiAuthHeaders(): Record<string, string> {
  * Fetch paginated list of chat sessions
  */
 export async function getChatSessions(page = 1, limit = 50): Promise<ChatSessionItem[]> {
-  const url = `${AI_AGENTIC_BASE_URL}/ai/chat/sessions?page=${page}&limit=${limit}`
+  const url = `${getAiChatBaseUrl()}/ai/chat/sessions?page=${page}&limit=${limit}`
   const response = await fetch(url, {
     method: 'GET',
     headers: {
@@ -72,7 +68,7 @@ export async function getSessionMessages(
   page = 1,
   limit = 100,
 ): Promise<ChatMessageItem[]> {
-  const url = `${AI_AGENTIC_BASE_URL}/ai/chat/sessions/${encodeURIComponent(sessionId)}/messages?page=${page}&limit=${limit}`
+  const url = `${getAiChatBaseUrl()}/ai/chat/sessions/${encodeURIComponent(sessionId)}/messages?page=${page}&limit=${limit}`
   const response = await fetch(url, {
     method: 'GET',
     headers: {
@@ -94,7 +90,7 @@ export async function getSessionMessages(
  * Delete a chat session
  */
 export async function deleteChatSession(sessionId: string): Promise<boolean> {
-  const url = `${AI_AGENTIC_BASE_URL}/ai/chat/sessions/${encodeURIComponent(sessionId)}`
+  const url = `${getAiChatBaseUrl()}/ai/chat/sessions/${encodeURIComponent(sessionId)}`
   const response = await fetch(url, {
     method: 'DELETE',
     headers: {
@@ -132,7 +128,7 @@ export async function sendChatMessage(input: SendChatMessageInput): Promise<Chat
     formData.append('files', input.file, input.file.name)
   }
 
-  const url = `${AI_AGENTIC_BASE_URL}/ai/chat/messages?stream=false`
+  const url = `${getAiChatBaseUrl()}/ai/chat/messages?stream=false`
   const response = await fetch(url, {
     method: 'POST',
     headers: getAiAuthHeaders(),
@@ -179,7 +175,7 @@ export async function streamChatMessage(
     formData.append('files', input.file, input.file.name)
   }
 
-  const url = `${AI_AGENTIC_BASE_URL}/ai/chat/messages?stream=true`
+  const url = `${getAiChatBaseUrl()}/ai/chat/messages?stream=true`
   const response = await fetch(url, {
     method: 'POST',
     headers: getAiAuthHeaders(),

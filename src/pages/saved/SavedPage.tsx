@@ -9,7 +9,7 @@ export function SavedPage() {
   const { savedJobs, savedJobIds, isLoading, toggleSaveJob } = useSavedJobs()
   const [searchQuery, setSearchQuery] = useState('')
 
-  const handleToggleSave = async (jobId: number) => {
+  const handleToggleSave = async (jobId: string | number) => {
     try {
       const res = await toggleSaveJob(jobId)
       if (res.isSaved) {
@@ -24,8 +24,9 @@ export function SavedPage() {
 
   const displayJobs = savedJobs.filter((job) => {
     if (!searchQuery.trim()) return true
-    const q = searchQuery.toLowerCase()
+    const q = searchQuery.toLowerCase().trim()
     return (
+      String(job.id).toLowerCase().includes(q) ||
       job.title.toLowerCase().includes(q) ||
       job.company.toLowerCase().includes(q) ||
       job.description.toLowerCase().includes(q) ||
@@ -97,7 +98,7 @@ export function SavedPage() {
               <JobCard
                 key={job.id}
                 job={job}
-                isSaved={savedJobIds.includes(job.id)}
+                isSaved={savedJobIds.some((id) => String(id) === String(job.id))}
                 onToggleSave={() => handleToggleSave(job.id)}
                 onClick={() => navigate(`/home?jobId=${job.id}`)}
                 onViewProfile={() =>
@@ -124,7 +125,7 @@ export function SavedPage() {
                 gom vào danh sách này và xem lại bất cứ lúc nào.
               </p>
               <Link
-                to="/not-found"
+                to="/home"
                 className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold !text-white transition-colors !bg-[var(--color-primary-500)] hover:!bg-[var(--color-primary-600)]"
               >
                 <span>Khám phá dự án & cơ hội mới</span>

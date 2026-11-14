@@ -10,7 +10,8 @@ import {
   UserIcon,
   DownloadSimpleIcon,
 } from '@phosphor-icons/react'
-import { AI_AGENTIC_BASE_URL, type AiChatMessage } from '@/features/occupify-ai'
+import { env } from '@/config/env'
+import type { AiChatMessage } from '@/features/occupify-ai'
 
 interface AiMessageItemProps {
   message: AiChatMessage
@@ -92,7 +93,7 @@ export function AiMessageItem({ message, onRegenerate }: AiMessageItemProps) {
     if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) {
       return rawUrl
     }
-    const baseUrl = (AI_AGENTIC_BASE_URL || '').replace(/\/+$/, '')
+    const baseUrl = (env.apiBaseUrl || '').replace(/\/+$/, '')
     const path = rawUrl.startsWith('/') ? rawUrl : `/${rawUrl}`
     return `${baseUrl}${path}`
   }

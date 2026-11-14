@@ -19,6 +19,7 @@ import {
 } from '@/features/jobs'
 import { useCurrentUser } from '@/features/auth'
 import { useProjects, type CreateProjectFormData } from '@/features/projects'
+import { useSavedJobs } from '@/features/saved-items'
 import { toast } from '@/components/feedback'
 import { ApiError } from '@/types'
 import {
@@ -201,21 +202,23 @@ export function HomePage({
   // Page / SubPage routing state
   const [subPage, setSubPage] = React.useState<'create-project' | null>(null)
 
-  // Local saved jobs fallback if not controlled by parent
-  const [localSavedJobIds, setLocalSavedJobIds] = React.useState<(string | number)[]>([])
-  const activeSavedJobIds: (string | number)[] =
-    (savedJobIds as (string | number)[] | undefined) ?? localSavedJobIds
+  // Saved jobs persistence via hook / query cache
+  const { savedJobIds: hookSavedJobIds, toggleSaveJob } = useSavedJobs()
+  const activeSavedJobIds: (string | number)[] = savedJobIds ?? hookSavedJobIds
 
-  const handleToggleSave = (id: string | number) => {
+  const handleToggleSave = async (id: string | number) => {
     if (onToggleSaveJob) {
       onToggleSaveJob(id)
+      const isNowSaved = !activeSavedJobIds.some((item) => String(item) === String(id))
+      toast.info(isNowSaved ? 'Đã lưu công việc vào danh sách yêu thích' : 'Đã bỏ lưu công việc')
     } else {
-      setLocalSavedJobIds((prev) =>
-        prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
-      )
+      try {
+        const res = await toggleSaveJob(id)
+        toast.info(res.isSaved ? 'Đã lưu công việc vào danh sách yêu thích' : 'Đã bỏ lưu công việc')
+      } catch {
+        toast.error('Có lỗi xảy ra khi cập nhật mục đã lưu')
+      }
     }
-    const isNowSaved = !activeSavedJobIds.includes(id)
-    toast.info(isNowSaved ? 'Đã lưu công việc vào danh sách yêu thích' : 'Đã bỏ lưu công việc')
   }
 
   const handleCreateProject = async (formData: CreateProjectFormData) => {
@@ -246,7 +249,7 @@ export function HomePage({
         job={selectedJob}
         onBack={handleBackFromJobDetails}
         onViewProfile={handleViewProfile}
-        isSaved={activeSavedJobIds.includes(selectedJob.id)}
+        isSaved={activeSavedJobIds.some((item) => String(item) === String(selectedJob.id))}
         onToggleSave={() => handleToggleSave(selectedJob.id)}
       />
     )
@@ -369,7 +372,7 @@ export function HomePage({
                   <JobCard
                     key={job.id}
                     job={job}
-                    isSaved={activeSavedJobIds.includes(job.id)}
+                    isSaved={activeSavedJobIds.some((item) => String(item) === String(job.id))}
                     onToggleSave={() => handleToggleSave(job.id)}
                     onClick={() => handleSelectJob(job)}
                     onViewProfile={handleViewProfile}
