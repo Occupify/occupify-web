@@ -52,11 +52,16 @@ export function OccupifyAiPage() {
   // Combine server messages with optimistic messages and streaming turn
   const displayMessages = React.useMemo(() => {
     const combined: AiChatMessage[] = [...serverMessages]
+    const normalize = (t: string) => t.replace(/\r\n/g, '\n').trim()
 
     // Append optimistic user messages not yet reconciled into serverMessages
     for (const opt of optimisticMessages) {
       const alreadyInServer = combined.some(
-        (m) => m.id === opt.id || (m.sender === 'user' && m.content === opt.content),
+        (m) =>
+          m.id === opt.id ||
+          (m.sender === 'user' &&
+            (normalize(m.content) === normalize(opt.content) ||
+              (opt.attachment?.name && m.attachment?.name === opt.attachment.name))),
       )
       if (!alreadyInServer) {
         combined.push(opt)
@@ -154,7 +159,7 @@ export function OccupifyAiPage() {
       const userMsg: AiChatMessage = {
         id: `user-temp-${Date.now()}`,
         sender: 'user',
-        content: content || (file ? `Đã đính kèm tệp: ${file.name}` : ''),
+        content: content || (file ? `Phân tích tệp: ${file.name}` : ''),
         timestamp: nowTime,
         attachment: file
           ? {
@@ -174,13 +179,16 @@ export function OccupifyAiPage() {
       try {
         await sendMessageStream(
           {
-            message: content || (file ? `Phân tích tệp ${file.name}` : ''),
+            message: content || (file ? `Phân tích tệp: ${file.name}` : ''),
             sessionId: currentSessionId,
             file: file || null,
           },
           {
             onNewSessionCreated: (newId) => {
               setSelectedSessionId(newId)
+            },
+            onComplete: () => {
+              setOptimisticMessages([])
             },
             onError: (err) => {
               setErrorMessage(err.message)
