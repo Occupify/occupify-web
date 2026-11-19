@@ -49,9 +49,9 @@ jobs:
           path: dist/
           retention-days: 1
   deploy:
-    name: Deploy to Production VM
+    name: Deploy to Web/Bastion VM
     needs: build
-    runs-on: [self-hosted, web]
+    runs-on: ubuntu-latest
 
     steps:
       - name: Download compiled bundle
@@ -60,29 +60,52 @@ jobs:
           name: dist-bundle
           path: ./temp-dist
 
-      - name: Atomic Deploy & Release Rotation
+      - name: Deploy via Bastion SSH
+        env:
+          BASTION_KEY: ${{ secrets.BASTION_SSH_KEY }}
+          BASTION_HOST: ${{ secrets.BASTION_HOST }}
         run: |
+          mkdir -p ~/.ssh
+          echo "$BASTION_KEY" > ~/.ssh/bastion.pem
+          chmod 600 ~/.ssh/bastion.pem
+
           TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-          APP_DIR="/var/www/occupify-web"
-          RELEASE_DIR="$APP_DIR/releases/$TIMESTAMP"
-          CURRENT_LINK="$APP_DIR/current"
 
-          echo "Creating new release directory: $RELEASE_DIR"
-          mkdir -p "$RELEASE_DIR"
+          # 0. Package build bundle
+          tar -czf /tmp/dist.tar.gz -C ./temp-dist .
 
-          echo "Moving compiled assets to release directory..."
-          cp -r ./temp-dist/* "$RELEASE_DIR/"
-          rm -rf ./temp-dist
+          # 1. Upload bundle tarball to Bastion
+          scp -i ~/.ssh/bastion.pem -o StrictHostKeyChecking=accept-new /tmp/dist.tar.gz ubuntu@$BASTION_HOST:/tmp/dist.tar.gz
 
-          echo "Carrying forward previous hashed chunks (Anti-ChunkLoadError)..."
-          if [ -L "$CURRENT_LINK" ] && [ -d "$CURRENT_LINK/assets" ]; then
-              cp -rn "$CURRENT_LINK/assets"/* "$RELEASE_DIR/assets/" 2>/dev/null || true
-          fi
+          # 2. Transfer from Bastion to Web instance and deploy atomically
+          ssh -i ~/.ssh/bastion.pem -o StrictHostKeyChecking=accept-new ubuntu@$BASTION_HOST "
+            scp -o StrictHostKeyChecking=accept-new /tmp/dist.tar.gz web:/tmp/dist.tar.gz
+            rm -f /tmp/dist.tar.gz
 
-          echo "Atomically switching symlink to new release..."
-          ln -sfn "$RELEASE_DIR" "$CURRENT_LINK"
+            ssh -o StrictHostKeyChecking=accept-new web '
+              APP_DIR=\"/var/www/occupify-web\"
+              RELEASE_DIR=\"\$APP_DIR/releases/$TIMESTAMP\"
+              CURRENT_LINK=\"\$APP_DIR/current\"
 
-          echo "Pruning old releases (keeping latest 5)..."
-          cd "$APP_DIR/releases" && ls -1tr | head -n -5 | xargs -d '\n' rm -rf -- 2>/dev/null || true
+              sudo mkdir -p \"\$RELEASE_DIR\"
+              sudo chown -R ubuntu:ubuntu \"\$APP_DIR\"
+              tar -xzf /tmp/dist.tar.gz -C \"\$RELEASE_DIR\"
+              rm -f /tmp/dist.tar.gz
 
-          echo "Release $TIMESTAMP deployed successfully!"
+              # Carry forward previous hashed chunks (Anti-ChunkLoadError)
+              if [ -L \"\$CURRENT_LINK\" ] && [ -d \"\$CURRENT_LINK/assets\" ]; then
+                cp -rn \"\$CURRENT_LINK/assets\"/* \"\$RELEASE_DIR/assets/\" 2>/dev/null || true
+              fi
+
+              # Atomically switch symlink
+              ln -sfn \"\$RELEASE_DIR\" \"\$CURRENT_LINK\"
+
+              # Prune old releases (keep latest 5)
+              cd \"\$APP_DIR/releases\" && ls -1tr | head -n -5 | xargs -d \"\n\" rm -rf -- 2>/dev/null || true
+
+              sudo systemctl reload nginx 2>/dev/null || true
+            '
+          "
+
+          shred -u ~/.ssh/bastion.pem
+          rm -f /tmp/dist.tar.gz
