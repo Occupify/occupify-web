@@ -31,6 +31,9 @@ export function ContractDetailModal({ contract, onClose }: ContractDetailModalPr
             <span className="rounded bg-[#EAF1FA] px-2 py-0.5 font-mono text-xs font-bold text-[#0A66C2] shrink-0">
               {contract.id}
             </span>
+            <span className="rounded-full border border-[#FDE68A] bg-[#FEF7E0] px-2 py-0.5 text-[10px] font-bold text-[#B06000] shrink-0">
+              Đang phát triển
+            </span>
             <h2 className="text-base font-bold text-black/90 truncate" title={contract.project}>
               {contract.project}
             </h2>
@@ -43,6 +46,17 @@ export function ContractDetailModal({ contract, onClose }: ContractDetailModalPr
           >
             <XIcon size={18} weight="bold" />
           </button>
+        </div>
+
+        {/* Development notice */}
+        <div className="mx-6 mt-4 flex items-center gap-2 rounded-lg border border-[#FDE68A] bg-[#FEF7E0] px-3.5 py-2.5 text-xs text-[#92400E]">
+          <span className="rounded bg-[#F59E0B] px-1.5 py-0.5 text-[10px] font-bold text-white shrink-0">
+            Đang phát triển
+          </span>
+          <span>
+            Dữ liệu hợp đồng chi tiết và tải file PDF hiện đang được hoàn thiện tích hợp cùng
+            backend.
+          </span>
         </div>
 
         {/* Body - Vertical List (1 column, clean & simple) */}

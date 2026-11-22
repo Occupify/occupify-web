@@ -46,6 +46,7 @@ export function AdminSidebar({
       badge: null,
       badgeColor: 'text-[#0A66C2]',
       badgeBg: 'bg-[#EAF1FA]',
+      isDeveloping: true,
     },
     {
       id: 'violations' as const,
@@ -78,7 +79,7 @@ export function AdminSidebar({
           Bảng điều khiển cốt lõi
         </div>
 
-        {NAV_ITEMS.map(({ id, label, Icon, badge, badgeColor, badgeBg }) => {
+        {NAV_ITEMS.map(({ id, label, Icon, badge, badgeColor, badgeBg, isDeveloping }) => {
           const isActive = activeNav === id
           return (
             <button
@@ -93,6 +94,11 @@ export function AdminSidebar({
             >
               <Icon size={18} weight={isActive ? 'fill' : 'regular'} className="shrink-0" />
               <span className="flex-1 truncate">{label}</span>
+              {isDeveloping && (
+                <span className="inline-flex shrink-0 items-center rounded-full border border-[#FDE68A] bg-[#FEF7E0] px-1.5 py-0.5 text-[10px] font-bold text-[#B06000]">
+                  Đang phát triển
+                </span>
+              )}
               {badge !== null && badge > 0 && (
                 <span
                   className={`inline-flex h-[18px] min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 text-[11px] font-bold ${badgeBg} ${badgeColor}`}

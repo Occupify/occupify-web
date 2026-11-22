@@ -31,12 +31,34 @@ export function ContractsTab({
     <div>
       {/* Page Header */}
       <div className="mb-5">
-        <h1 className="text-2xl font-extrabold tracking-[-0.02em] text-black/90">
-          Quản lý hợp đồng
-        </h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-extrabold tracking-[-0.02em] text-black/90">
+            Quản lý hợp đồng
+          </h1>
+          <span className="rounded-full border border-[#FDE68A] bg-[#FEF7E0] px-2.5 py-0.5 text-xs font-bold text-[#B06000]">
+            Tính năng đang phát triển
+          </span>
+        </div>
         <p className="mt-1 text-sm text-black/60">
           Giám sát hợp đồng điện tử pháp lý và tiến độ bàn giao giữa các bên
         </p>
+      </div>
+
+      {/* Development Notice Banner */}
+      <div className="mb-5 flex items-start gap-3 rounded-xl border border-[#FDE68A] bg-[#FEF7E0] p-4 text-[#92400E]">
+        <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#B06000] text-xs font-bold text-white">
+          !
+        </div>
+        <div>
+          <div className="text-xs font-bold uppercase tracking-wide text-[#B06000]">
+            Thông báo tính năng đang phát triển
+          </div>
+          <p className="mt-0.5 text-xs text-[#92400E] leading-relaxed">
+            Hệ thống Quản lý hợp đồng toàn sàn hiện đang được hoàn thiện API backend ở phiên bản kế
+            tiếp. Bạn có thể theo dõi danh sách hợp đồng của từng người dùng cụ thể trong mục{' '}
+            <strong>Quản lý tài khoản</strong>.
+          </p>
+        </div>
       </div>
 
       {/* Top 3 Metric Cards */}

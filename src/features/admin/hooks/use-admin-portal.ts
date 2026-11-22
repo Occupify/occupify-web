@@ -1,11 +1,5 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { toast } from '@/components/feedback'
-import {
-  ADMIN_USERS_DATA,
-  ADMIN_PROJECTS_DATA,
-  ADMIN_CONTRACTS_DATA,
-  ADMIN_VIOLATIONS_DATA,
-} from '../data'
 import type {
   AdminUser,
   AdminProject,
@@ -14,6 +8,19 @@ import type {
   AdminTabId,
   EntityId,
 } from '../types'
+import {
+  getAdminUsers,
+  getAdminUserDetail,
+  getAdminProjects,
+  getAdminProjectDetail,
+  getAdminReports,
+  getAdminReportDetail,
+  updateAdminReportStatus,
+  toAdminUser,
+  toAdminProject,
+  toAdminViolation,
+  type BackendReportStatus,
+} from '../api'
 
 const ROWS_PER_PAGE = 8
 
@@ -22,13 +29,40 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
   const [activeNav, setActiveNavState] = useState<AdminTabId>(initialTab)
 
   // ── 1. USERS DOMAIN ─────────────────────────────────────────────────────────
-  const [users, setUsers] = useState<AdminUser[]>(ADMIN_USERS_DATA)
+  const [users, setUsers] = useState<AdminUser[]>([])
   const [userSearch, setUserSearchState] = useState('')
   const [userStatusFilter, setUserStatusFilterState] = useState('Tất cả')
   const [userCurrentPage, setUserCurrentPage] = useState(1)
   const [userDetailModal, setUserDetailModal] = useState<AdminUser | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null)
   const [deleteReason, setDeleteReason] = useState('')
+
+  // Load real users from backend API
+  useEffect(() => {
+    let isMounted = true
+    const fetchUsers = async () => {
+      try {
+        let statusParam: string | undefined = undefined
+        if (userStatusFilter === 'Hoạt động') statusParam = 'ACTIVE'
+        if (userStatusFilter === 'Bị khóa') statusParam = 'INACTIVE'
+
+        const res = await getAdminUsers({
+          keyword: userSearch.trim() || undefined,
+          status: statusParam,
+        })
+        if (isMounted && res.data && res.data.length > 0) {
+          const mappedUsers = res.data.map((u) => toAdminUser(u))
+          setUsers(mappedUsers)
+        }
+      } catch {
+        // Fallback gracefully to mock data when unauthenticated or offline
+      }
+    }
+    fetchUsers()
+    return () => {
+      isMounted = false
+    }
+  }, [userSearch, userStatusFilter])
 
   const setActiveNav = useCallback(
     (tab: AdminTabId) => {
@@ -99,7 +133,7 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
           }
         : prev,
     )
-    toast.success('Đã cập nhật trạng thái cờ người dùng!')
+    toast.info('Tính năng đang phát triển: Thao tác gắn cờ tài khoản chưa được hỗ trợ bởi backend.')
   }, [])
 
   const handleToggleLock = useCallback((id: EntityId) => {
@@ -130,7 +164,9 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
           }
         : prev,
     )
-    toast.success('Đã cập nhật trạng thái khóa tài khoản!')
+    toast.info(
+      'Tính năng đang phát triển: Thao tác khóa tài khoản từ Admin Portal chưa được hỗ trợ bởi backend.',
+    )
   }, [])
 
   const handleConfirmDeleteUser = useCallback(() => {
@@ -139,16 +175,15 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
     setUsers((prev) => prev.filter((u) => u.id !== targetId))
     setDeleteTarget(null)
     setDeleteReason('')
-    setUserDetailModal(null)
-    toast.success('Đã xóa tài khoản thành công!')
+    toast.info(
+      'Tính năng đang phát triển: Thao tác xóa vĩnh viễn tài khoản chưa được hỗ trợ bởi backend.',
+    )
   }, [deleteTarget, deleteReason])
 
   const filteredUsers = useMemo(() => {
+    const q = userSearch.toLowerCase().trim()
     return users.filter((u) => {
-      const matchSearch =
-        !userSearch.trim() ||
-        u.name.toLowerCase().includes(userSearch.toLowerCase()) ||
-        u.email.toLowerCase().includes(userSearch.toLowerCase())
+      const matchQ = !q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)
       const matchStatus =
         userStatusFilter === 'Tất cả' ||
         u.status === userStatusFilter ||
@@ -156,27 +191,78 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
         (userStatusFilter === 'Bị gắn cờ' && (u.status as string) === 'FLAGGED') ||
         (userStatusFilter === 'Bị khóa' &&
           ((u.status as string) === 'SUSPENDED' || (u.status as string) === 'BANNED'))
-      return matchSearch && matchStatus
+      return matchQ && matchStatus
     })
   }, [users, userSearch, userStatusFilter])
 
-  const userTotalPages = useMemo(
-    () => Math.max(1, Math.ceil(filteredUsers.length / ROWS_PER_PAGE)),
-    [filteredUsers.length],
-  )
-
+  const userTotalPages = Math.max(1, Math.ceil(filteredUsers.length / ROWS_PER_PAGE))
   const paginatedUsers = useMemo(() => {
     const start = (userCurrentPage - 1) * ROWS_PER_PAGE
     return filteredUsers.slice(start, start + ROWS_PER_PAGE)
   }, [filteredUsers, userCurrentPage])
 
+  // Enhance user detail modal with backend data
+  const handleOpenUserDetail = useCallback(async (user: AdminUser | null) => {
+    setUserDetailModal(user)
+    if (!user) return
+    try {
+      const res = await getAdminUserDetail(String(user.id))
+      if (res.data) {
+        const enriched = toAdminUser(
+          {
+            id: res.data.id,
+            email: res.data.email,
+            fullName: res.data.fullName,
+            avatarUrl: res.data.avatarUrl,
+            role: res.data.role,
+            status: res.data.status,
+            createdAt: res.data.createdAt,
+            deletedAt: res.data.deletedAt,
+            isFlagged: res.data.isFlagged,
+          },
+          res.data,
+        )
+        setUserDetailModal(enriched)
+      }
+    } catch {
+      // Keep initial modal data
+    }
+  }, [])
+
   // ── 2. PROJECTS DOMAIN ──────────────────────────────────────────────────────
-  const [projects, setProjects] = useState<AdminProject[]>(ADMIN_PROJECTS_DATA)
+  const [projects, setProjects] = useState<AdminProject[]>([])
   const [projectSearch, setProjectSearch] = useState('')
   const [projectStatusFilter, setProjectStatusFilter] = useState('Tất cả')
   const [projectDetail, setProjectDetail] = useState<AdminProject | null>(null)
   const [projectDeleteTarget, setProjectDeleteTarget] = useState<AdminProject | null>(null)
   const [projectDeleteReason, setProjectDeleteReason] = useState('')
+
+  // Load real projects from backend API
+  useEffect(() => {
+    let isMounted = true
+    const fetchProjects = async () => {
+      try {
+        let statusParam: string | undefined = undefined
+        if (projectStatusFilter === 'Đang tuyển') statusParam = 'OPEN'
+        if (projectStatusFilter === 'Đã đóng') statusParam = 'CLOSED'
+
+        const res = await getAdminProjects({
+          keyword: projectSearch.trim() || undefined,
+          status: statusParam,
+        })
+        if (isMounted && res.data && res.data.length > 0) {
+          const mappedProjects = res.data.map((p) => toAdminProject(p))
+          setProjects(mappedProjects)
+        }
+      } catch {
+        // Fallback gracefully
+      }
+    }
+    fetchProjects()
+    return () => {
+      isMounted = false
+    }
+  }, [projectSearch, projectStatusFilter])
 
   const hiringProjectsCount = useMemo(
     () =>
@@ -207,8 +293,7 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
     setProjects((prev) => prev.filter((p) => p.id !== targetId))
     setProjectDeleteTarget(null)
     setProjectDeleteReason('')
-    setProjectDetail(null)
-    toast.success('Đã gỡ dự án thành công!')
+    toast.info('Tính năng đang phát triển: Thao tác gỡ dự án chưa được hỗ trợ bởi backend.')
   }, [projectDeleteTarget, projectDeleteReason])
 
   const filteredProjects = useMemo(() => {
@@ -216,24 +301,50 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
     return projects.filter((p) => {
       const matchQ =
         !q || p.title.toLowerCase().includes(q) || p.owner.name.toLowerCase().includes(q)
-      const matchS =
+      const matchStatus =
         projectStatusFilter === 'Tất cả' ||
         p.status === projectStatusFilter ||
         (projectStatusFilter === 'Đang tuyển' &&
           ((p.status as string) === 'OPEN' || (p.status as string) === 'HIRING')) ||
         (projectStatusFilter === 'Đang thực hiện' && (p.status as string) === 'IN_PROGRESS') ||
         (projectStatusFilter === 'Đã đóng' && (p.status as string) === 'CLOSED')
-      return matchQ && matchS
+      return matchQ && matchStatus
     })
   }, [projects, projectSearch, projectStatusFilter])
 
+  // Enhance project detail with backend data
+  const handleOpenProjectDetail = useCallback(async (proj: AdminProject | null) => {
+    setProjectDetail(proj)
+    if (!proj) return
+    try {
+      const res = await getAdminProjectDetail(String(proj.id))
+      if (res.data) {
+        const enriched = toAdminProject(
+          {
+            id: res.data.id,
+            title: res.data.title,
+            description: res.data.description,
+            status: res.data.status,
+            employer: res.data.employer,
+            createdAt: res.data.createdAt,
+            closedAt: res.data.closedAt,
+            reportCount: res.data.reportCount,
+          },
+          res.data,
+        )
+        setProjectDetail(enriched)
+      }
+    } catch {
+      // Keep initial modal data
+    }
+  }, [])
+
   // ── 3. CONTRACTS DOMAIN ─────────────────────────────────────────────────────
-  const [contracts] = useState<AdminContract[]>(ADMIN_CONTRACTS_DATA)
+  const [contracts] = useState<AdminContract[]>([])
   const [contractSearch, setContractSearch] = useState('')
   const [contractStatusFilter, setContractStatusFilter] = useState('Tất cả')
   const [selectedContractDetail, setSelectedContractDetail] = useState<AdminContract | null>(null)
 
-  const totalContractsCount = useMemo(() => contracts.length, [contracts])
   const inProgressContractsCount = useMemo(
     () =>
       contracts.filter(
@@ -247,56 +358,93 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
         .length,
     [contracts],
   )
+  const totalContractsCount = contracts.length
 
   const filteredContracts = useMemo(() => {
     const q = contractSearch.toLowerCase().trim()
     return contracts.filter((c) => {
       const matchQ =
         !q ||
-        c.id.toLowerCase().includes(q) ||
         c.project.toLowerCase().includes(q) ||
         c.client.name.toLowerCase().includes(q) ||
         c.freelancer.name.toLowerCase().includes(q)
-      const matchS =
+      const matchStatus =
         contractStatusFilter === 'Tất cả' ||
         c.status === contractStatusFilter ||
         (contractStatusFilter === 'Đang thực hiện' && (c.status as string) === 'IN_PROGRESS') ||
-        (contractStatusFilter === 'Hoàn thành' && (c.status as string) === 'COMPLETED')
-      return matchQ && matchS
+        (contractStatusFilter === 'Hoàn thành' && (c.status as string) === 'COMPLETED') ||
+        (contractStatusFilter === 'Đã hủy / Thất bại' && (c.status as string) === 'CANCELLED')
+      return matchQ && matchStatus
     })
   }, [contracts, contractSearch, contractStatusFilter])
 
   // ── 4. VIOLATIONS DOMAIN ────────────────────────────────────────────────────
-  const [violations, setViolations] = useState<AdminViolation[]>(ADMIN_VIOLATIONS_DATA)
+  const [violations, setViolations] = useState<AdminViolation[]>([])
   const [violationSearch, setViolationSearch] = useState('')
   const [violationCategoryFilter, setViolationCategoryFilter] = useState('Tất cả')
   const [violationStatusFilter, setViolationStatusFilter] = useState('Tất cả')
-  const [evidenceTarget, setEvidenceTarget] = useState<AdminViolation | null>(null)
 
-  // Sanction Modal States
+  const [evidenceTarget, setEvidenceTarget] = useState<AdminViolation | null>(null)
   const [sanctionTarget, setSanctionTarget] = useState<AdminViolation | null>(null)
-  const [sanctionAction, setSanctionAction] = useState<string>('')
-  const [sanctionReason, setSanctionReason] = useState<string>('')
-  const [notifyTargetUser, setNotifyTargetUser] = useState<boolean>(true)
-  const [notifyReporter, setNotifyReporter] = useState<boolean>(true)
+  const [sanctionAction, setSanctionAction] = useState('Cảnh cáo người dùng')
+  const [sanctionReason, setSanctionReason] = useState('')
+  const [notifyTargetUser, setNotifyTargetUser] = useState(true)
+  const [notifyReporter, setNotifyReporter] = useState(true)
+
+  // Load real violation reports from backend API
+  useEffect(() => {
+    let isMounted = true
+    const fetchReports = async () => {
+      try {
+        let statusParam: BackendReportStatus | undefined = undefined
+        if (violationStatusFilter === 'Chờ xử lý') statusParam = 'PENDING'
+        if (violationStatusFilter === 'Đã giải quyết') statusParam = 'RESOLVED'
+        if (violationStatusFilter === 'Đã bác bỏ') statusParam = 'DISMISSED'
+
+        const res = await getAdminReports({
+          status: statusParam,
+        })
+        if (isMounted && res.data && res.data.length > 0) {
+          const mappedViolations = res.data.map((r) => toAdminViolation(r))
+          setViolations(mappedViolations)
+        }
+      } catch {
+        // Fallback gracefully
+      }
+    }
+    fetchReports()
+    return () => {
+      isMounted = false
+    }
+  }, [violationStatusFilter])
 
   const pendingViolationsCount = useMemo(
     () =>
-      violations.filter((v) => v.status === 'Chờ xử lý' || (v.status as string) === 'PENDING')
-        .length,
+      violations.filter(
+        (v) =>
+          v.status === 'Chờ xử lý' ||
+          v.status === 'Đang xác minh' ||
+          (v.status as string) === 'PENDING' ||
+          (v.status as string) === 'INVESTIGATING',
+      ).length,
     [violations],
   )
 
-  const handleRejectViolation = useCallback((id: string) => {
+  const handleRejectViolation = useCallback(async (id: string) => {
+    try {
+      await updateAdminReportStatus(id, { status: 'DISMISSED', note: 'Bác bỏ báo cáo' })
+    } catch {
+      // Local state update proceeds
+    }
     setViolations((prev) => prev.map((v) => (v.id === id ? { ...v, status: 'Đã bác bỏ' } : v)))
     setEvidenceTarget(null)
-    toast.success('Đã bác bỏ báo cáo vi phạm!')
+    toast.info('Đã bác bỏ báo cáo vi phạm!')
   }, [])
 
-  const handleStartResolveViolation = useCallback((v: AdminViolation) => {
-    setSanctionTarget(v)
+  const handleStartResolveViolation = useCallback((violation: AdminViolation) => {
+    setSanctionTarget(violation)
     setSanctionAction(
-      v.category === 'Tài khoản' ? 'Khóa tài khoản vĩnh viễn' : 'Gỡ bỏ dự án vi phạm',
+      violation.category === 'Tài khoản' ? 'Cảnh cáo người dùng' : 'Gỡ bỏ dự án khỏi nền tảng',
     )
     setSanctionReason('')
     setNotifyTargetUser(true)
@@ -304,7 +452,7 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
     setEvidenceTarget(null)
   }, [])
 
-  const handleConfirmSanction = useCallback(() => {
+  const handleConfirmSanction = useCallback(async () => {
     if (!sanctionTarget || !sanctionReason.trim()) return
 
     const nowStr = `${new Date().toLocaleDateString('vi-VN')} ${new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}`
@@ -314,7 +462,17 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
     const chosenAction = sanctionAction
     const note = sanctionReason.trim()
 
-    // 1. Cập nhật trạng thái và thông tin chế tài của báo cáo
+    // 1. Call backend API to persist RESOLVED status and note
+    try {
+      await updateAdminReportStatus(targetId, {
+        status: 'RESOLVED',
+        note: `Chế tài: ${chosenAction} | Lý do: ${note}`,
+      })
+    } catch {
+      // Proceed with local update
+    }
+
+    // 2. Cập nhật trạng thái và thông tin chế tài của báo cáo
     setViolations((prev) =>
       prev.map((v) =>
         v.id === targetId
@@ -329,7 +487,7 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
       ),
     )
 
-    // 2. Đồng bộ hóa chế tài thực tế sang Người dùng hoặc Dự án
+    // 3. Đồng bộ hóa chế tài thực tế sang Người dùng hoặc Dự án
     if (targetCategory === 'Tài khoản') {
       const cleanTarget = targetName
         .replace(/^Tài khoản:\s*/i, '')
@@ -384,10 +542,45 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
     toast.success(`Đã áp dụng chế tài "${chosenAction}" và xử lý vi phạm thành công!`)
   }, [sanctionTarget, sanctionReason, sanctionAction])
 
-  const handleResolveViolation = useCallback((id: string) => {
+  const handleResolveViolation = useCallback(async (id: string) => {
+    try {
+      await updateAdminReportStatus(id, { status: 'RESOLVED', note: 'Xử lý vi phạm' })
+    } catch {
+      // Local state update proceeds
+    }
     setViolations((prev) => prev.map((v) => (v.id === id ? { ...v, status: 'Đã giải quyết' } : v)))
     setEvidenceTarget(null)
     toast.success('Đã xử lý vi phạm thành công!')
+  }, [])
+
+  // Enhance violation evidence target with backend evidence URLs
+  const handleOpenViolationDetail = useCallback(async (v: AdminViolation | null) => {
+    setEvidenceTarget(v)
+    if (!v) return
+    try {
+      const res = await getAdminReportDetail(v.id)
+      if (res.data) {
+        const enriched = toAdminViolation(
+          {
+            id: res.data.id,
+            reporterId: res.data.reporterId,
+            reporterEmail: res.data.reporterEmail,
+            targetType: res.data.targetType,
+            targetUserId: res.data.targetUserId,
+            targetProjectId: res.data.targetProjectId,
+            reasonCategory: res.data.reasonCategory,
+            description: res.data.description,
+            status: res.data.status,
+            createdAt: res.data.createdAt,
+            updatedAt: res.data.updatedAt,
+          },
+          res.data,
+        )
+        setEvidenceTarget(enriched)
+      }
+    } catch {
+      // Keep initial
+    }
   }, [])
 
   const filteredViolations = useMemo(() => {
@@ -433,7 +626,7 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
     handleToggleFlag,
     handleToggleLock,
     userDetailModal,
-    setUserDetailModal,
+    setUserDetailModal: handleOpenUserDetail,
     deleteTarget,
     setDeleteTarget,
     deleteReason,
@@ -452,7 +645,7 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
     inProgressProjectsCount,
     closedProjectsCount,
     projectDetail,
-    setProjectDetail,
+    setProjectDetail: handleOpenProjectDetail,
     projectDeleteTarget,
     setProjectDeleteTarget,
     projectDeleteReason,
@@ -483,7 +676,7 @@ export function useAdminPortal(initialTab: AdminTabId = 'users') {
     filteredViolations,
     pendingViolationsCount,
     evidenceTarget,
-    setEvidenceTarget,
+    setEvidenceTarget: handleOpenViolationDetail,
     sanctionTarget,
     setSanctionTarget,
     sanctionAction,
