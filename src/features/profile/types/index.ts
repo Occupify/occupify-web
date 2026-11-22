@@ -117,9 +117,12 @@ export interface ProfileData {
 }
 
 export interface ReportProfilePayload {
+  reportedUserId?: string
   reportedUserName: string
   reason: string
+  reasonCategory?: string
   imageFileName?: string
+  evidenceFile?: File | null
 }
 
 export interface UploadCvResponse {

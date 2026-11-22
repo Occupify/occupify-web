@@ -251,16 +251,24 @@ export function ProfilePage({
   }
 
   // Report & CV Handlers
-  const handleReportSubmit = async (reason: string, imageFileName?: string) => {
+  const handleReportSubmit = async (
+    reason: string,
+    imageFileName?: string,
+    evidenceFile?: File | null,
+  ) => {
     if (!profile) return
     try {
       await reportMutation.mutateAsync({
         reportedUserName: profile.name,
+        reportedUserId: (profile as any).id,
         reason,
         imageFileName,
+        evidenceFile,
       })
       setReportModalOpen(false)
-      toast.info('Tính năng đang phát triển.')
+      toast.success(
+        'Đã gửi báo cáo vi phạm thành công! Ban quản trị Occupify sẽ kiểm tra và phản hồi trong 24h.',
+      )
     } catch {
       toast.error('Có lỗi xảy ra khi gửi báo cáo người dùng.')
     }

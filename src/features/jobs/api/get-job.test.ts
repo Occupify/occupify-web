@@ -56,13 +56,31 @@ test('toApplyJobResponse maps CreatedResponse to ApplyJobResponse correctly', ()
 })
 
 test('reportJob successfully submits violation report', async () => {
-  const result = await reportJob({
-    jobId: 'test-proj-uuid',
-    clientName: 'Trần Thị Mai Phương',
-    jobTitle: 'Senior UI/UX Designer – Fintech App Redesign',
-    reason: 'Nội dung vi phạm / Lừa đảo',
-    detail: 'Yêu cầu đặt cọc tiền trước khi làm việc',
-  })
-  assert.equal(result.success, true)
-  assert.ok(result.reportId.includes('rep-'))
+  const originalFetch = globalThis.fetch
+  globalThis.fetch = async () =>
+    new Response(
+      JSON.stringify({
+        statusCode: 201,
+        message: 'Báo cáo vi phạm đã được tiếp nhận thành công',
+        data: {
+          id: 'rep-uuid-123',
+          createdAt: '2026-11-22T10:00:00Z',
+        },
+      }),
+      { status: 201, headers: { 'Content-Type': 'application/json' } },
+    )
+
+  try {
+    const result = await reportJob({
+      jobId: 'test-proj-uuid',
+      clientName: 'Trần Thị Mai Phương',
+      jobTitle: 'Senior UI/UX Designer – Fintech App Redesign',
+      reason: 'Nội dung vi phạm / Lừa đảo',
+      detail: 'Yêu cầu đặt cọc tiền trước khi làm việc',
+    })
+    assert.equal(result.success, true)
+    assert.ok(result.reportId.includes('rep-'))
+  } finally {
+    globalThis.fetch = originalFetch
+  }
 })
