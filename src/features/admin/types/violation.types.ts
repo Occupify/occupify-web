@@ -23,6 +23,7 @@ export interface AdminViolation {
   reason: string
   evidence: string
   evidenceImage?: string
+  evidenceUrls?: string[]
   actionTaken?: string
   resolveNote?: string
   resolvedAt?: string

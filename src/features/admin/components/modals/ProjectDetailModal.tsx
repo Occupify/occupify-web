@@ -217,7 +217,8 @@ export function ProjectDetailModal({ project, onClose, onDeleteClick }: ProjectD
             onClick={() => onDeleteClick(project)}
             className="rounded-full border border-[#FCE8E6] bg-[#FCE8E6] px-4 py-2 text-xs font-bold text-[#C03A2B] transition-colors hover:bg-[#fad2cf]"
           >
-            Gỡ bỏ dự án vi phạm
+            Gỡ bỏ dự án vi phạm{' '}
+            <span className="font-normal text-[10px] opacity-80">(Đang phát triển)</span>
           </button>
           <button
             type="button"

@@ -122,6 +122,11 @@ export function UserDetailModal({
                   </div>
                 </div>
               </div>
+              {user.flagReason && (
+                <div className="mt-2 rounded bg-white/80 p-2 text-left text-[11px] text-[#92400E]">
+                  <strong>Lý do gắn cờ:</strong> {user.flagReason}
+                </div>
+              )}
             </div>
 
             {/* Joined & Last login Box */}
@@ -246,7 +251,8 @@ export function UserDetailModal({
             onClick={() => onDeleteClick(user)}
             className="rounded-full border border-[#FCE8E6] bg-[#FCE8E6] px-4 py-2 text-xs font-bold text-[#C03A2B] transition-colors hover:bg-[#fad2cf]"
           >
-            Xóa tài khoản
+            Xóa tài khoản{' '}
+            <span className="font-normal text-[10px] opacity-80">(Đang phát triển)</span>
           </button>
 
           <div className="flex items-center gap-3">
@@ -257,7 +263,8 @@ export function UserDetailModal({
                 isLocked ? 'bg-[#057642] hover:bg-[#046237]' : 'bg-[#B06000] hover:bg-[#965200]'
               }`}
             >
-              {isLocked ? 'Mở khóa tài khoản' : 'Khóa tài khoản'}
+              {isLocked ? 'Mở khóa tài khoản' : 'Khóa tài khoản'}{' '}
+              <span className="font-normal text-[10px] opacity-80">(Đang phát triển)</span>
             </button>
             <button
               type="button"

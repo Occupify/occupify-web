@@ -129,9 +129,39 @@ export function ViolationDetailModal({
           {/* Evidence Image Section */}
           <div className="rounded-lg border border-black/8 bg-[#FAFAF8] p-3.5">
             <span className="font-bold text-[11.5px] text-black/70 uppercase tracking-wide">
-              Bằng chứng đính kèm:
+              Bằng chứng đính kèm (
+              {violation.evidenceUrls?.length || (violation.evidenceImage ? 1 : 0)} tệp):
             </span>
-            {violation.evidenceImage ? (
+            {violation.evidenceUrls && violation.evidenceUrls.length > 0 ? (
+              <div className="mt-2.5 flex flex-col gap-2">
+                {violation.evidenceUrls.map((url, idx) => (
+                  <div
+                    key={idx}
+                    className="overflow-hidden rounded-lg border border-black/10 bg-white p-2 shadow-sm"
+                  >
+                    {url.match(/\.(jpeg|jpg|gif|png|webp)($|\?)/i) || !url.includes('.') ? (
+                      <img
+                        src={url}
+                        alt={`Bằng chứng #${idx + 1}`}
+                        className="max-h-60 w-full rounded bg-[#F4F4F2] object-contain"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <a
+                        href={url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-2 text-xs font-semibold text-[#0A66C2] hover:underline"
+                      >
+                        <span>
+                          Tệp đính kèm #{idx + 1}: {url.split('/').pop()}
+                        </span>
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : violation.evidenceImage ? (
               <div className="mt-2.5 overflow-hidden rounded-lg border border-black/10 bg-white shadow-sm">
                 <img
                   src={violation.evidenceImage}

@@ -33,6 +33,7 @@ export interface AdminUser {
   reportsCount: number
   reportCount?: number
   flagCount?: number
+  flagReason?: string
   lastLogin: string
   projectHistory: ProjectHistoryItem[]
 }

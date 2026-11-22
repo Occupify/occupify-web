@@ -124,13 +124,19 @@ export interface ApplyJobResponse {
   submittedAt: string
 }
 
+export type BackendReportReasonCategory =
+  'FRAUD' | 'OUTSIDE_PAYMENT' | 'FAKE_INFORMATION' | 'SPAM' | 'HARASSMENT' | 'OTHER'
+
 export interface ReportJobInput {
   jobId: string | number
-  clientName: string
-  jobTitle: string
+  projectId?: string
+  clientName?: string
+  jobTitle?: string
   reason: string
+  reasonCategory?: BackendReportReasonCategory
   detail: string
   evidenceImage?: string
+  evidenceFile?: File | null
 }
 
 export interface ReportJobResponse {
@@ -214,3 +220,4 @@ export interface ProjectDetailApiResponse {
 }
 
 export * from './projects-mapping.ts'
+export * from './report-mapping.ts'

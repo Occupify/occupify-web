@@ -33,13 +33,29 @@ export function ProjectDeleteModal({
             <WarningIcon size={22} className="text-[#C03A2B]" weight="fill" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-black/90">Xác nhận gỡ bỏ dự án</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-lg font-bold text-black/90">Xác nhận gỡ bỏ dự án</h3>
+              <span className="rounded-full border border-[#FDE68A] bg-[#FEF7E0] px-2 py-0.5 text-[10px] font-bold text-[#B06000]">
+                Đang phát triển
+              </span>
+            </div>
             <p className="mt-1 text-xs leading-relaxed text-black/60">
               Bạn đang gỡ dự án{' '}
               <strong className="text-black/90 font-bold">"{project.title}"</strong> khỏi nền tảng
               do vi phạm.
             </p>
           </div>
+        </div>
+
+        {/* Development banner */}
+        <div className="mb-4 flex items-center gap-2 rounded-lg border border-[#FDE68A] bg-[#FEF7E0] p-3 text-xs text-[#92400E]">
+          <span className="rounded bg-[#F59E0B] px-1.5 py-0.5 text-[10px] font-bold text-white shrink-0">
+            Lưu ý
+          </span>
+          <span>
+            Tính năng đang phát triển: Thao tác này hiện chỉ được mô phỏng trên giao diện do backend
+            chưa cung cấp API gỡ dự án.
+          </span>
         </div>
 
         <div className="mb-5">
