@@ -12,6 +12,15 @@ import {
   toAdminProject,
   toAdminViolation,
 } from './admin-mappers.ts'
+import {
+  accountModerationRequestSchema,
+  adminProjectSingleResponseSchema,
+  adminReportSingleResponseSchema,
+  adminUserSingleResponseSchema,
+  closeProjectRequestSchema,
+  normalizeModerationReason,
+  successResponseSchema,
+} from './admin-schemas.ts'
 
 test('getInitialsFromName generates proper initials', () => {
   assert.strictEqual(getInitialsFromName('Nguyen Van A'), 'NA')
@@ -53,11 +62,14 @@ test('mapReportStatusToLabel maps backend statuses', () => {
   assert.strictEqual(mapReportStatusToLabel('INVESTIGATING'), 'Đang xác minh')
 })
 
-test('mapUserStatusToLabel handles active, flagged and suspended users', () => {
+test('mapUserStatusToLabel handles active, flagged, banned, and deleted users', () => {
   assert.strictEqual(mapUserStatusToLabel('ACTIVE', false), 'Hoạt động')
   assert.strictEqual(mapUserStatusToLabel('ACTIVE', true), 'Bị gắn cờ')
   assert.strictEqual(mapUserStatusToLabel('SUSPENDED', false), 'Bị khóa')
   assert.strictEqual(mapUserStatusToLabel('BANNED', false), 'Bị khóa')
+  assert.strictEqual(mapUserStatusToLabel('BANNED', true), 'Bị khóa')
+  assert.strictEqual(mapUserStatusToLabel('DELETED', false), 'Đã xóa')
+  assert.strictEqual(mapUserStatusToLabel('DELETED', true), 'Đã xóa')
 })
 
 test('mapUserRoleToLabel maps user roles correctly', () => {
@@ -67,14 +79,16 @@ test('mapUserRoleToLabel maps user roles correctly', () => {
   assert.strictEqual(mapUserRoleToLabel('OTHER'), 'Người dùng')
 })
 
-test('toAdminUser maps backend user correctly', () => {
+test('toAdminUser maps backend user including statusReason, rawStatus, and deletedAt', () => {
   const backendUser = {
     id: 'user-123',
     email: 'dev@occupify.app',
     fullName: 'Lê Văn Dev',
     role: 'FREELANCER',
-    status: 'ACTIVE',
+    status: 'BANNED',
+    statusReason: 'Spam tin nhắn',
     createdAt: '2026-11-01T00:00:00Z',
+    deletedAt: null,
     isFlagged: false,
   }
 
@@ -83,7 +97,9 @@ test('toAdminUser maps backend user correctly', () => {
   assert.strictEqual(result.name, 'Lê Văn Dev')
   assert.strictEqual(result.email, 'dev@occupify.app')
   assert.strictEqual(result.role, 'Freelancer')
-  assert.strictEqual(result.status, 'Hoạt động')
+  assert.strictEqual(result.status, 'Bị khóa')
+  assert.strictEqual(result.rawStatus, 'BANNED')
+  assert.strictEqual(result.statusReason, 'Spam tin nhắn')
   assert.strictEqual(result.initials, 'LD')
 })
 
@@ -110,12 +126,13 @@ test('toAdminProject maps backend project correctly', () => {
   assert.strictEqual(result.reportCount, 2)
 })
 
-test('toAdminViolation maps backend report correctly', () => {
-  const backendReport = {
+test('toAdminViolation preserves targetUserId and targetProjectId', () => {
+  const projectReport = {
     id: 'rep-789',
     reporterId: 'rep-user',
     reporterEmail: 'victim@occupify.local',
     targetType: 'PROJECT' as const,
+    targetUserId: null,
     targetProjectId: 'proj-456-uuid',
     reasonCategory: 'FRAUD' as const,
     description: 'Dự án yêu cầu cọc tiền',
@@ -124,11 +141,93 @@ test('toAdminViolation maps backend report correctly', () => {
     updatedAt: '2026-11-15T00:00:00Z',
   }
 
-  const result = toAdminViolation(backendReport)
-  assert.strictEqual(result.id, 'rep-789')
-  assert.strictEqual(result.reporter.name, 'victim')
-  assert.strictEqual(result.category, 'Dự án')
-  assert.strictEqual(result.reason, 'Nội dung vi phạm / Lừa đảo')
-  assert.strictEqual(result.status, 'Chờ xử lý')
-  assert.ok(result.target.includes('Dự án'))
+  const mappedProject = toAdminViolation(projectReport)
+  assert.strictEqual(mappedProject.id, 'rep-789')
+  assert.strictEqual(mappedProject.targetProjectId, 'proj-456-uuid')
+  assert.strictEqual(mappedProject.targetUserId, null)
+  assert.ok(mappedProject.target.includes('Dự án'))
+
+  const userReport = {
+    ...projectReport,
+    id: 'rep-790',
+    targetType: 'USER' as const,
+    targetUserId: 'user-999-uuid',
+    targetProjectId: null,
+  }
+  const mappedUser = toAdminViolation(userReport)
+  assert.strictEqual(mappedUser.targetUserId, 'user-999-uuid')
+  assert.strictEqual(mappedUser.targetProjectId, null)
+})
+
+test('normalizeModerationReason trims or collapses blank values to null', () => {
+  assert.strictEqual(normalizeModerationReason('  Vi phạm điều khoản  '), 'Vi phạm điều khoản')
+  assert.strictEqual(normalizeModerationReason('   '), null)
+  assert.strictEqual(normalizeModerationReason(''), null)
+  assert.strictEqual(normalizeModerationReason(null), null)
+  assert.strictEqual(normalizeModerationReason(undefined), null)
+})
+
+test('Zod moderation schemas validate nullable reasons and enforce max 1000 chars', () => {
+  assert.deepStrictEqual(accountModerationRequestSchema.parse({ reason: null }), { reason: null })
+  assert.deepStrictEqual(closeProjectRequestSchema.parse({ reason: 'Spam' }), { reason: 'Spam' })
+  assert.throws(() => accountModerationRequestSchema.parse({ reason: 'a'.repeat(1001) }))
+})
+
+test('Zod response schemas validate backend envelopes for users, projects, reports, and delete', () => {
+  const deleted = successResponseSchema.parse({
+    statusCode: 200,
+    message: 'User account deleted successfully',
+  })
+  assert.strictEqual(deleted.statusCode, 200)
+
+  const lockedUser = adminUserSingleResponseSchema.parse({
+    statusCode: 200,
+    message: 'User account locked successfully',
+    data: {
+      id: 'u-1',
+      email: 'u@occupify.app',
+      fullName: 'User One',
+      role: 'USER',
+      status: 'BANNED',
+      statusReason: 'Vi phạm',
+      createdAt: '2026-11-01T00:00:00Z',
+      isFlagged: false,
+    },
+  })
+  assert.strictEqual(lockedUser.data.status, 'BANNED')
+  assert.strictEqual(lockedUser.data.statusReason, 'Vi phạm')
+
+  const closedProject = adminProjectSingleResponseSchema.parse({
+    statusCode: 200,
+    message: 'Project closed successfully',
+    data: {
+      id: 'p-1',
+      title: 'Project One',
+      status: 'CLOSED',
+      employer: { id: 'e-1', email: 'e@occupify.app', fullName: 'Employer' },
+      createdAt: '2026-11-01T00:00:00Z',
+      closedAt: '2026-11-26T00:00:00Z',
+      reportCount: 1,
+    },
+  })
+  assert.strictEqual(closedProject.data.status, 'CLOSED')
+
+  const dismissedReport = adminReportSingleResponseSchema.parse({
+    statusCode: 200,
+    message: 'Report status updated successfully',
+    data: {
+      id: 'r-1',
+      reporterId: 'u-2',
+      reporterEmail: 'rep@occupify.app',
+      targetType: 'USER',
+      targetUserId: 'u-1',
+      targetProjectId: null,
+      reasonCategory: 'SPAM',
+      description: 'Spamming users',
+      status: 'DISMISSED',
+      createdAt: '2026-11-20T00:00:00Z',
+      updatedAt: '2026-11-26T00:00:00Z',
+    },
+  })
+  assert.strictEqual(dismissedReport.data.status, 'DISMISSED')
 })
