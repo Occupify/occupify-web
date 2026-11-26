@@ -1,5 +1,6 @@
 import { apiClient } from '@/lib/api-client'
 import type { PageResponse, SingleResponse } from '@/types'
+import { adminReportSingleResponseSchema } from './admin-schemas'
 
 export type BackendReportTargetType = 'USER' | 'PROJECT'
 export type BackendReportStatus = 'PENDING' | 'RESOLVED' | 'DISMISSED'
@@ -78,8 +79,9 @@ export async function updateAdminReportStatus(
   id: string,
   payload: UpdateReportStatusPayload,
 ): Promise<SingleResponse<AdminReportBackendResponse>> {
-  return await apiClient.put<SingleResponse<AdminReportBackendResponse>>(
+  const raw = await apiClient.put<SingleResponse<AdminReportBackendResponse>>(
     `/admin/reports/${id}/status`,
     payload,
   )
+  return adminReportSingleResponseSchema.parse(raw)
 }

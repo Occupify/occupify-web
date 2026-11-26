@@ -93,17 +93,18 @@ export function mapReportStatusToLabel(status?: string | null): ViolationStatus 
 }
 
 export function mapUserStatusToLabel(status?: string | null, isFlagged = false): UserStatus {
-  if (isFlagged) return 'Bị gắn cờ'
-  switch (status) {
-    case 'SUSPENDED':
-    case 'BANNED':
-    case 'INACTIVE':
-    case 'DELETED':
-      return 'Bị khóa'
-    case 'ACTIVE':
-    default:
-      return 'Hoạt động'
+  const normalized = (status || '').toUpperCase()
+  if (normalized === 'DELETED') return 'Đã xóa'
+  if (
+    normalized === 'SUSPENDED' ||
+    normalized === 'BANNED' ||
+    normalized === 'LOCKED' ||
+    normalized === 'INACTIVE'
+  ) {
+    return 'Bị khóa'
   }
+  if (isFlagged) return 'Bị gắn cờ'
+  return 'Hoạt động'
 }
 
 export function mapUserRoleToLabel(role?: string | null): UserRole {
@@ -120,7 +121,8 @@ export function toAdminUser(
 ): AdminUser {
   const name = item.fullName?.trim() || item.email.split('@')[0]
   const isFlagged = detail ? detail.isFlagged : item.isFlagged
-  const status = mapUserStatusToLabel(detail?.status || item.status, isFlagged)
+  const rawStatus = (detail?.status || item.status || 'ACTIVE').toUpperCase()
+  const status = mapUserStatusToLabel(rawStatus, isFlagged)
   const role = mapUserRoleToLabel(detail?.role || item.role)
 
   const history: ProjectHistoryItem[] = (detail?.recentContracts || []).map((c) => ({
@@ -133,8 +135,10 @@ export function toAdminUser(
     status: c.status === 'COMPLETED' ? 'Hoàn thành' : 'Đang thực hiện',
   }))
 
-  const totalContracts = detail?.totalContracts ?? (detail?.totalCompletedContracts || 0)
-  const completedContracts = detail?.totalCompletedContracts || 0
+  const totalContracts =
+    detail?.totalContracts ?? detail?.totalCompletedContracts ?? item.totalCompletedContracts ?? 0
+  const completedContracts = detail?.totalCompletedContracts ?? item.totalCompletedContracts ?? 0
+  const disputeCount = detail?.disputeCount ?? item.disputeCount ?? 0
   const completionRate =
     totalContracts > 0 ? `${Math.round((completedContracts / totalContracts) * 100)}%` : '100%'
 
@@ -144,6 +148,9 @@ export function toAdminUser(
     email: item.email,
     role,
     status,
+    rawStatus,
+    statusReason: detail?.statusReason ?? item.statusReason ?? null,
+    deletedAt: detail?.deletedAt ?? item.deletedAt ?? null,
     joined: formatDateTime(item.createdAt),
     initials: getInitialsFromName(name),
     color: getColorFromString(item.email),
@@ -152,8 +159,8 @@ export function toAdminUser(
     completionRate,
     rating: 4.8,
     ratingCount: Math.max(1, completedContracts),
-    reportsCount: detail?.disputeCount || 0,
-    reportCount: detail?.disputeCount || 0,
+    reportsCount: disputeCount,
+    reportCount: disputeCount,
     flagCount: isFlagged ? 1 : 0,
     flagReason: detail?.flagReason || undefined,
     lastLogin: formatDateTime(item.createdAt),
@@ -229,6 +236,8 @@ export function toAdminViolation(
       color: getColorFromString(reporterEmail),
     },
     target: targetDisplay,
+    targetUserId: item.targetUserId ?? detail?.targetUserId ?? null,
+    targetProjectId: item.targetProjectId ?? detail?.targetProjectId ?? null,
     category,
     time: formatDateTime(item.createdAt),
     status: mapReportStatusToLabel(item.status),

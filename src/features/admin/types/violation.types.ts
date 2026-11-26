@@ -17,6 +17,8 @@ export interface AdminViolation {
     color: string
   }
   target: string
+  targetUserId?: string | null
+  targetProjectId?: string | null
   category: ViolationCategory
   time: string
   status: ViolationStatus

@@ -9,7 +9,15 @@ export interface ProjectHistoryItem {
 }
 
 export type UserStatus =
-  'ACTIVE' | 'FLAGGED' | 'SUSPENDED' | 'BANNED' | 'Hoạt động' | 'Bị gắn cờ' | 'Bị khóa'
+  | 'ACTIVE'
+  | 'FLAGGED'
+  | 'SUSPENDED'
+  | 'BANNED'
+  | 'DELETED'
+  | 'Hoạt động'
+  | 'Bị gắn cờ'
+  | 'Bị khóa'
+  | 'Đã xóa'
 
 export type UserRole = 'Freelancer' | 'Client' | 'FREELANCER' | 'CLIENT' | 'ADMIN' | 'USER' | string
 
@@ -19,6 +27,9 @@ export interface AdminUser {
   email: string
   role: UserRole
   status: UserStatus
+  rawStatus?: string
+  statusReason?: string | null
+  deletedAt?: string | null
   joined: string
   initials: string
   color: string

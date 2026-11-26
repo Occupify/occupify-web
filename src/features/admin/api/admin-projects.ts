@@ -1,5 +1,10 @@
 import { apiClient } from '@/lib/api-client'
 import type { PageResponse, SingleResponse } from '@/types'
+import {
+  adminProjectSingleResponseSchema,
+  closeProjectRequestSchema,
+  normalizeModerationReason,
+} from './admin-schemas'
 
 export interface AdminProjectEmployerResponse {
   id: string
@@ -13,7 +18,7 @@ export interface AdminProjectBackendResponse {
   title: string
   description?: string | null
   status: 'OPEN' | 'CLOSED' | string
-  employer: AdminProjectEmployerResponse
+  employer?: AdminProjectEmployerResponse | null
   createdAt: string
   closedAt?: string | null
   reportCount: number
@@ -71,4 +76,21 @@ export async function getAdminProjectDetail(
   return await apiClient.get<SingleResponse<AdminProjectDetailBackendResponse>>(
     `/admin/projects/${id}`,
   )
+}
+
+/**
+ * Close an open project (PATCH /admin/projects/{id}/close)
+ */
+export async function closeAdminProject(
+  id: string,
+  reason?: string | null,
+): Promise<SingleResponse<AdminProjectBackendResponse>> {
+  const payload = closeProjectRequestSchema.parse({
+    reason: normalizeModerationReason(reason),
+  })
+  const raw = await apiClient.patch<SingleResponse<AdminProjectBackendResponse>>(
+    `/admin/projects/${id}/close`,
+    payload,
+  )
+  return adminProjectSingleResponseSchema.parse(raw)
 }
