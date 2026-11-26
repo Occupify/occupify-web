@@ -14,20 +14,32 @@ import { AdminStatusBadge } from '../shared'
 interface UserDetailModalProps {
   user: AdminUser | null
   onClose: () => void
-  onToggleLock: (id: EntityId) => void
+  onLockClick: (user: AdminUser) => void
+  onUnlockClick: (id: EntityId) => void
   onDeleteClick: (user: AdminUser) => void
+  isSubmitting?: boolean
 }
 
 export function UserDetailModal({
   user,
   onClose,
-  onToggleLock,
+  onLockClick,
+  onUnlockClick,
   onDeleteClick,
+  isSubmitting = false,
 }: UserDetailModalProps) {
   if (!user) return null
 
+  const isDeleted =
+    user.status === 'Đã xóa' || user.rawStatus === 'DELETED' || user.status === 'DELETED'
   const isLocked =
-    user.status === 'Bị khóa' || user.status === 'SUSPENDED' || user.status === 'BANNED'
+    !isDeleted &&
+    (user.status === 'Bị khóa' ||
+      user.rawStatus === 'BANNED' ||
+      user.status === 'SUSPENDED' ||
+      user.status === 'BANNED')
+  const isAdminAccount =
+    String(user.role).toUpperCase() === 'ADMIN' || user.role === 'Admin'
   const reports = user.reportCount ?? user.reportsCount ?? 0
   const flags = user.flagCount ?? 0
   const hasRisk = reports > 0 || flags > 0
@@ -125,6 +137,12 @@ export function UserDetailModal({
               {user.flagReason && (
                 <div className="mt-2 rounded bg-white/80 p-2 text-left text-[11px] text-[#92400E]">
                   <strong>Lý do gắn cờ:</strong> {user.flagReason}
+                </div>
+              )}
+              {user.statusReason && (isLocked || isDeleted) && (
+                <div className="mt-2 rounded border border-[#FCA5A5]/50 bg-[#FEF2F2] p-2 text-left text-[11px] text-[#991B1B]">
+                  <strong>{isDeleted ? 'Lý do xóa tài khoản:' : 'Lý do khóa tài khoản:'}</strong>{' '}
+                  {user.statusReason}
                 </div>
               )}
             </div>
@@ -246,30 +264,45 @@ export function UserDetailModal({
 
         {/* Action Footer */}
         <div className="flex items-center justify-between border-t border-black/8 bg-white px-6 py-4">
-          <button
-            type="button"
-            onClick={() => onDeleteClick(user)}
-            className="rounded-full border border-[#FCE8E6] bg-[#FCE8E6] px-4 py-2 text-xs font-bold text-[#C03A2B] transition-colors hover:bg-[#fad2cf]"
-          >
-            Xóa tài khoản{' '}
-            <span className="font-normal text-[10px] opacity-80">(Đang phát triển)</span>
-          </button>
+          {!isDeleted && !isAdminAccount ? (
+            <button
+              type="button"
+              disabled={isSubmitting}
+              onClick={() => onDeleteClick(user)}
+              className="rounded-full border border-[#FCE8E6] bg-[#FCE8E6] px-4 py-2 text-xs font-bold text-[#C03A2B] transition-colors hover:bg-[#fad2cf] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Xóa tài khoản
+            </button>
+          ) : (
+            <span className="text-xs italic text-black/45">
+              {isDeleted
+                ? 'Tài khoản đã bị xóa vĩnh viễn.'
+                : 'Không thể khóa hoặc xóa tài khoản quản trị viên.'}
+            </span>
+          )}
 
           <div className="flex items-center gap-3">
+            {!isDeleted && !isAdminAccount && (
+              <button
+                type="button"
+                disabled={isSubmitting}
+                onClick={() => (isLocked ? onUnlockClick(user.id) : onLockClick(user))}
+                className={`rounded-full px-5 py-2 text-xs font-bold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+                  isLocked ? 'bg-[#057642] hover:bg-[#046237]' : 'bg-[#B06000] hover:bg-[#965200]'
+                }`}
+              >
+                {isSubmitting
+                  ? 'Đang xử lý...'
+                  : isLocked
+                    ? 'Mở khóa tài khoản'
+                    : 'Khóa tài khoản'}
+              </button>
+            )}
             <button
               type="button"
-              onClick={() => onToggleLock(user.id)}
-              className={`rounded-full px-5 py-2 text-xs font-bold text-white transition-colors ${
-                isLocked ? 'bg-[#057642] hover:bg-[#046237]' : 'bg-[#B06000] hover:bg-[#965200]'
-              }`}
-            >
-              {isLocked ? 'Mở khóa tài khoản' : 'Khóa tài khoản'}{' '}
-              <span className="font-normal text-[10px] opacity-80">(Đang phát triển)</span>
-            </button>
-            <button
-              type="button"
+              disabled={isSubmitting}
               onClick={onClose}
-              className="rounded-full border border-black/15 bg-white px-5 py-2 text-xs font-semibold text-black/75 transition-colors hover:bg-black/5"
+              className="rounded-full border border-black/15 bg-white px-5 py-2 text-xs font-semibold text-black/75 transition-colors hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Đóng
             </button>

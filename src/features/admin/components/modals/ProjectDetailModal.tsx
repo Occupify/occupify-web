@@ -13,6 +13,7 @@ export function ProjectDetailModal({ project, onClose, onDeleteClick }: ProjectD
 
   const reports = project.reports ?? []
   const reportCount = project.reportCount ?? reports.length
+  const isClosed = project.status === 'Đã đóng' || project.status === 'CLOSED'
 
   return (
     <div
@@ -212,14 +213,17 @@ export function ProjectDetailModal({ project, onClose, onDeleteClick }: ProjectD
 
         {/* Footer */}
         <div className="flex items-center justify-between border-t border-black/8 px-6 py-4">
-          <button
-            type="button"
-            onClick={() => onDeleteClick(project)}
-            className="rounded-full border border-[#FCE8E6] bg-[#FCE8E6] px-4 py-2 text-xs font-bold text-[#C03A2B] transition-colors hover:bg-[#fad2cf]"
-          >
-            Gỡ bỏ dự án vi phạm{' '}
-            <span className="font-normal text-[10px] opacity-80">(Đang phát triển)</span>
-          </button>
+          {!isClosed ? (
+            <button
+              type="button"
+              onClick={() => onDeleteClick(project)}
+              className="rounded-full border border-[#FCE8E6] bg-[#FCE8E6] px-4 py-2 text-xs font-bold text-[#C03A2B] transition-colors hover:bg-[#fad2cf]"
+            >
+              Đóng dự án vi phạm
+            </button>
+          ) : (
+            <span className="text-xs italic text-black/45">Dự án này đã được đóng.</span>
+          )}
           <button
             type="button"
             onClick={onClose}

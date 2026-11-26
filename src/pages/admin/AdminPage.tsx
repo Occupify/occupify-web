@@ -7,6 +7,7 @@ import {
   ContractsTab,
   ViolationsTab,
   UserDetailModal,
+  UserLockModal,
   UserDeleteModal,
   ProjectDetailModal,
   ProjectDeleteModal,
@@ -68,6 +69,7 @@ export function AdminPage() {
             activeCount={portal.activeUsersCount}
             flaggedCount={portal.flaggedUsersCount}
             lockedCount={portal.lockedUsersCount}
+            deletedCount={portal.deletedUsersCount}
             userSearch={portal.userSearch}
             onSearchChange={portal.setUserSearch}
             userStatusFilter={portal.userStatusFilter}
@@ -127,11 +129,22 @@ export function AdminPage() {
       <UserDetailModal
         user={portal.userDetailModal}
         onClose={() => portal.setUserDetailModal(null)}
-        onToggleLock={portal.handleToggleLock}
+        onLockClick={portal.handleOpenLockUser}
+        onUnlockClick={portal.handleUnlockUser}
         onDeleteClick={(u) => {
           portal.setDeleteTarget(u)
           portal.setDeleteReason('')
         }}
+        isSubmitting={portal.isSubmittingUserAction}
+      />
+
+      <UserLockModal
+        user={portal.lockTarget}
+        reason={portal.lockReason}
+        onReasonChange={portal.setLockReason}
+        onClose={() => portal.setLockTarget(null)}
+        onConfirm={portal.handleConfirmLockUser}
+        isSubmitting={portal.isSubmittingUserAction}
       />
 
       <UserDeleteModal
@@ -140,6 +153,7 @@ export function AdminPage() {
         onReasonChange={portal.setDeleteReason}
         onClose={() => portal.setDeleteTarget(null)}
         onConfirm={portal.handleConfirmDeleteUser}
+        isSubmitting={portal.isSubmittingUserAction}
       />
 
       <ProjectDetailModal
@@ -157,7 +171,8 @@ export function AdminPage() {
         reason={portal.projectDeleteReason}
         onReasonChange={portal.setProjectDeleteReason}
         onClose={() => portal.setProjectDeleteTarget(null)}
-        onConfirm={portal.handleConfirmDeleteProject}
+        onConfirm={portal.handleConfirmCloseProject}
+        isSubmitting={portal.isSubmittingProjectAction}
       />
 
       <ContractDetailModal
@@ -170,6 +185,7 @@ export function AdminPage() {
         onClose={() => portal.setEvidenceTarget(null)}
         onReject={portal.handleRejectViolation}
         onResolveClick={portal.handleStartResolveViolation}
+        isSubmitting={portal.isSubmittingViolationAction}
       />
 
       <ViolationActionModal
@@ -178,12 +194,9 @@ export function AdminPage() {
         onActionChange={portal.setSanctionAction}
         reason={portal.sanctionReason}
         onReasonChange={portal.setSanctionReason}
-        notifyTarget={portal.notifyTargetUser}
-        onNotifyTargetChange={portal.setNotifyTargetUser}
-        notifyReporter={portal.notifyReporter}
-        onNotifyReporterChange={portal.setNotifyReporter}
         onClose={() => portal.setSanctionTarget(null)}
         onConfirm={portal.handleConfirmSanction}
+        isSubmitting={portal.isSubmittingViolationAction}
       />
     </div>
   )

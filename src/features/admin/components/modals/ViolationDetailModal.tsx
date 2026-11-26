@@ -6,6 +6,7 @@ interface ViolationDetailModalProps {
   onClose: () => void
   onReject: (id: string) => void
   onResolveClick: (violation: AdminViolation) => void
+  isSubmitting?: boolean
 }
 
 export function ViolationDetailModal({
@@ -13,6 +14,7 @@ export function ViolationDetailModal({
   onClose,
   onReject,
   onResolveClick,
+  isSubmitting = false,
 }: ViolationDetailModalProps) {
   if (!violation) return null
 
@@ -184,15 +186,17 @@ export function ViolationDetailModal({
             <>
               <button
                 type="button"
+                disabled={isSubmitting}
                 onClick={() => onReject(violation.id)}
-                className="rounded-full border border-black/15 bg-white px-5 py-2 text-xs font-semibold text-black/75 transition-colors hover:bg-black/5"
+                className="rounded-full border border-black/15 bg-white px-5 py-2 text-xs font-semibold text-black/75 transition-colors hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Bác bỏ báo cáo
+                {isSubmitting ? 'Đang xử lý...' : 'Bác bỏ báo cáo'}
               </button>
               <button
                 type="button"
+                disabled={isSubmitting}
                 onClick={() => onResolveClick(violation)}
-                className="rounded-full bg-[#C03A2B] px-5 py-2 text-xs font-bold text-white transition-opacity hover:opacity-90"
+                className="rounded-full bg-[#C03A2B] px-5 py-2 text-xs font-bold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Xử lý vi phạm
               </button>

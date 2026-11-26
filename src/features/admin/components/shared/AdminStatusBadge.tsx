@@ -19,6 +19,8 @@ const STATUS_CONFIG: Record<string, StatusStyle> = {
   BANNED: { label: 'Bị khóa', bg: 'bg-[#FCE8E6]', fg: 'text-[#C03A2B]' },
   LOCKED: { label: 'Bị khóa', bg: 'bg-[#FCE8E6]', fg: 'text-[#C03A2B]' },
   'Bị khóa': { label: 'Bị khóa', bg: 'bg-[#FCE8E6]', fg: 'text-[#C03A2B]' },
+  DELETED: { label: 'Đã xóa', bg: 'bg-[#F4F2EE]', fg: 'text-black/55' },
+  'Đã xóa': { label: 'Đã xóa', bg: 'bg-[#F4F2EE]', fg: 'text-black/55' },
 
   // Trạng thái dự án
   OPEN: { label: 'Đang tuyển', bg: 'bg-[#EAF1FA]', fg: 'text-[#0A66C2]' },
