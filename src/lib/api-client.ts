@@ -89,7 +89,8 @@ async function performTokenRefresh(): Promise<string> {
         errorCode === 'AUTH_005' ||
         errorCode === 'AUTH_006' ||
         errorCode === 'USER_007' ||
-        errorCode === 'USER_008'
+        errorCode === 'USER_008' ||
+        errorCode === 'USER_009'
 
       if (isTerminalAuthError) {
         clearTokens()
@@ -293,7 +294,16 @@ export const apiClient = {
     })
   },
 
-  delete<T>(endpoint: string, options?: RequestOptions): Promise<T> {
-    return request<T>(endpoint, { ...options, method: 'DELETE' })
+  delete<T>(endpoint: string, options?: RequestOptions & { data?: unknown }): Promise<T> {
+    if (!options || options.data === undefined) {
+      return request<T>(endpoint, { ...options, method: 'DELETE' })
+    }
+    const { data, ...restOptions } = options
+    const isFormData = typeof FormData !== 'undefined' && data instanceof FormData
+    return request<T>(endpoint, {
+      ...restOptions,
+      method: 'DELETE',
+      body: isFormData ? (data as BodyInit) : JSON.stringify(data),
+    })
   },
 }
