@@ -1,6 +1,7 @@
 import type { MyProject, ProjectMember, PendingProject } from '@/features/projects/types'
 
-export type ContractStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
+export type ContractStatus =
+  'PENDING' | 'PENDING_ESCROW' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
 
 export interface ContractEmployerSummary {
   id: string
@@ -57,6 +58,7 @@ export interface ContractDetailResponse extends ContractSummaryResponse {
   jobDescription?: string
   termsFileKey?: string | null
   termsFileUrl?: string | null
+  cancellation?: CancellationContractResponse | null
   cancellationResponse?: CancellationContractResponse | null
 }
 
@@ -83,6 +85,7 @@ export interface ContractFilterParams {
   projectId?: string
   status?: ContractStatus
   page?: number
+  size?: number
   limit?: number
   sort?: string
 }
@@ -120,9 +123,11 @@ export function toMyProjectFromContract(
     status:
       contract.status === 'IN_PROGRESS'
         ? 'Đang làm'
-        : contract.status === 'COMPLETED'
-          ? 'Đã hoàn thành'
-          : 'Đã hủy',
+        : contract.status === 'PENDING_ESCROW'
+          ? 'Chờ ký quỹ'
+          : contract.status === 'COMPLETED'
+            ? 'Đã hoàn thành'
+            : 'Đã hủy',
   }
 
   return {
@@ -155,6 +160,7 @@ export function toProjectMemberFromContract(contract: ContractSummaryResponse): 
 
   let memberStatus = 'Đang làm'
   if (contract.status === 'PENDING') memberStatus = 'Chờ phản hồi'
+  else if (contract.status === 'PENDING_ESCROW') memberStatus = 'Chờ ký quỹ'
   else if (contract.status === 'COMPLETED') memberStatus = 'Đã hoàn thành'
   else if (contract.status === 'CANCELLED') memberStatus = 'Đã hủy'
 

@@ -1,10 +1,16 @@
+import { ApiError } from '../../../types/api.ts'
 import type { JobExperienceLevel } from '@/features/jobs/types'
 
 export interface ProjectRole {
   id: string
+  role?: string
   title: string
   skills?: string[]
   salaryRange?: string
+  salaryType?: string
+  termsFileUrl?: string | null
+  startedAt?: string | null
+  finishedAt?: string | null
   slotsTotal?: number
   slotsFilled?: number
   status?: 'recruiting' | 'filled' | 'closed'
@@ -153,6 +159,7 @@ export interface JobSkill {
 
 export interface ProjectJob {
   id: string
+  role?: string
   title: string
   description?: string
   quantity?: number
@@ -161,6 +168,9 @@ export interface ProjectJob {
   budgetMin?: number
   budgetMax?: number
   budget?: number
+  termsFileUrl?: string | null
+  startedAt?: string | null
+  finishedAt?: string | null
   status?: string
   skills?: string[] | JobSkill[]
   deletedAt?: string | null
@@ -213,6 +223,7 @@ export interface CreateProjectPayload {
   bidCloseDate?: string
   experienceLevel?: ProjectExperienceLevel
   skillIds?: string[]
+  tags?: string[]
 }
 
 export interface UpdateProjectPayload {
@@ -225,6 +236,7 @@ export interface UpdateProjectPayload {
   endDate?: string
   bidCloseDate?: string
   experienceLevel?: ProjectExperienceLevel
+  tags?: string[]
 }
 
 export interface ProjectFilterParams {
@@ -236,6 +248,7 @@ export interface ProjectFilterParams {
   minPrice?: number
   maxPrice?: number
   page?: number
+  size?: number
   limit?: number
   sort?: string
 }
@@ -302,9 +315,14 @@ export function toMyProject(detail: ProjectDetail | ProjectSummary): MyProject {
 
             return {
               id: job.id,
+              role: job.role,
               title: job.title,
               skills,
               salaryRange,
+              salaryType: job.salaryType,
+              termsFileUrl: job.termsFileUrl ?? null,
+              startedAt: job.startedAt ?? null,
+              finishedAt: job.finishedAt ?? null,
               slotsTotal: slots,
               slotsFilled: rawStatus === 'FILLED' ? slots : 0,
               status: roleStatus,
@@ -337,4 +355,66 @@ export function toMyProject(detail: ProjectDetail | ProjectSummary): MyProject {
     members: [],
     recruitingRoles,
   }
+}
+
+export function getWorkspaceErrorMessage(error: unknown): string {
+  if (error instanceof ApiError) {
+    switch (error.errorCode) {
+      case 'PROJ_001':
+        return 'Không tìm thấy dự án hoặc dự án đã bị xóa.'
+      case 'PROJ_002':
+        return 'Bạn không có quyền chỉnh sửa hoặc đóng dự án này.'
+      case 'PROJ_003':
+        return 'Dự án đã được đóng hoặc không thể chuyển sang trạng thái này.'
+      case 'PROJ_004':
+        return 'Không tìm thấy hồ sơ chủ dự án trên hệ thống.'
+      case 'SYS_001':
+        return 'Hệ thống gặp sự cố nội bộ. Vui lòng thử lại sau.'
+      case 'SYS_002':
+        return 'Dữ liệu gửi lên không hợp lệ. Vui lòng kiểm tra lại thông tin.'
+      case 'SYS_003':
+        return 'Không tìm thấy tài nguyên yêu cầu.'
+      case 'SYS_006':
+        return 'Định dạng mã định danh hoặc tham số không hợp lệ.'
+      case 'SYS_008':
+        return 'Dịch vụ tạm thời không khả dụng hoặc chưa xác thực. Vui lòng thử lại sau.'
+      case 'SYS_009':
+        return 'Bạn không có quyền thực hiện thao tác này hoặc yêu cầu bị quá thời gian.'
+      case 'AUTH_003':
+      case 'AUTH_005':
+      case 'AUTH_SESSION_EXPIRED':
+        return 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'
+      case 'NETWORK_ERROR':
+        return 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng.'
+      default:
+        break
+    }
+
+    switch (error.statusCode) {
+      case 400:
+        return error.message || 'Dữ liệu yêu cầu không hợp lệ (400).'
+      case 401:
+        return 'Phiên đăng nhập không hợp lệ hoặc đã hết hạn (401).'
+      case 403:
+        return 'Bạn không có quyền thực hiện thao tác này (403).'
+      case 404:
+        return 'Không tìm thấy dữ liệu yêu cầu (404).'
+      case 409:
+        return 'Dữ liệu bị xung đột trạng thái (409).'
+      case 500:
+        return 'Hệ thống máy chủ gặp lỗi nội bộ (500).'
+      case 503:
+        return 'Dịch vụ quản lý dự án tạm thời không khả dụng (503).'
+      case 504:
+        return 'Hết thời gian phản hồi từ máy chủ (504).'
+      default:
+        return error.message || 'Có lỗi xảy ra khi xử lý dữ liệu dự án.'
+    }
+  }
+
+  if (error instanceof Error && error.message) {
+    return error.message
+  }
+
+  return 'Có lỗi xảy ra, vui lòng thử lại sau.'
 }

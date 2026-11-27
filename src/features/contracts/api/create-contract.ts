@@ -13,7 +13,7 @@ export async function createContract(
 
   const jsonData = JSON.stringify({
     jobId: payload.jobId,
-    freelancerGmail: payload.freelancerEmail,
+    freelancer_gmail: payload.freelancerEmail,
     message: payload.message || undefined,
   })
 

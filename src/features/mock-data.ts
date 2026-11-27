@@ -263,7 +263,7 @@ export const PREDEFINED_PROJECT_FIELDS: string[] = [
 
 export const MOCK_NOTIFICATIONS: Notif[] = [
   {
-    id: 1,
+    id: '1',
     title: 'Hợp đồng mới được gửi đến bạn',
     content:
       'Công ty Cổ phần Công nghệ TechVibe đã gửi cho bạn hợp đồng cho dự án "Thiết kế UI/UX Mobile Banking". Vui lòng xem và ký xác nhận.',
@@ -274,7 +274,7 @@ export const MOCK_NOTIFICATIONS: Notif[] = [
     link: '/workspace',
   },
   {
-    id: 2,
+    id: '2',
     title: 'Đề xuất ứng tuyển đã được chấp nhận',
     content:
       'Lời ứng tuyển vị trí Fullstack Developer của bạn cho dự án "Nền tảng Quản trị Chuỗi cung ứng" đã được chấp thuận.',
@@ -285,7 +285,7 @@ export const MOCK_NOTIFICATIONS: Notif[] = [
     link: '/workspace',
   },
   {
-    id: 3,
+    id: '3',
     title: 'Đánh giá 5 sao từ khách hàng',
     content:
       'Khách hàng Nguyễn Văn An đã để lại đánh giá 5 sao cho dự án hoàn thành gần đây của bạn: "Làm việc rất chuyên nghiệp, đúng tiến độ!"',
@@ -295,7 +295,7 @@ export const MOCK_NOTIFICATIONS: Notif[] = [
     badgeType: 'review',
   },
   {
-    id: 4,
+    id: '4',
     title: 'Tin nhắn mới từ người quản lý dự án',
     content:
       'Trần Thị Mai: "Chào bạn, chúng tôi đã xem qua bản phác thảo đợt 1 và có một số phản hồi nhỏ trong tài liệu đính kèm."',
@@ -305,7 +305,7 @@ export const MOCK_NOTIFICATIONS: Notif[] = [
     badgeType: 'message',
   },
   {
-    id: 5,
+    id: '5',
     title: 'Xác thực tài khoản thành công',
     content:
       'Hồ sơ nghề nghiệp và định danh danh tính của bạn đã được kiểm duyệt và phê duyệt huy hiệu Đã Xác Thực (Verified).',
@@ -315,7 +315,7 @@ export const MOCK_NOTIFICATIONS: Notif[] = [
     badgeType: 'system',
   },
   {
-    id: 6,
+    id: '6',
     title: 'Nhắc nhở hạn nộp mốc công việc',
     content:
       'Mốc 2 của dự án "Landing Page giới thiệu sản phẩm AI" sẽ đến hạn bàn giao trong vòng 48 giờ tới.',

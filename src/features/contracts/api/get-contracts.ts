@@ -1,6 +1,6 @@
-import { apiClient } from '@/lib/api-client'
-import type { PageResponse } from '@/types'
-import type { ContractFilterParams, ContractSummaryResponse } from '../types'
+import { apiClient } from '../../../lib/api-client.ts'
+import type { PageResponse } from '../../../types/api.ts'
+import type { ContractFilterParams, ContractSummaryResponse } from '../types/index.ts'
 
 /**
  * Fetch paginated contracts from backend API (GET /contracts)

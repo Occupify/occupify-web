@@ -1,24 +1,30 @@
-import type { MyProject, PendingProject } from '../types'
-import { getInternalStores, setInternalStores } from './get-projects'
+import type { MyProject, PendingProject } from '../types/index.ts'
+import { getInternalStores, setInternalStores } from './get-projects.ts'
 import {
   acceptContract as apiAcceptContract,
   rejectContract as apiRejectContract,
-} from '@/features/contracts'
+} from '../../contracts/api/manage-contract.ts'
+import { toMyProjectFromContract } from '../../contracts/types/index.ts'
 
 export async function acceptInvitation(
   proj: PendingProject,
 ): Promise<{ acceptedProject: MyProject; pendingId: number | string }> {
-  try {
-    if (typeof proj.id === 'string' || Number.isNaN(Number(proj.id))) {
-      await apiAcceptContract(String(proj.id))
-    }
-  } catch {
-    // Fallback to local mutation
+  let acceptedProject: MyProject | null = null
+
+  if (
+    !String(proj.id).startsWith('local-') &&
+    (typeof proj.id === 'string' || Number.isNaN(Number(proj.id)))
+  ) {
+    const contract = await apiAcceptContract(String(proj.id))
+    acceptedProject = toMyProjectFromContract(
+      contract,
+      contract.employee?.id ?? contract.employeeId ?? undefined,
+    )
   }
 
   const { employeeProjects, pending } = getInternalStores()
 
-  const newProject: MyProject = {
+  const newProject: MyProject = acceptedProject ?? {
     id: proj.id,
     name: proj.name,
     description: proj.description,
@@ -31,8 +37,8 @@ export async function acceptInvitation(
     recruitingRoles: proj.recruitingRoles,
     members: [
       {
-        name: 'Nguyễn Minh Khoa (Tôi)',
-        email: 'khoa@gmail.com',
+        name: 'Tôi',
+        email: '',
         price: proj.price,
         dueDate: proj.dueDate || '2026-12-31',
         salaryDueDate:
@@ -57,12 +63,11 @@ export async function acceptInvitation(
 export async function rejectInvitation(
   projId: number | string,
 ): Promise<{ rejectedId: number | string }> {
-  try {
-    if (typeof projId === 'string' || Number.isNaN(Number(projId))) {
-      await apiRejectContract(String(projId))
-    }
-  } catch {
-    // Fallback to local mutation
+  if (
+    !String(projId).startsWith('local-') &&
+    (typeof projId === 'string' || Number.isNaN(Number(projId)))
+  ) {
+    await apiRejectContract(String(projId))
   }
 
   const { pending } = getInternalStores()

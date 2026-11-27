@@ -218,3 +218,39 @@ test('MyProject and UpdateProjectPayload support bidCloseDate and dueDate', () =
   assert.equal(updatePayload.dueDate, '2027-01-15')
   assert.equal(updatePayload.bidCloseDate, '2026-12-15')
 })
+
+test('toMyProject preserves job role, salaryType, termsFileUrl, startedAt, and finishedAt', () => {
+  const detail: ProjectDetail = {
+    id: 'proj-role-details',
+    title: 'Hệ thống CRM',
+    period: 'MONTHLY',
+    status: 'OPEN',
+    employer: { id: 'emp-1', email: 'e@o.vn', fullName: 'Employer' },
+    jobs: [
+      {
+        id: 'job-1',
+        role: 'Backend Engineer',
+        title: 'Tuyển Backend Spring Boot',
+        description: 'Xây dựng API lõi',
+        budget: 25000000,
+        salaryType: 'MONTHLY',
+        termsFileUrl: 'https://storage.occupify.work/jd/backend.pdf',
+        startedAt: '2026-12-01T00:00:00',
+        finishedAt: '2027-03-01T23:59:59',
+        status: 'RECRUITING',
+        skills: ['Java'],
+      },
+    ],
+    createdAt: '2026-11-26T00:00:00Z',
+    updatedAt: '2026-11-26T00:00:00Z',
+  }
+
+  const mapped = toMyProject(detail)
+  assert.equal(mapped.recruitingRoles?.length, 1)
+  const role = mapped.recruitingRoles![0]
+  assert.equal(role.role, 'Backend Engineer')
+  assert.equal(role.salaryType, 'MONTHLY')
+  assert.equal(role.termsFileUrl, 'https://storage.occupify.work/jd/backend.pdf')
+  assert.equal(role.startedAt, '2026-12-01T00:00:00')
+  assert.equal(role.finishedAt, '2027-03-01T23:59:59')
+})

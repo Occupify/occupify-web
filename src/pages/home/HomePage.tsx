@@ -1,7 +1,8 @@
 import * as React from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { CaretLeftIcon, CaretRightIcon } from '@phosphor-icons/react'
 import {
-  useInfiniteJobs,
+  useJobsPage,
   useJob,
   JobCard,
   JobEmptyState,
@@ -131,40 +132,31 @@ export function HomePage({
     ],
   )
 
-  // Fetch jobs from server state (TanStack Query) with infinite scroll pagination
+  // Pagination state (10 projects per page), automatically resets to 0 when filters change
+  const HOME_PAGE_SIZE = 10
+  const filterKey = JSON.stringify(jobParams)
+  const [pageState, setPageState] = React.useState<{ filterKey: string; page: number }>({
+    filterKey,
+    page: 0,
+  })
+  const currentPage = pageState.filterKey === filterKey ? pageState.page : 0
+
+  // Fetch paginated jobs from server state (TanStack Query, 10 per page)
   const {
-    data: jobPages,
+    data: jobsPageData,
     isLoading,
-    isFetchingNextPage,
-    hasNextPage,
-    fetchNextPage,
-  } = useInfiniteJobs({ ...jobParams, size: 20 })
+    isFetching,
+  } = useJobsPage({ ...jobParams, page: currentPage, size: HOME_PAGE_SIZE })
 
-  // Flatten all pages into a single array for rendering
-  const displayJobs = React.useMemo(
-    () => jobPages?.pages.flatMap((page) => page.jobs) ?? [],
-    [jobPages],
-  )
+  const displayJobs = React.useMemo(() => jobsPageData?.jobs ?? [], [jobsPageData])
+  const totalJobsCount = jobsPageData?.total ?? displayJobs.length
+  const totalPages = jobsPageData?.totalPages ?? 0
 
-  // Infinite scroll: IntersectionObserver triggers fetchNextPage when sentinel is visible
-  const loadMoreRef = React.useRef<HTMLDivElement>(null)
-
-  React.useEffect(() => {
-    const sentinel = loadMoreRef.current
-    if (!sentinel) return
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage()
-        }
-      },
-      { rootMargin: '300px' },
-    )
-
-    observer.observe(sentinel)
-    return () => observer.disconnect()
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+  const handlePageChange = (nextPage: number) => {
+    if (nextPage < 0 || (totalPages > 0 && nextPage >= totalPages)) return
+    setPageState({ filterKey, page: nextPage })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   // Parse jobId from URL query parameters
   const jobIdParam = searchParams.get('jobId')
@@ -293,7 +285,7 @@ export function HomePage({
           <main className="min-w-0">
             {/* Filter Toolbar */}
             <JobFilterToolbar
-              totalJobs={displayJobs.length}
+              totalJobs={totalJobsCount}
               hasActiveFilters={hasActiveFilters}
               onResetFilters={handleResetFilters}
               sortBy={sortBy}
@@ -314,7 +306,7 @@ export function HomePage({
 
             {/* Results Summary Header */}
             <JobFilterSummary
-              totalJobs={displayJobs.length}
+              totalJobs={totalJobsCount}
               searchKeyword={searchKeyword}
               onClearSearch={() => setSearchKeyword('')}
               hoursPerDay={hoursPerDay}
@@ -383,38 +375,71 @@ export function HomePage({
                 <JobEmptyState onResetFilters={handleResetFilters} />
               )}
 
-              {/* Infinite scroll sentinel & loading indicator */}
-              {!isLoading && displayJobs.length > 0 && (
-                <div ref={loadMoreRef} className="py-6 flex justify-center">
-                  {isFetchingNextPage && (
-                    <div className="flex items-center gap-2.5 text-slate-400 text-sm">
-                      <svg
-                        className="animate-spin-slow h-4.5 w-4.5 text-slate-400"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="3"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                        />
-                      </svg>
-                      Đang tải thêm dự án...
-                    </div>
-                  )}
-                  {!hasNextPage && !isFetchingNextPage && displayJobs.length > 20 && (
-                    <p className="text-xs text-slate-400">
-                      Đã hiển thị tất cả {displayJobs.length} dự án
-                    </p>
-                  )}
+              {/* Pagination Controls (10 projects per page) */}
+              {!isLoading && totalPages > 1 && (
+                <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200/80 bg-white px-4 py-3 shadow-xs">
+                  <span className="text-xs font-medium text-slate-500">
+                    Trang <strong className="text-slate-800">{currentPage + 1}</strong> /{' '}
+                    {totalPages} · Tổng <strong className="text-slate-800">{totalJobsCount}</strong>{' '}
+                    dự án
+                  </span>
+
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      disabled={currentPage <= 0 || isFetching}
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <CaretLeftIcon size={14} weight="bold" />
+                      <span>Trước</span>
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, idx) => idx)
+                      .filter(
+                        (idx) =>
+                          idx === 0 || idx === totalPages - 1 || Math.abs(idx - currentPage) <= 1,
+                      )
+                      .reduce<Array<number | 'ellipsis'>>((acc, idx, i, arr) => {
+                        if (i > 0 && idx - arr[i - 1] > 1) acc.push('ellipsis')
+                        acc.push(idx)
+                        return acc
+                      }, [])
+                      .map((item, idx) =>
+                        item === 'ellipsis' ? (
+                          <span
+                            key={`ellipsis-${idx}`}
+                            className="px-1.5 text-xs font-semibold text-slate-400"
+                          >
+                            …
+                          </span>
+                        ) : (
+                          <button
+                            key={item}
+                            type="button"
+                            disabled={isFetching}
+                            onClick={() => handlePageChange(item)}
+                            className={`min-w-[32px] cursor-pointer rounded-lg px-2.5 py-1.5 text-xs font-bold transition-colors ${
+                              item === currentPage
+                                ? 'bg-[var(--color-primary-500)] text-white shadow-xs'
+                                : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                            }`}
+                          >
+                            {item + 1}
+                          </button>
+                        ),
+                      )}
+
+                    <button
+                      type="button"
+                      disabled={currentPage + 1 >= totalPages || isFetching}
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <span>Sau</span>
+                      <CaretRightIcon size={14} weight="bold" />
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

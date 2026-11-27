@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useAuthStore } from '@/stores'
 import {
   getMyProjects,
   getEmployeeProjects,
@@ -33,22 +34,32 @@ export function useProjectDetail(id?: string | number) {
   })
 }
 
-export function useProjects(employerId?: string) {
+export function useProjects(employerId?: string, userEmail?: string) {
   const queryClient = useQueryClient()
+  const authUser = useAuthStore((s) => s.user)
+  const effectiveUserId = employerId ?? authUser?.id
+  const effectiveUserEmail = userEmail ?? authUser?.email
 
   const myProjectsQuery = useQuery({
-    queryKey: employerId ? [...projectKeys.my(), employerId] : projectKeys.my(),
-    queryFn: () => getMyProjects(employerId),
+    queryKey: effectiveUserId ? [...projectKeys.my(), effectiveUserId] : projectKeys.my(),
+    queryFn: () => getMyProjects(effectiveUserId),
+    enabled: Boolean(effectiveUserId),
   })
 
   const employeeProjectsQuery = useQuery({
-    queryKey: employerId ? [...projectKeys.employee(), employerId] : projectKeys.employee(),
-    queryFn: () => getEmployeeProjects(employerId),
+    queryKey: effectiveUserId
+      ? [...projectKeys.employee(), effectiveUserId, effectiveUserEmail]
+      : projectKeys.employee(),
+    queryFn: () => getEmployeeProjects(effectiveUserId, effectiveUserEmail),
+    enabled: Boolean(effectiveUserId),
   })
 
   const pendingQuery = useQuery({
-    queryKey: employerId ? [...projectKeys.pending(), employerId] : projectKeys.pending(),
-    queryFn: () => getPendingProjects(employerId),
+    queryKey: effectiveUserId
+      ? [...projectKeys.pending(), effectiveUserId, effectiveUserEmail]
+      : projectKeys.pending(),
+    queryFn: () => getPendingProjects(effectiveUserId, effectiveUserEmail),
+    enabled: Boolean(effectiveUserId),
   })
 
   const createProjectMutation = useMutation({
@@ -135,15 +146,23 @@ export function useProjects(employerId?: string) {
     },
   })
 
+  const refetch = async () => {
+    await Promise.all([
+      myProjectsQuery.refetch(),
+      employeeProjectsQuery.refetch(),
+      pendingQuery.refetch(),
+    ])
+  }
+
   return {
     myProjects: myProjectsQuery.data ?? [],
     employeeProjects: employeeProjectsQuery.data ?? [],
     pending: pendingQuery.data ?? [],
     isLoading:
       myProjectsQuery.isLoading || employeeProjectsQuery.isLoading || pendingQuery.isLoading,
-    isError: myProjectsQuery.isError,
-    error: myProjectsQuery.error,
-    refetch: myProjectsQuery.refetch,
+    isError: myProjectsQuery.isError || employeeProjectsQuery.isError || pendingQuery.isError,
+    error: myProjectsQuery.error ?? employeeProjectsQuery.error ?? pendingQuery.error,
+    refetch,
     createProject: createProjectMutation.mutateAsync,
     updateProject: updateProjectMutation.mutateAsync,
     closeProject: closeProjectMutation.mutateAsync,

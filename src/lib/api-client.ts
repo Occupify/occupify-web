@@ -1,6 +1,6 @@
-import { env } from '@/config/env'
-import { ApiError, type ErrorResponse } from '@/types'
-import { useAuthStore } from '@/stores'
+import { env } from '../config/env.ts'
+import { ApiError, type ErrorResponse } from '../types/api.ts'
+import { useAuthStore } from '../stores/auth.ts'
 
 export interface RequestOptions extends RequestInit {
   params?: Record<string, string | number | boolean | undefined | null>

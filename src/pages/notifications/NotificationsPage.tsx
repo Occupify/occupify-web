@@ -1,20 +1,46 @@
 import { useEffect, useState } from 'react'
-import { BellIcon, DotsThreeVerticalIcon, TrashIcon } from '@phosphor-icons/react'
+import {
+  BellIcon,
+  CaretLeftIcon,
+  CaretRightIcon,
+  DotsThreeVerticalIcon,
+  TrashIcon,
+  WarningCircleIcon,
+} from '@phosphor-icons/react'
 import { Avatar } from '@/components/ui'
 import { toast } from '@/components/feedback'
-import { NotifBadge, useNotifications } from '@/features/notifications'
-import type { NotifTab } from '@/features/notifications'
+import {
+  getNotificationErrorMessage,
+  NotifBadge,
+  useNotifications,
+  type Notif,
+  type NotifTab,
+} from '@/features/notifications'
 
 const NOTIF_TABS = [
   { id: 'all' as NotifTab, label: 'Tất cả' },
   { id: 'unread' as NotifTab, label: 'Chưa đọc' },
 ]
 
+const PAGE_LIMIT = 20
+
 export function NotificationsPage() {
-  const { notifications, unreadCount, isLoading, markAsRead, markAllAsRead, deleteNotification } =
-    useNotifications()
+  const [page, setPage] = useState(0)
+  const {
+    notifications,
+    paging,
+    unreadCount,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+    isMarkingAllAsRead,
+  } = useNotifications({ page, limit: PAGE_LIMIT })
   const [activeTab, setActiveTab] = useState<NotifTab>('all')
-  const [menuOpenNotifId, setMenuOpenNotifId] = useState<number | null>(null)
+  const [menuOpenNotifId, setMenuOpenNotifId] = useState<string | null>(null)
 
   useEffect(() => {
     const handleGlobalClick = () => {
@@ -24,30 +50,32 @@ export function NotificationsPage() {
     return () => window.removeEventListener('click', handleGlobalClick)
   }, [])
 
-  const handleMarkAsRead = async (id: number) => {
+  const handleMarkAsRead = async (notif: Notif) => {
+    if (notif.isRead) return
     try {
-      await markAsRead(id)
-    } catch {
-      // silent
+      await markAsRead(notif.id)
+    } catch (err: unknown) {
+      toast.error(getNotificationErrorMessage(err))
     }
   }
 
   const handleMarkAllAsRead = async () => {
+    if (unreadCount === 0 || isMarkingAllAsRead) return
     try {
       await markAllAsRead()
       toast.success('Đã đánh dấu tất cả thông báo là đã đọc')
-    } catch {
-      toast.error('Có lỗi xảy ra, vui lòng thử lại sau.')
+    } catch (err: unknown) {
+      toast.error(getNotificationErrorMessage(err))
     }
   }
 
-  const handleDeleteNotif = async (id: number) => {
+  const handleDeleteNotif = async (id: string) => {
     setMenuOpenNotifId(null)
     try {
       await deleteNotification(id)
       toast.info('Đã xóa thông báo')
-    } catch {
-      toast.error('Có lỗi xảy ra khi xóa thông báo.')
+    } catch (err: unknown) {
+      toast.error(getNotificationErrorMessage(err))
     }
   }
 
@@ -93,8 +121,9 @@ export function NotificationsPage() {
           <div className="mb-2.5 flex items-center justify-end">
             <button
               type="button"
+              disabled={unreadCount === 0 || isMarkingAllAsRead}
               onClick={handleMarkAllAsRead}
-              className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold !text-[var(--text-secondary)] transition-colors hover:!bg-[var(--color-primary-50)] hover:!text-[var(--color-primary-500)]"
+              className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold !text-[var(--text-secondary)] transition-colors hover:!bg-[var(--color-primary-50)] hover:!text-[var(--color-primary-500)] disabled:cursor-not-allowed disabled:opacity-50"
             >
               Đánh dấu tất cả là đã đọc
             </button>
@@ -107,18 +136,39 @@ export function NotificationsPage() {
               </div>
             )}
 
-            {!isLoading && visibleList.length === 0 && (
+            {!isLoading && isError && (
+              <div className="p-8 text-center">
+                <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400">
+                  <WarningCircleIcon size={22} weight="bold" />
+                </div>
+                <h3 className="text-sm font-bold text-red-800 dark:text-red-300">
+                  Không thể tải danh sách thông báo
+                </h3>
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                  {getNotificationErrorMessage(error)}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => refetch()}
+                  className="mt-4 inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-red-700"
+                >
+                  Thử lại
+                </button>
+              </div>
+            )}
+
+            {!isLoading && !isError && visibleList.length === 0 && (
               <div className="p-12 text-center text-sm !text-[var(--text-tertiary)]">
                 Không có thông báo nào.
               </div>
             )}
 
-            {!isLoading && visibleList.length > 0 && (
+            {!isLoading && !isError && visibleList.length > 0 && (
               <div className="divide-y !divide-[var(--border-subtle)]">
                 {visibleList.map((notif) => (
                   <div
                     key={notif.id}
-                    onClick={() => handleMarkAsRead(notif.id)}
+                    onClick={() => handleMarkAsRead(notif)}
                     className={`flex cursor-pointer items-start gap-3.5 p-3.5 px-4.5 transition-colors ${
                       notif.isRead
                         ? '!bg-[var(--bg-elevated)] hover:!bg-[var(--bg-subtle)]'
@@ -142,7 +192,7 @@ export function NotificationsPage() {
                     {/* Text */}
                     <div className="min-w-0 flex-1 pt-0.5">
                       <p className="m-0 text-sm leading-relaxed !text-[var(--text-primary)]">
-                        <strong>{notif.actorName ?? notif.title}</strong> {notif.content}
+                        <strong>{notif.title}</strong> {notif.content}
                       </p>
                       <div
                         className={`mt-1 text-xs ${
@@ -200,6 +250,34 @@ export function NotificationsPage() {
               </div>
             )}
           </div>
+
+          {!isLoading && !isError && paging.totalPages > 1 && (
+            <div className="mt-4 flex items-center justify-between text-xs !text-[var(--text-secondary)]">
+              <span>
+                Trang {paging.page + 1} / {paging.totalPages} ({paging.total} thông báo)
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  disabled={paging.page <= 0}
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  className="inline-flex cursor-pointer items-center gap-1 rounded-lg border px-3 py-1.5 font-semibold !border-[var(--border-default)] !bg-[var(--bg-elevated)] hover:!bg-[var(--bg-subtle)] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <CaretLeftIcon size={14} weight="bold" />
+                  <span>Trước</span>
+                </button>
+                <button
+                  type="button"
+                  disabled={paging.page + 1 >= paging.totalPages}
+                  onClick={() => setPage((p) => p + 1)}
+                  className="inline-flex cursor-pointer items-center gap-1 rounded-lg border px-3 py-1.5 font-semibold !border-[var(--border-default)] !bg-[var(--bg-elevated)] hover:!bg-[var(--bg-subtle)] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <span>Sau</span>
+                  <CaretRightIcon size={14} weight="bold" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
