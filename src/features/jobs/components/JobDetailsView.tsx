@@ -691,15 +691,6 @@ export function JobDetailsView({
                             >
                               {role.status === 'recruiting' ? 'Đang tuyển' : 'Đã có nhân sự'}
                             </span>
-                            <span
-                              style={{
-                                fontSize: 12,
-                                color: 'var(--text-tertiary)',
-                                fontWeight: 600,
-                              }}
-                            >
-                              (Tuyển: {role.slotsFilled}/{role.slotsTotal} người)
-                            </span>
                           </div>
                         </div>
 
@@ -734,10 +725,7 @@ export function JobDetailsView({
                                 color: 'var(--color-success-fg)',
                               }}
                             >
-                              {role.budgetDisplay}{' '}
-                              <span style={{ fontSize: 12, fontWeight: 600 }}>
-                                {role.salaryTypeLabel}
-                              </span>
+                              {role.budgetDisplay}
                             </div>
                           </div>
                         </div>
