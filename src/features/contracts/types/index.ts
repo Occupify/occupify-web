@@ -1,6 +1,7 @@
 import type { MyProject, ProjectMember, PendingProject } from '@/features/projects/types'
 
-export type ContractStatus = 'PENDING' | 'PENDING_ESCROW' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
+export type ContractStatus =
+  'PENDING' | 'PENDING_ESCROW' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
 
 export interface ContractEmployerSummary {
   id: string

@@ -16,7 +16,10 @@ export async function acceptInvitation(
     (typeof proj.id === 'string' || Number.isNaN(Number(proj.id)))
   ) {
     const contract = await apiAcceptContract(String(proj.id))
-    acceptedProject = toMyProjectFromContract(contract, contract.employee?.id ?? contract.employeeId ?? undefined)
+    acceptedProject = toMyProjectFromContract(
+      contract,
+      contract.employee?.id ?? contract.employeeId ?? undefined,
+    )
   }
 
   const { employeeProjects, pending } = getInternalStores()

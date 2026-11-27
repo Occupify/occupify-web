@@ -254,7 +254,8 @@ test('workspace mutations propagate ApiError instead of swallowing backend failu
 
   await assert.rejects(
     () => updateProject('proj-uuid-1', { title: 'New title' }),
-    (err: unknown) => err instanceof ApiError && err.statusCode === 403 && err.errorCode === 'PROJ_002',
+    (err: unknown) =>
+      err instanceof ApiError && err.statusCode === 403 && err.errorCode === 'PROJ_002',
   )
 
   globalThis.fetch = async () =>
@@ -269,7 +270,8 @@ test('workspace mutations propagate ApiError instead of swallowing backend failu
 
   await assert.rejects(
     () => cancelMyProject('proj-uuid-1'),
-    (err: unknown) => err instanceof ApiError && err.statusCode === 400 && err.errorCode === 'PROJ_003',
+    (err: unknown) =>
+      err instanceof ApiError && err.statusCode === 400 && err.errorCode === 'PROJ_003',
   )
 
   globalThis.fetch = async () =>

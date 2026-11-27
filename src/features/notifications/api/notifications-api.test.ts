@@ -101,7 +101,8 @@ test('toNotif maps NotificationResponse DTO to UI Notif model', () => {
     id: 'e8d1a3c5-6789-4def-0123-456789abcdef',
     userId: 'c1a2b3c4-d5e6-7890-abcd-ef1234567890',
     title: 'Đề xuất đã được xem',
-    content: "Nhà tuyển dụng TechCorp Global đã xem đề xuất của bạn cho công việc 'Senior Backend'.",
+    content:
+      "Nhà tuyển dụng TechCorp Global đã xem đề xuất của bạn cho công việc 'Senior Backend'.",
     category: 'JOB',
     actionType: 'PROPOSAL_VIEWED',
     isRead: false,
@@ -213,7 +214,10 @@ test('notification API propagates documented HTTP errors and maps Vietnamese mes
 
   for (const c of cases) {
     globalThis.fetch = async () =>
-      mockJsonResponse({ statusCode: c.status, errorCode: c.errorCode, message: c.message }, c.status)
+      mockJsonResponse(
+        { statusCode: c.status, errorCode: c.errorCode, message: c.message },
+        c.status,
+      )
 
     await assert.rejects(
       () => deleteNotification('notif-uuid-1'),

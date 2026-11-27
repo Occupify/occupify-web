@@ -5,13 +5,7 @@ export type NotifTab = 'all' | 'unread'
 export type NotifBadgeType = 'contract' | 'review' | 'proposal' | 'message' | 'alert' | 'system'
 
 export type NotificationCategory =
-  | 'CONTRACT'
-  | 'JOB'
-  | 'PROJECT'
-  | 'SYSTEM'
-  | 'MESSAGE'
-  | 'PAYMENT'
-  | 'COMMUNITY'
+  'CONTRACT' | 'JOB' | 'PROJECT' | 'SYSTEM' | 'MESSAGE' | 'PAYMENT' | 'COMMUNITY'
 
 export type NotificationActionType =
   | 'PROPOSAL_VIEWED'

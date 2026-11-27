@@ -398,9 +398,7 @@ export function HomePage({
                     {Array.from({ length: totalPages }, (_, idx) => idx)
                       .filter(
                         (idx) =>
-                          idx === 0 ||
-                          idx === totalPages - 1 ||
-                          Math.abs(idx - currentPage) <= 1,
+                          idx === 0 || idx === totalPages - 1 || Math.abs(idx - currentPage) <= 1,
                       )
                       .reduce<Array<number | 'ellipsis'>>((acc, idx, i, arr) => {
                         if (i > 0 && idx - arr[i - 1] > 1) acc.push('ellipsis')

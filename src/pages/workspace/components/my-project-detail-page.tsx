@@ -83,10 +83,7 @@ export function MyProjectDetailPage({
 
   const [membersOverride, setMembersOverride] = useState<ProjectMember[] | null>(null)
   const members = membersOverride ?? effectiveMembers
-  const activeMembers = useMemo(
-    () => members.filter((m) => m.status !== 'Đã hủy'),
-    [members],
-  )
+  const activeMembers = useMemo(() => members.filter((m) => m.status !== 'Đã hủy'), [members])
 
   const setMembers = (
     newMembers: ProjectMember[] | ((prev: ProjectMember[]) => ProjectMember[]),
