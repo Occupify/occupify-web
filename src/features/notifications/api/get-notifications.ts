@@ -1,27 +1,52 @@
-import type { Notif } from '../types'
-import { MOCK_NOTIFICATIONS } from '@/features/mock-data'
+import { apiClient } from '../../../lib/api-client.ts'
+import type { PageResponse, SingleResponse, SuccessResponse } from '../../../types/api.ts'
+import {
+  toNotif,
+  type GetNotificationsParams,
+  type NotificationResponse,
+  type NotificationsPageResult,
+  type UnreadCountResponse,
+} from '../types/index.ts'
 
-let notificationsStore: Notif[] = [...MOCK_NOTIFICATIONS]
+export async function getNotifications(
+  params?: GetNotificationsParams,
+): Promise<NotificationsPageResult> {
+  const page = params?.page ?? 0
+  const limit = params?.limit ?? 20
 
-export async function getNotifications(): Promise<Notif[]> {
-  await new Promise((resolve) => setTimeout(resolve, 80))
-  return [...notificationsStore]
+  const res = await apiClient.get<PageResponse<NotificationResponse>>('/notifications', {
+    params: { page, limit },
+  })
+
+  const rawItems = Array.isArray(res?.data) ? res.data : []
+  const paging = res?.paging ?? {
+    page,
+    limit,
+    total: rawItems.length,
+    totalPages: rawItems.length > 0 ? 1 : 0,
+  }
+
+  return {
+    items: rawItems.map((item) => toNotif(item)),
+    paging,
+  }
 }
 
-export async function markNotificationAsRead(id: number): Promise<{ id: number; isRead: boolean }> {
-  await new Promise((resolve) => setTimeout(resolve, 50))
-  notificationsStore = notificationsStore.map((n) => (n.id === id ? { ...n, isRead: true } : n))
-  return { id, isRead: true }
+export async function getUnreadNotificationCount(): Promise<number> {
+  const res = await apiClient.get<SingleResponse<UnreadCountResponse>>(
+    '/notifications/unread-count',
+  )
+  return Number(res?.data?.unreadCount ?? 0)
 }
 
-export async function markAllNotificationsAsRead(): Promise<{ success: boolean }> {
-  await new Promise((resolve) => setTimeout(resolve, 60))
-  notificationsStore = notificationsStore.map((n) => ({ ...n, isRead: true }))
-  return { success: true }
+export async function markNotificationAsRead(notificationId: string): Promise<SuccessResponse> {
+  return await apiClient.put<SuccessResponse>(`/notifications/${notificationId}/read`)
 }
 
-export async function deleteNotification(id: number): Promise<{ id: number }> {
-  await new Promise((resolve) => setTimeout(resolve, 50))
-  notificationsStore = notificationsStore.filter((n) => n.id !== id)
-  return { id }
+export async function markAllNotificationsAsRead(): Promise<SuccessResponse> {
+  return await apiClient.put<SuccessResponse>('/notifications/read-all')
+}
+
+export async function deleteNotification(notificationId: string): Promise<SuccessResponse> {
+  return await apiClient.delete<SuccessResponse>(`/notifications/${notificationId}`)
 }
