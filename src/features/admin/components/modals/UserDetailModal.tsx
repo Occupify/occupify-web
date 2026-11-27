@@ -38,8 +38,7 @@ export function UserDetailModal({
       user.rawStatus === 'BANNED' ||
       user.status === 'SUSPENDED' ||
       user.status === 'BANNED')
-  const isAdminAccount =
-    String(user.role).toUpperCase() === 'ADMIN' || user.role === 'Admin'
+  const isAdminAccount = String(user.role).toUpperCase() === 'ADMIN' || user.role === 'Admin'
   const reports = user.reportCount ?? user.reportsCount ?? 0
   const flags = user.flagCount ?? 0
   const hasRisk = reports > 0 || flags > 0
@@ -291,11 +290,7 @@ export function UserDetailModal({
                   isLocked ? 'bg-[#057642] hover:bg-[#046237]' : 'bg-[#B06000] hover:bg-[#965200]'
                 }`}
               >
-                {isSubmitting
-                  ? 'Đang xử lý...'
-                  : isLocked
-                    ? 'Mở khóa tài khoản'
-                    : 'Khóa tài khoản'}
+                {isSubmitting ? 'Đang xử lý...' : isLocked ? 'Mở khóa tài khoản' : 'Khóa tài khoản'}
               </button>
             )}
             <button
