@@ -10,11 +10,11 @@ import {
   XIcon,
 } from '@phosphor-icons/react'
 import { toast } from '@/components/feedback'
-import { ApiError } from '@/types'
 import { useCurrentUser } from '@/features/auth'
 import { useMyBids, useCancelBid } from '@/features/bids'
 import { formatCurrencyVND } from '@/features/contracts'
 import {
+  getWorkspaceErrorMessage,
   PendingProjectCard,
   ProjectInvitationModal,
   ProjectListCard,
@@ -63,7 +63,7 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
     updateMyProjectMembers,
     acceptInvitation,
     rejectInvitation,
-  } = useProjects(currentUser?.id)
+  } = useProjects(currentUser?.id, currentUser?.email)
 
   const [selectedInvitation, setSelectedInvitation] = useState<PendingProject | null>(null)
   const [contractContext, setContractContext] = useState<{
@@ -120,7 +120,12 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
   )
   const [searchKeyword, setSearchKeyword] = useState('')
 
-  const { data: myBidsData } = useMyBids()
+  const {
+    data: myBidsData,
+    isError: isBidsError,
+    error: bidsError,
+    refetch: refetchBids,
+  } = useMyBids()
   const cancelBidMutation = useCancelBid()
   const myBids = myBidsData?.data || []
 
@@ -129,8 +134,7 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
       await cancelBidMutation.mutateAsync(bidId)
       toast.info('Đã rút hồ sơ ứng tuyển thành công.')
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Có lỗi khi rút hồ sơ'
-      toast.error(msg)
+      toast.error(getWorkspaceErrorMessage(err))
     }
   }
 
@@ -141,8 +145,8 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
       toast.success(
         `Chúc mừng! Bạn đã tham gia dự án "${proj.name}" với vai trò ${proj.invitedRole}.`,
       )
-    } catch {
-      toast.error('Có lỗi xảy ra khi chấp nhận lời mời.')
+    } catch (err: unknown) {
+      toast.error(getWorkspaceErrorMessage(err))
     }
   }
 
@@ -151,8 +155,8 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
       await rejectInvitation(proj.id)
       setSelectedInvitation(null)
       toast.info(`Đã từ chối lời mời tham gia dự án "${proj.name}".`)
-    } catch {
-      toast.error('Có lỗi xảy ra khi từ chối lời mời.')
+    } catch (err: unknown) {
+      toast.error(getWorkspaceErrorMessage(err))
     }
   }
 
@@ -162,8 +166,8 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
       await cancelEmployeeProject({ projectId, reason })
       setSearchParams({}, { replace: true })
       toast.info(`Đã hủy hợp đồng tham gia dự án "${proj?.name || ''}".`)
-    } catch {
-      toast.error('Có lỗi xảy ra khi hủy hợp đồng.')
+    } catch (err: unknown) {
+      toast.error(getWorkspaceErrorMessage(err))
     }
   }
 
@@ -173,8 +177,8 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
       await cancelMyProject({ projectId, reason })
       setSearchParams({}, { replace: true })
       toast.info(`Đã đóng/hủy dự án "${proj?.name || ''}".`)
-    } catch {
-      toast.error('Có lỗi xảy ra khi đóng dự án.')
+    } catch (err: unknown) {
+      toast.error(getWorkspaceErrorMessage(err))
     }
   }
 
@@ -182,8 +186,8 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
     try {
       await updateProject({ id: projectId, payload })
       toast.success('Dự án đã được cập nhật thành công!')
-    } catch {
-      toast.error('Có lỗi xảy ra khi cập nhật dự án.')
+    } catch (err: unknown) {
+      toast.error(getWorkspaceErrorMessage(err))
     }
   }
 
@@ -193,8 +197,8 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
   ) => {
     try {
       await updateMyProjectMembers({ projectId, members: updatedMembers })
-    } catch {
-      toast.error('Có lỗi xảy ra khi cập nhật thành viên.')
+    } catch (err: unknown) {
+      toast.error(getWorkspaceErrorMessage(err))
     }
   }
 
@@ -243,13 +247,7 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
       setSearchParams({}, { replace: true })
       toast.success(`Dự án "${formData.name}" đã được tạo thành công!`)
     } catch (err: unknown) {
-      const message =
-        err instanceof ApiError
-          ? err.message
-          : err instanceof Error
-            ? err.message
-            : 'Có lỗi xảy ra khi tạo dự án.'
-      toast.error(message)
+      toast.error(getWorkspaceErrorMessage(err))
     }
   }
 
@@ -264,8 +262,7 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
         } thành công!`,
       )
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Có lỗi xảy ra khi tạo hợp đồng.'
-      toast.error(msg)
+      toast.error(getWorkspaceErrorMessage(err))
     }
   }
 
@@ -559,11 +556,7 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
             Không thể tải dữ liệu dự án từ hệ thống
           </h3>
           <p className="mt-1 text-xs text-red-600 dark:text-red-400">
-            {error instanceof ApiError
-              ? error.message
-              : error instanceof Error
-                ? error.message
-                : 'Máy chủ phản hồi lỗi khi truy vấn dự án (404 / 503).'}
+            {getWorkspaceErrorMessage(error)}
           </p>
           <button
             type="button"
@@ -652,7 +645,7 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
         </div>
       )}
 
-      {!isLoading && activeTab === 'participant' && (
+      {!isLoading && !isError && activeTab === 'participant' && (
         <div className="max-w-3xl">
           <ProjectListCard
             title="Các dự án tôi đang thực hiện"
@@ -667,7 +660,7 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
         </div>
       )}
 
-      {!isLoading && activeTab === 'pending' && (
+      {!isLoading && !isError && activeTab === 'pending' && (
         <div className="max-w-3xl space-y-4">
           <PendingProjectCard
             pending={filteredPending}
@@ -688,85 +681,103 @@ export function WorkspacePage({ onExploreJobs, onViewProfile }: WorkspacePagePro
       {/* Tab: Đơn ứng tuyển của tôi (GET /bids/my & DELETE /bids/{id}) */}
       {!isLoading && activeTab === 'bids' && (
         <div className="max-w-3xl space-y-3">
-          <div className="rounded-lg border p-5 !border-[var(--border-default)] !bg-[var(--bg-elevated)] shadow-sm">
-            <h3 className="mb-1 text-sm font-bold !text-[var(--text-primary)]">
-              Đơn ứng tuyển của tôi
-            </h3>
-            <p className="mb-4 text-xs !text-[var(--text-secondary)]">
-              Danh sách các vị trí công việc bạn đã gửi báo giá / hồ sơ ứng tuyển
-            </p>
+          {isBidsError ? (
+            <div className="rounded-xl border border-red-200 bg-red-50/80 p-6 text-center dark:border-red-900/30 dark:bg-red-950/20">
+              <h3 className="text-sm font-bold text-red-800 dark:text-red-300">
+                Không thể tải danh sách đơn ứng tuyển
+              </h3>
+              <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                {getWorkspaceErrorMessage(bidsError)}
+              </p>
+              <button
+                type="button"
+                onClick={() => refetchBids()}
+                className="mt-4 inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-red-700"
+              >
+                Thử lại
+              </button>
+            </div>
+          ) : (
+            <div className="rounded-lg border p-5 !border-[var(--border-default)] !bg-[var(--bg-elevated)] shadow-sm">
+              <h3 className="mb-1 text-sm font-bold !text-[var(--text-primary)]">
+                Đơn ứng tuyển của tôi
+              </h3>
+              <p className="mb-4 text-xs !text-[var(--text-secondary)]">
+                Danh sách các vị trí công việc bạn đã gửi báo giá / hồ sơ ứng tuyển
+              </p>
 
-            {filteredBids.length === 0 ? (
-              <div className="rounded-lg border border-dashed p-8 text-center text-xs !border-[var(--border-default)] !bg-[var(--bg-subtle)] !text-[var(--text-tertiary)]">
-                {searchKeyword
-                  ? 'Không tìm thấy đơn ứng tuyển nào khớp với từ khóa.'
-                  : 'Bạn chưa nộp đơn ứng tuyển nào.'}
-              </div>
-            ) : (
-              <div className="divide-y !divide-[var(--border-subtle)]">
-                {filteredBids.map((bid) => {
-                  const isPending = bid.status === 'PENDING'
-                  return (
-                    <div
-                      key={bid.id}
-                      className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
-                    >
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold !text-[var(--text-primary)]">
-                            {bid.job?.title || 'Vị trí tuyển dụng'}
-                          </span>
-                          <span
-                            className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
-                              bid.status === 'ACCEPTED'
-                                ? '!border !border-[#BBF7D0] !bg-[#E5F6E8] !text-[#057642]'
-                                : bid.status === 'REJECTED'
-                                  ? '!border !border-gray-200 !bg-gray-100 !text-gray-600'
-                                  : '!border !border-[#FDE68A] !bg-[#FFFBEB] !text-[#B45309]'
-                            }`}
-                          >
-                            {bid.status === 'ACCEPTED'
-                              ? 'Đã được duyệt'
-                              : bid.status === 'REJECTED'
-                                ? 'Từ chối'
-                                : 'Đang chờ duyệt'}
-                          </span>
-                        </div>
-                        {bid.project?.title && (
-                          <div className="mt-0.5 text-xs !text-[var(--text-secondary)]">
-                            Dự án: <span className="font-semibold">{bid.project.title}</span>
-                          </div>
-                        )}
-                        <div className="mt-1 flex flex-wrap items-center gap-3 text-[11.5px] !text-[var(--text-tertiary)]">
-                          <span>
-                            Báo giá:{' '}
-                            <strong className="!text-[var(--color-primary-500)]">
-                              {formatCurrencyVND(bid.proposedRate)}
-                            </strong>
-                          </span>
-                          {bid.createdAt && (
-                            <span>
-                              Ngày gửi: {new Date(bid.createdAt).toLocaleDateString('vi-VN')}
+              {filteredBids.length === 0 ? (
+                <div className="rounded-lg border border-dashed p-8 text-center text-xs !border-[var(--border-default)] !bg-[var(--bg-subtle)] !text-[var(--text-tertiary)]">
+                  {searchKeyword
+                    ? 'Không tìm thấy đơn ứng tuyển nào khớp với từ khóa.'
+                    : 'Bạn chưa nộp đơn ứng tuyển nào.'}
+                </div>
+              ) : (
+                <div className="divide-y !divide-[var(--border-subtle)]">
+                  {filteredBids.map((bid) => {
+                    const isPending = bid.status === 'PENDING'
+                    return (
+                      <div
+                        key={bid.id}
+                        className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-bold !text-[var(--text-primary)]">
+                              {bid.job?.title || 'Vị trí tuyển dụng'}
                             </span>
+                            <span
+                              className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
+                                bid.status === 'ACCEPTED'
+                                  ? '!border !border-[#BBF7D0] !bg-[#E5F6E8] !text-[#057642]'
+                                  : bid.status === 'REJECTED'
+                                    ? '!border !border-gray-200 !bg-gray-100 !text-gray-600'
+                                    : '!border !border-[#FDE68A] !bg-[#FFFBEB] !text-[#B45309]'
+                              }`}
+                            >
+                              {bid.status === 'ACCEPTED'
+                                ? 'Đã được duyệt'
+                                : bid.status === 'REJECTED'
+                                  ? 'Từ chối'
+                                  : 'Đang chờ duyệt'}
+                            </span>
+                          </div>
+                          {bid.project?.title && (
+                            <div className="mt-0.5 text-xs !text-[var(--text-secondary)]">
+                              Dự án: <span className="font-semibold">{bid.project.title}</span>
+                            </div>
                           )}
+                          <div className="mt-1 flex flex-wrap items-center gap-3 text-[11.5px] !text-[var(--text-tertiary)]">
+                            <span>
+                              Báo giá:{' '}
+                              <strong className="!text-[var(--color-primary-500)]">
+                                {formatCurrencyVND(bid.proposedRate)}
+                              </strong>
+                            </span>
+                            {bid.createdAt && (
+                              <span>
+                                Ngày gửi: {new Date(bid.createdAt).toLocaleDateString('vi-VN')}
+                              </span>
+                            )}
+                          </div>
                         </div>
-                      </div>
 
-                      {isPending && (
-                        <button
-                          type="button"
-                          onClick={() => handleWithdrawBid(bid.id)}
-                          className="self-start cursor-pointer rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors !border-[#C03A2B] !text-[#C03A2B] hover:!bg-[#FBE2E2] sm:self-auto"
-                        >
-                          Rút hồ sơ
-                        </button>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
+                        {isPending && (
+                          <button
+                            type="button"
+                            onClick={() => handleWithdrawBid(bid.id)}
+                            className="self-start cursor-pointer rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors !border-[#C03A2B] !text-[#C03A2B] hover:!bg-[#FBE2E2] sm:self-auto"
+                          >
+                            Rút hồ sơ
+                          </button>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 

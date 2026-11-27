@@ -43,6 +43,7 @@ export interface BidFilterParams {
   jobId?: string
   status?: BidStatus
   page?: number
+  size?: number
   limit?: number
   sort?: string
 }

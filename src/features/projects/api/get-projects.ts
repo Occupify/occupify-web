@@ -1,5 +1,5 @@
-import { apiClient } from '../../../lib/api-client'
-import type { PageResponse, SingleResponse } from '../../../types'
+import { apiClient } from '../../../lib/api-client.ts'
+import type { PageResponse, SingleResponse } from '../../../types/api.ts'
 import type {
   MyProject,
   PendingProject,
@@ -7,13 +7,14 @@ import type {
   ProjectFilterParams,
   ProjectJob,
   ProjectSummary,
-} from '../types'
-import { toMyProject } from '../types'
+} from '../types/index.ts'
+import { toMyProject } from '../types/index.ts'
+import { getContracts } from '../../contracts/api/get-contracts.ts'
 import {
-  getContracts,
   toMyProjectFromContract,
   toPendingProjectFromContract,
-} from '@/features/contracts'
+  type ContractSummaryResponse,
+} from '../../contracts/types/index.ts'
 
 const CUSTOM_PROJECTS_KEY = 'occupify_custom_projects'
 
@@ -40,6 +41,25 @@ function savePersistedCustomProjects(projects: MyProject[]) {
 let myProjectsStore: MyProject[] = [...loadPersistedCustomProjects()]
 let employeeProjectsStore: MyProject[] = []
 let pendingProjectsStore: PendingProject[] = []
+
+function isContractForEmployee(
+  contract: ContractSummaryResponse,
+  currentUserId?: string,
+  userEmail?: string,
+): boolean {
+  if (!currentUserId && !userEmail) return true
+
+  const matchesUserId =
+    Boolean(currentUserId) &&
+    Boolean(contract.employeeId) &&
+    String(contract.employeeId) === String(currentUserId)
+  const matchesEmail =
+    Boolean(userEmail) &&
+    Boolean(contract.freelancerEmail) &&
+    contract.freelancerEmail!.toLowerCase() === userEmail!.toLowerCase()
+
+  return matchesUserId || matchesEmail
+}
 
 /**
  * Fetch paginated projects from backend API (/projects)
@@ -81,9 +101,13 @@ export async function getProjectById(id: string | number): Promise<MyProject | n
  * Get current user's projects with backend integration
  */
 export async function getMyProjects(employerId?: string): Promise<MyProject[]> {
+  if (!employerId) {
+    return []
+  }
+
   const res = await getProjects({
     employerId,
-    limit: 50,
+    size: 50,
     sort: 'createdAt,desc',
   })
   if (res?.data && Array.isArray(res.data)) {
@@ -91,25 +115,27 @@ export async function getMyProjects(employerId?: string): Promise<MyProject[]> {
     setInternalStores({ myProjects: backendProjects })
     return backendProjects
   }
-  return myProjectsStore
+  return []
 }
 
 /**
  * Get active contracts where the user participates as employee / contractor
  */
-export async function getEmployeeProjects(currentUserId?: string): Promise<MyProject[]> {
-  try {
-    const res = await getContracts({ limit: 50, sort: 'createdAt,desc' })
-    if (res?.data && Array.isArray(res.data)) {
-      const activeContracts = res.data.filter(
-        (c) => c.status === 'IN_PROGRESS' || c.status === 'COMPLETED',
-      )
-      const mapped = activeContracts.map((c) => toMyProjectFromContract(c, currentUserId))
-      setInternalStores({ employeeProjects: mapped })
-      return mapped
-    }
-  } catch {
-    // Return empty on network error or unauthorized
+export async function getEmployeeProjects(
+  currentUserId?: string,
+  userEmail?: string,
+): Promise<MyProject[]> {
+  const res = await getContracts({ size: 50, sort: 'createdAt,desc' })
+  if (res?.data && Array.isArray(res.data)) {
+    const activeContracts = res.data.filter((c) => {
+      const isParticipantStatus =
+        c.status === 'IN_PROGRESS' || c.status === 'COMPLETED' || c.status === 'PENDING_ESCROW'
+      if (!isParticipantStatus) return false
+      return isContractForEmployee(c, currentUserId, userEmail)
+    })
+    const mapped = activeContracts.map((c) => toMyProjectFromContract(c, currentUserId))
+    setInternalStores({ employeeProjects: mapped })
+    return mapped
   }
   return []
 }
@@ -121,29 +147,14 @@ export async function getPendingProjects(
   currentUserId?: string,
   userEmail?: string,
 ): Promise<PendingProject[]> {
-  try {
-    const res = await getContracts({ status: 'PENDING', limit: 50, sort: 'createdAt,desc' })
-    if (res?.data && Array.isArray(res.data)) {
-      const pendingContracts = res.data.filter((c) => {
-        if (c.status !== 'PENDING') return false
-        if (currentUserId && c.employeeId && String(c.employeeId) === String(currentUserId)) {
-          return true
-        }
-        if (
-          userEmail &&
-          c.freelancerEmail &&
-          c.freelancerEmail.toLowerCase() === userEmail.toLowerCase()
-        ) {
-          return true
-        }
-        return !currentUserId && !userEmail
-      })
-      const mapped = pendingContracts.map(toPendingProjectFromContract)
-      setInternalStores({ pending: mapped })
-      return mapped
-    }
-  } catch {
-    // Return empty on network error or unauthorized
+  const res = await getContracts({ status: 'PENDING', size: 50, sort: 'createdAt,desc' })
+  if (res?.data && Array.isArray(res.data)) {
+    const pendingContracts = res.data.filter(
+      (c) => c.status === 'PENDING' && isContractForEmployee(c, currentUserId, userEmail),
+    )
+    const mapped = pendingContracts.map(toPendingProjectFromContract)
+    setInternalStores({ pending: mapped })
+    return mapped
   }
   return []
 }

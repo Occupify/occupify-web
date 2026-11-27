@@ -29,7 +29,7 @@ export function useProjectBids(projectId?: string) {
   return useQuery({
     queryKey: bidKeys.list({ projectId }),
     queryFn: () =>
-      projectId ? getBids({ projectId, limit: 100 }) : Promise.resolve(EMPTY_PAGE_RESPONSE),
+      projectId ? getBids({ projectId, size: 100 }) : Promise.resolve(EMPTY_PAGE_RESPONSE),
     enabled: Boolean(projectId),
   })
 }

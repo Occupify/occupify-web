@@ -1,13 +1,13 @@
-import { apiClient } from '@/lib/api-client'
-import type { CreatedResponse } from '@/types'
+import { apiClient } from '../../../lib/api-client.ts'
+import type { CreatedResponse } from '../../../types/api.ts'
 import type {
   CreateProjectFormData,
   CreateProjectPayload,
   MyProject,
   ProjectDetail,
-} from '../types'
-import { toBackendExperienceLevel, toBackendPeriod, toMyProject } from '../types'
-import { getInternalStores, setInternalStores } from './get-projects'
+} from '../types/index.ts'
+import { toBackendExperienceLevel, toBackendPeriod, toMyProject } from '../types/index.ts'
+import { getInternalStores, setInternalStores } from './get-projects.ts'
 
 export async function createProject(formData: CreateProjectFormData): Promise<MyProject> {
   const cleanPrice = formData.startPrice ? Number(formData.startPrice.replace(/[^0-9]/g, '')) : 0
@@ -21,6 +21,7 @@ export async function createProject(formData: CreateProjectFormData): Promise<My
     dueDate: formData.dueDate ? formData.dueDate : undefined,
     startDate: formData.bidCloseDate ? `${formData.bidCloseDate}T00:00:00` : undefined,
     experienceLevel: toBackendExperienceLevel(formData.experienceLevel),
+    tags: formData.tags?.length ? formData.tags : undefined,
   }
 
   const res = await apiClient.post<CreatedResponse<ProjectDetail>>('/projects', payload)

@@ -1,10 +1,10 @@
-import { apiClient } from '@/lib/api-client'
-import type { SingleResponse, SuccessResponse } from '@/types'
+import { apiClient } from '../../../lib/api-client.ts'
+import type { SingleResponse, SuccessResponse } from '../../../types/api.ts'
 import type {
   CompleteContractPayload,
   ContractDetailResponse,
   UpdateContractPayload,
-} from '../types'
+} from '../types/index.ts'
 
 /**
  * Freelancer/Employee accepts pending contract (POST /contracts/{id}/accept)

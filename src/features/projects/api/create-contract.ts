@@ -24,52 +24,48 @@ export async function createContract(
     }
   } else if (formData.projectId) {
     // 2. If NO freelancerEmail -> Recruitment Mode: invoke backend POST /jobs
-    try {
-      const salaryTypeMap: Record<string, 'DAY' | 'FIXED' | 'HOURLY' | 'WEEKLY' | 'MONTHLY'> = {
-        'Hàng tháng': 'MONTHLY',
-        'Theo giờ': 'HOURLY',
-        'Hàng tuần': 'WEEKLY',
-        'Cố định': 'FIXED',
-      }
-      const rawPrice = Number(String(formData.salary || formData.value).replace(/[^0-9]/g, '')) || 0
-      const createdJob = await apiCreateJob({
-        projectId: formData.projectId,
-        role: formData.roleTitle || formData.role || 'Thành viên dự án',
-        title: formData.title,
-        description: formData.jobDescription || formData.title,
-        budget: rawPrice > 0 ? rawPrice : undefined,
-        salaryType: salaryTypeMap[formData.period] || 'MONTHLY',
-        startedAt: formData.startDate ? new Date(formData.startDate).toISOString() : undefined,
-        finishedAt: formData.endDate ? new Date(formData.endDate).toISOString() : undefined,
-        file: formData.file ?? null,
-      })
-      backendContractId = createdJob.id
-
-      // Update recruitingRoles in local store so project detail is in sync immediately
-      const { myProjects } = getInternalStores()
-      const updated = myProjects.map((p) => {
-        if (String(p.id) === String(formData.projectId) || p.name === formData.projectName) {
-          const newRole = {
-            id: createdJob.id,
-            title: createdJob.title || formData.title,
-            skills: createdJob.skills ? Array.from(createdJob.skills) : [],
-            salaryRange: rawPrice > 0 ? `${rawPrice.toLocaleString('vi-VN')} ₫` : undefined,
-            slotsTotal: createdJob.quantity || 1,
-            slotsFilled: 0,
-            status: 'recruiting' as const,
-            jobDescription: createdJob.description,
-          }
-          return {
-            ...p,
-            recruitingRoles: [...(p.recruitingRoles || []), newRole],
-          }
-        }
-        return p
-      })
-      setInternalStores({ myProjects: updated })
-    } catch {
-      // Fallback
+    const salaryTypeMap: Record<string, 'DAY' | 'FIXED' | 'HOURLY' | 'WEEKLY' | 'MONTHLY'> = {
+      'Hàng tháng': 'MONTHLY',
+      'Theo giờ': 'HOURLY',
+      'Hàng tuần': 'WEEKLY',
+      'Cố định': 'FIXED',
     }
+    const rawPrice = Number(String(formData.salary || formData.value).replace(/[^0-9]/g, '')) || 0
+    const createdJob = await apiCreateJob({
+      projectId: formData.projectId,
+      role: formData.roleTitle || formData.role || 'Thành viên dự án',
+      title: formData.title,
+      description: formData.jobDescription || formData.title,
+      budget: rawPrice > 0 ? rawPrice : undefined,
+      salaryType: salaryTypeMap[formData.period] || 'MONTHLY',
+      startedAt: formData.startDate ? new Date(formData.startDate).toISOString() : undefined,
+      finishedAt: formData.endDate ? new Date(formData.endDate).toISOString() : undefined,
+      file: formData.file ?? null,
+    })
+    backendContractId = createdJob.id
+
+    // Update recruitingRoles in local store so project detail is in sync immediately
+    const { myProjects } = getInternalStores()
+    const updated = myProjects.map((p) => {
+      if (String(p.id) === String(formData.projectId) || p.name === formData.projectName) {
+        const newRole = {
+          id: createdJob.id,
+          title: createdJob.title || formData.title,
+          skills: createdJob.skills ? Array.from(createdJob.skills) : [],
+          salaryRange: rawPrice > 0 ? `${rawPrice.toLocaleString('vi-VN')} ₫` : undefined,
+          slotsTotal: createdJob.quantity || 1,
+          slotsFilled: 0,
+          status: 'recruiting' as const,
+          jobDescription: createdJob.description,
+        }
+        return {
+          ...p,
+          recruitingRoles: [...(p.recruitingRoles || []), newRole],
+        }
+      }
+      return p
+    })
+    setInternalStores({ myProjects: updated })
   }
 
   const { myProjects } = getInternalStores()

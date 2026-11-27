@@ -1,8 +1,8 @@
-import { apiClient } from '@/lib/api-client'
-import type { SingleResponse } from '@/types'
-import type { ProjectDetail } from '../types'
-import { getInternalStores, setInternalStores } from './get-projects'
-import { cancelContract as apiCancelContract } from '@/features/contracts'
+import { apiClient } from '../../../lib/api-client.ts'
+import type { SingleResponse } from '../../../types/api.ts'
+import type { ProjectDetail } from '../types/index.ts'
+import { getInternalStores, setInternalStores } from './get-projects.ts'
+import { cancelContract as apiCancelContract } from '../../contracts/api/manage-contract.ts'
 
 export async function closeProject(projectId: string | number): Promise<ProjectDetail> {
   const res = await apiClient.patch<SingleResponse<ProjectDetail>>(`/projects/${projectId}/close`)
@@ -13,10 +13,8 @@ export async function cancelMyProject(
   projectId: number | string,
   _reason?: string,
 ): Promise<{ success: boolean; projectId: number | string }> {
-  try {
+  if (!String(projectId).startsWith('local-')) {
     await closeProject(projectId)
-  } catch {
-    // Fallback to local store
   }
   const { myProjects } = getInternalStores()
   const updated = myProjects.filter((p) => String(p.id) !== String(projectId))
@@ -28,12 +26,11 @@ export async function cancelEmployeeProject(
   projectId: number | string,
   reason?: string,
 ): Promise<{ success: boolean; projectId: number | string }> {
-  try {
-    if (typeof projectId === 'string' || Number.isNaN(Number(projectId))) {
-      await apiCancelContract(String(projectId), reason)
-    }
-  } catch {
-    // Fallback to local store
+  if (
+    !String(projectId).startsWith('local-') &&
+    (typeof projectId === 'string' || Number.isNaN(Number(projectId)))
+  ) {
+    await apiCancelContract(String(projectId), reason)
   }
   const { employeeProjects } = getInternalStores()
   const updated = employeeProjects.filter((p) => String(p.id) !== String(projectId))
