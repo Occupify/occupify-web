@@ -1,0 +1,115 @@
+name: Occupify Web CD flow (AWS)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: fe-deploy-web-aws
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build Frontend Bundle
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build production bundle
+        env:
+          VITE_APP_NAME: Occupify
+          VITE_APP_ENV: production
+          VITE_APP_PORT: '3000'
+          VITE_API_BASE_URL: 'https://occupify.tienvm.dpdns.org/api'
+          VITE_GOOGLE_CLIENT_ID: '520237679556-qgh94dbc3f1agf73kqfc1asol5h60n2n.apps.googleusercontent.com'
+        run: pnpm run build
+
+      - name: Upload compiled bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-bundle
+          path: dist/
+          retention-days: 1
+
+  deploy:
+    name: Deploy to Web Instance via Bastion (Oracle Cloud)
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download compiled bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-bundle
+          path: ./temp-dist
+
+      - name: Deploy via Bastion SSH Tunnel
+        env:
+          BASTION_KEY: ${{ secrets.BASTION_SSH_KEY }}
+          BASTION_HOST: ${{ secrets.BASTION_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          # Normalize line endings and trailing newline for OpenSSH private key
+          printf "%s\n" "$BASTION_KEY" | tr -d '\r' > ~/.ssh/bastion.pem
+          chmod 600 ~/.ssh/bastion.pem
+
+          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+
+          # 0. Package build bundle
+          tar -czf /tmp/dist.tar.gz -C ./temp-dist .
+
+          # 1. Upload bundle tarball to Bastion
+          scp -i ~/.ssh/bastion.pem -o StrictHostKeyChecking=accept-new /tmp/dist.tar.gz ubuntu@$BASTION_HOST:/tmp/dist.tar.gz
+
+          # 2. Transfer from Bastion to Oracle Web instance and deploy atomically
+          ssh -i ~/.ssh/bastion.pem -o StrictHostKeyChecking=accept-new ubuntu@$BASTION_HOST "
+            scp -o StrictHostKeyChecking=accept-new /tmp/dist.tar.gz oracle_web:/tmp/dist.tar.gz
+            rm -f /tmp/dist.tar.gz
+
+            ssh -o StrictHostKeyChecking=accept-new oracle_web '
+              APP_DIR=\"/var/www/occupify-web\"
+              RELEASE_DIR=\"\$APP_DIR/releases/$TIMESTAMP\"
+              CURRENT_LINK=\"\$APP_DIR/current\"
+
+              mkdir -p \"\$RELEASE_DIR\"
+              tar -xzf /tmp/dist.tar.gz -C \"\$RELEASE_DIR\"
+              rm -f /tmp/dist.tar.gz
+
+              # Carry forward previous hashed chunks (Anti-ChunkLoadError)
+              if [ -L \"\$CURRENT_LINK\" ] && [ -d \"\$CURRENT_LINK/assets\" ]; then
+                cp -rn \"\$CURRENT_LINK/assets\"/* \"\$RELEASE_DIR/assets/\" 2>/dev/null || true
+              fi
+
+              # Atomically switch symlink
+              if [ ! -L \"\$CURRENT_LINK\" ] && [ -d \"\$CURRENT_LINK\" ]; then
+                rm -rf \"\$CURRENT_LINK\"
+              fi
+              ln -sfn \"\$RELEASE_DIR\" \"\$CURRENT_LINK\"
+
+              # Prune old releases (keep latest 5)
+              cd \"\$APP_DIR/releases\" && ls -1tr | head -n -5 | xargs -d \"\n\" rm -rf -- 2>/dev/null || true
+
+              sudo systemctl reload nginx 2>/dev/null || true
+            '
+          "
+
+          shred -u ~/.ssh/bastion.pem
+          rm -f /tmp/dist.tar.gz
