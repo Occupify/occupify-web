@@ -83,6 +83,10 @@ export function MyProjectDetailPage({
 
   const [membersOverride, setMembersOverride] = useState<ProjectMember[] | null>(null)
   const members = membersOverride ?? effectiveMembers
+  const activeMembers = useMemo(
+    () => members.filter((m) => m.status !== 'Đã hủy'),
+    [members],
+  )
 
   const setMembers = (
     newMembers: ProjectMember[] | ((prev: ProjectMember[]) => ProjectMember[]),
@@ -124,8 +128,40 @@ export function MyProjectDetailPage({
   }, [project.recruitingRoles, deletedRoleIds, closedRoleIds, roleOverrides])
 
   const [roleTitleInput, setRoleTitleInput] = useState('')
+  const [rolePositionInput, setRolePositionInput] = useState('')
   const [roleBudgetInput, setRoleBudgetInput] = useState('')
+  const [roleSalaryTypeInput, setRoleSalaryTypeInput] = useState<
+    'MONTHLY' | 'HOURLY' | 'WEEKLY' | 'FIXED' | 'DAY'
+  >('MONTHLY')
+  const [roleStartDateInput, setRoleStartDateInput] = useState('')
+  const [roleEndDateInput, setRoleEndDateInput] = useState('')
   const [roleDescInput, setRoleDescInput] = useState('')
+  const [roleTermsFileInput, setRoleTermsFileInput] = useState<File | null>(null)
+
+  const formatSalaryCycleLabel = (salaryType?: string | null) => {
+    switch ((salaryType || '').toUpperCase()) {
+      case 'HOURLY':
+        return 'Theo giờ'
+      case 'WEEKLY':
+        return 'Hàng tuần'
+      case 'FIXED':
+        return 'Cố định'
+      case 'DAY':
+        return 'Theo ngày'
+      case 'MONTHLY':
+        return 'Hàng tháng'
+      default:
+        return ''
+    }
+  }
+
+  const formatDateDisplay = (iso?: string | null) => {
+    if (!iso) return ''
+    const datePart = iso.split('T')[0]
+    const [y, m, d] = datePart.split('-')
+    if (y && m && d) return `${d}/${m}/${y}`
+    return datePart
+  }
 
   // Edit contract states
   const [editContractMsg, setEditContractMsg] = useState('')
@@ -287,26 +323,42 @@ export function MyProjectDetailPage({
   const handleSaveRole = async () => {
     if (!editingJobRole) return
     try {
-      await updateJobMutation.mutateAsync({
+      const normalizedRole = rolePositionInput.trim() || roleTitleInput.trim()
+      const startedAtIso = roleStartDateInput ? `${roleStartDateInput}T00:00:00` : undefined
+      const finishedAtIso = roleEndDateInput ? `${roleEndDateInput}T23:59:59` : undefined
+
+      const updatedJob = await updateJobMutation.mutateAsync({
         jobId: editingJobRole.id,
         payload: {
-          title: roleTitleInput,
-          role: roleTitleInput,
+          title: roleTitleInput.trim(),
+          role: normalizedRole,
           description: roleDescInput,
           budget: Number(roleBudgetInput.replace(/[^0-9]/g, '')) || undefined,
+          salaryType: roleSalaryTypeInput,
+          startedAt: startedAtIso,
+          finishedAt: finishedAtIso,
+          file: roleTermsFileInput,
         },
       })
       setRoleOverrides((prev) => ({
         ...prev,
         [editingJobRole.id]: {
-          title: roleTitleInput,
+          title: roleTitleInput.trim(),
+          role: normalizedRole,
           jobDescription: roleDescInput,
+          salaryType: roleSalaryTypeInput,
+          startedAt: startedAtIso ?? editingJobRole.startedAt,
+          finishedAt: finishedAtIso ?? editingJobRole.finishedAt,
+          termsFileUrl:
+            (updatedJob as { termsFileUrl?: string | null })?.termsFileUrl ??
+            editingJobRole.termsFileUrl,
           salaryRange: roleBudgetInput
             ? `${Number(roleBudgetInput.replace(/[^0-9]/g, '')).toLocaleString('vi-VN')} ₫`
             : editingJobRole.salaryRange,
         },
       }))
       toast.success('Đã cập nhật vị trí tuyển dụng!')
+      setRoleTermsFileInput(null)
       setEditingJobRole(null)
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Có lỗi khi cập nhật vị trí'
@@ -372,7 +424,7 @@ export function MyProjectDetailPage({
                 {project.name}
               </h1>
               <p className="mt-1.5 text-sm !text-[var(--text-secondary)]">
-                {members.length} thành viên · Thời gian hoàn thành dự án:{' '}
+                {activeMembers.length} thành viên · Thời gian hoàn thành dự án:{' '}
                 {project.dueDate || 'Linh hoạt'}
                 {project.bidCloseDate ? ` · Hạn chót ứng tuyển: ${project.bidCloseDate}` : ''}
               </p>
@@ -401,7 +453,7 @@ export function MyProjectDetailPage({
                     {recruitmentClosed ? 'Đã đóng tuyển dụng' : 'Đóng tuyển dụng'}
                   </button>
 
-                  {members.length === 0 ? (
+                  {activeMembers.length === 0 ? (
                     <button
                       type="button"
                       onClick={() => setCancelTarget('project')}
@@ -411,11 +463,11 @@ export function MyProjectDetailPage({
                     </button>
                   ) : (
                     <div
-                      title="Cần hủy tất cả hợp đồng với nhân sự trong dự án trước khi có thể hủy dự án này"
+                      title="Cần hủy tất cả hợp đồng đang hoạt động với nhân sự trong dự án trước khi có thể hủy dự án này"
                       className="inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[13px] font-semibold !border-[var(--border-default)] !bg-[var(--bg-subtle)] !text-[var(--text-tertiary)]"
                     >
                       <LockIcon size={14} />
-                      <span>Không thể hủy khi còn nhân sự ({members.length})</span>
+                      <span>Không thể hủy khi còn nhân sự ({activeMembers.length})</span>
                     </div>
                   )}
 
@@ -501,12 +553,56 @@ export function MyProjectDetailPage({
                           </div>
                         )}
 
+                        {r.role && (
+                          <div className="mb-1.5 text-xs !text-[var(--text-secondary)]">
+                            Vai trò:{' '}
+                            <span className="font-semibold !text-[var(--text-primary)]">
+                              {r.role}
+                            </span>
+                          </div>
+                        )}
+
                         {r.salaryRange && (
-                          <div className="mb-2 text-xs !text-[var(--text-secondary)]">
+                          <div className="mb-1.5 text-xs !text-[var(--text-secondary)]">
                             Ngân sách:{' '}
                             <span className="font-semibold !text-[var(--color-primary-500)]">
                               {r.salaryRange}
                             </span>
+                            {r.salaryType && (
+                              <span className="ml-1 !text-[var(--text-tertiary)]">
+                                ({formatSalaryCycleLabel(r.salaryType)})
+                              </span>
+                            )}
+                          </div>
+                        )}
+
+                        {(r.startedAt || r.finishedAt) && (
+                          <div className="mb-1.5 text-xs !text-[var(--text-secondary)]">
+                            Thời gian:{' '}
+                            <span className="font-medium !text-[var(--text-primary)]">
+                              {formatDateDisplay(r.startedAt) || '—'} →{' '}
+                              {formatDateDisplay(r.finishedAt) || '—'}
+                            </span>
+                          </div>
+                        )}
+
+                        {r.jobDescription && (
+                          <p className="mb-2 line-clamp-2 text-xs leading-relaxed !text-[var(--text-secondary)]">
+                            {r.jobDescription}
+                          </p>
+                        )}
+
+                        {r.termsFileUrl && (
+                          <div className="mb-2">
+                            <a
+                              href={r.termsFileUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 rounded border px-2 py-0.5 text-[11px] font-semibold no-underline transition-colors !border-[var(--color-primary-100)] !bg-[var(--color-primary-50)] !text-[var(--color-primary-500)] hover:underline"
+                            >
+                              <PaperclipIcon size={12} weight="bold" />
+                              <span>Tài liệu mô tả đính kèm</span>
+                            </a>
                           </div>
                         )}
 
@@ -560,10 +656,24 @@ export function MyProjectDetailPage({
                             onClick={() => {
                               setEditingJobRole(r)
                               setRoleTitleInput(r.title)
+                              setRolePositionInput(r.role || r.title)
                               setRoleBudgetInput(
                                 r.salaryRange ? r.salaryRange.replace(/[^0-9]/g, '') : '',
                               )
+                              const st = (r.salaryType || 'MONTHLY').toUpperCase()
+                              setRoleSalaryTypeInput(
+                                st === 'HOURLY' ||
+                                  st === 'WEEKLY' ||
+                                  st === 'FIXED' ||
+                                  st === 'DAY' ||
+                                  st === 'MONTHLY'
+                                  ? st
+                                  : 'MONTHLY',
+                              )
+                              setRoleStartDateInput(r.startedAt ? r.startedAt.split('T')[0] : '')
+                              setRoleEndDateInput(r.finishedAt ? r.finishedAt.split('T')[0] : '')
                               setRoleDescInput(r.jobDescription || '')
+                              setRoleTermsFileInput(null)
                             }}
                             className="inline-flex cursor-pointer items-center gap-1 font-semibold !text-[var(--text-secondary)] hover:!text-[var(--color-primary-500)]"
                           >
@@ -1197,28 +1307,90 @@ export function MyProjectDetailPage({
             <div className="flex flex-col gap-3.5">
               <div>
                 <label className="mb-1 block text-xs font-bold !text-[var(--text-secondary)]">
-                  Tên vị trí tuyển dụng *
+                  Tiêu đề tin tuyển dụng *
                 </label>
                 <input
                   type="text"
                   value={roleTitleInput}
                   onChange={(e) => setRoleTitleInput(e.target.value)}
                   className="w-full rounded border p-2 text-sm outline-none !border-[var(--border-default)] !bg-[var(--bg-elevated)] !text-[var(--text-primary)] focus:!border-[var(--color-primary-500)]"
-                  placeholder="VD: Senior React Developer"
+                  placeholder="VD: Tuyển Senior React Developer"
                 />
               </div>
 
               <div>
                 <label className="mb-1 block text-xs font-bold !text-[var(--text-secondary)]">
-                  Ngân sách (VNĐ)
+                  Vai trò (Role) cần tuyển dụng
                 </label>
                 <input
                   type="text"
-                  value={roleBudgetInput}
-                  onChange={(e) => setRoleBudgetInput(e.target.value)}
+                  value={rolePositionInput}
+                  onChange={(e) => setRolePositionInput(e.target.value)}
                   className="w-full rounded border p-2 text-sm outline-none !border-[var(--border-default)] !bg-[var(--bg-elevated)] !text-[var(--text-primary)] focus:!border-[var(--color-primary-500)]"
-                  placeholder="VD: 30000000"
+                  placeholder="VD: Frontend Developer"
                 />
+              </div>
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-xs font-bold !text-[var(--text-secondary)]">
+                    Ngân sách (VNĐ)
+                  </label>
+                  <input
+                    type="text"
+                    value={roleBudgetInput}
+                    onChange={(e) => setRoleBudgetInput(e.target.value)}
+                    className="w-full rounded border p-2 text-sm outline-none !border-[var(--border-default)] !bg-[var(--bg-elevated)] !text-[var(--text-primary)] focus:!border-[var(--color-primary-500)]"
+                    placeholder="VD: 30000000"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-xs font-bold !text-[var(--text-secondary)]">
+                    Chu kỳ
+                  </label>
+                  <select
+                    value={roleSalaryTypeInput}
+                    onChange={(e) =>
+                      setRoleSalaryTypeInput(
+                        e.target.value as 'MONTHLY' | 'HOURLY' | 'WEEKLY' | 'FIXED' | 'DAY',
+                      )
+                    }
+                    className="w-full rounded border p-2 text-sm outline-none !border-[var(--border-default)] !bg-[var(--bg-elevated)] !text-[var(--text-primary)] focus:!border-[var(--color-primary-500)]"
+                  >
+                    <option value="MONTHLY">Hàng tháng</option>
+                    <option value="HOURLY">Theo giờ</option>
+                    <option value="WEEKLY">Hàng tuần</option>
+                    <option value="DAY">Theo ngày</option>
+                    <option value="FIXED">Cố định</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-xs font-bold !text-[var(--text-secondary)]">
+                    Ngày bắt đầu
+                  </label>
+                  <input
+                    type="date"
+                    value={roleStartDateInput}
+                    onChange={(e) => setRoleStartDateInput(e.target.value)}
+                    className="w-full rounded border p-2 text-sm outline-none !border-[var(--border-default)] !bg-[var(--bg-elevated)] !text-[var(--text-primary)] focus:!border-[var(--color-primary-500)]"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-xs font-bold !text-[var(--text-secondary)]">
+                    Ngày kết thúc
+                  </label>
+                  <input
+                    type="date"
+                    value={roleEndDateInput}
+                    onChange={(e) => setRoleEndDateInput(e.target.value)}
+                    className="w-full rounded border p-2 text-sm outline-none !border-[var(--border-default)] !bg-[var(--bg-elevated)] !text-[var(--text-primary)] focus:!border-[var(--color-primary-500)]"
+                  />
+                </div>
               </div>
 
               <div>
@@ -1232,6 +1404,60 @@ export function MyProjectDetailPage({
                   className="w-full resize-y rounded border p-2 text-sm outline-none !border-[var(--border-default)] !bg-[var(--bg-elevated)] !text-[var(--text-primary)] focus:!border-[var(--color-primary-500)]"
                   placeholder="Mô tả trách nhiệm công việc..."
                 />
+              </div>
+
+              <div>
+                <div className="mb-1.5 flex items-center justify-between gap-2">
+                  <label className="block text-xs font-bold !text-[var(--text-secondary)]">
+                    Tài liệu mô tả đính kèm (File)
+                  </label>
+                  {editingJobRole.termsFileUrl && !roleTermsFileInput && (
+                    <a
+                      href={editingJobRole.termsFileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs font-semibold !text-[var(--color-primary-500)] hover:underline"
+                    >
+                      <PaperclipIcon size={13} />
+                      <span>Xem tài liệu hiện tại</span>
+                    </a>
+                  )}
+                  {roleTermsFileInput && (
+                    <button
+                      type="button"
+                      onClick={() => setRoleTermsFileInput(null)}
+                      className="cursor-pointer text-xs font-semibold !text-[#C03A2B] hover:underline"
+                    >
+                      Bỏ chọn file
+                    </button>
+                  )}
+                </div>
+                <label className="flex min-h-[84px] cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed p-3.5 text-center transition-colors !border-[var(--border-default)] !bg-[var(--bg-subtle)] hover:!border-[var(--color-primary-500)] hover:!bg-[var(--color-primary-50)]/40">
+                  <PaperclipIcon
+                    size={20}
+                    className={
+                      roleTermsFileInput
+                        ? '!text-[var(--color-primary-500)]'
+                        : '!text-[var(--text-tertiary)]'
+                    }
+                  />
+                  <span className="text-xs font-semibold !text-[var(--text-secondary)]">
+                    {roleTermsFileInput
+                      ? roleTermsFileInput.name
+                      : editingJobRole.termsFileUrl
+                        ? 'Tải lên tài liệu mới (thay thế)'
+                        : 'Chọn hoặc kéo thả file tài liệu (PDF, DOCX, ảnh)'}
+                  </span>
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) setRoleTermsFileInput(file)
+                    }}
+                  />
+                </label>
               </div>
             </div>
 
