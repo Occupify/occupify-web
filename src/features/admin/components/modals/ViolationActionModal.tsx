@@ -7,13 +7,34 @@ interface ViolationActionModalProps {
   onActionChange: (action: string) => void
   reason: string
   onReasonChange: (reason: string) => void
-  notifyTarget: boolean
-  onNotifyTargetChange: (notify: boolean) => void
-  notifyReporter: boolean
-  onNotifyReporterChange: (notify: boolean) => void
   onClose: () => void
   onConfirm: () => void
+  isSubmitting?: boolean
 }
+
+const ACCOUNT_ACTIONS = [
+  {
+    id: 'Khóa tài khoản vĩnh viễn',
+    label: 'Khóa tài khoản vĩnh viễn',
+    desc: 'Chuyển trạng thái tài khoản sang "Bị khóa", thu hồi quyền đăng nhập ngay lập tức.',
+    recommended: true,
+  },
+  {
+    id: 'Xóa tài khoản khỏi nền tảng',
+    label: 'Xóa tài khoản khỏi nền tảng',
+    desc: 'Xóa vĩnh viễn hồ sơ người dùng khỏi nền tảng Occupify.',
+    recommended: false,
+  },
+]
+
+const PROJECT_ACTIONS = [
+  {
+    id: 'Đóng dự án vi phạm',
+    label: 'Đóng dự án vi phạm',
+    desc: 'Chuyển trạng thái dự án sang "Đã đóng" và đóng toàn bộ vị trí tuyển dụng liên quan.',
+    recommended: true,
+  },
+]
 
 export function ViolationActionModal({
   violation,
@@ -21,65 +42,13 @@ export function ViolationActionModal({
   onActionChange,
   reason,
   onReasonChange,
-  notifyTarget,
-  onNotifyTargetChange,
-  notifyReporter,
-  onNotifyReporterChange,
   onClose,
   onConfirm,
+  isSubmitting = false,
 }: ViolationActionModalProps) {
   if (!violation) return null
 
   const isAccount = violation.category === 'Tài khoản'
-
-  const ACCOUNT_ACTIONS = [
-    {
-      id: 'Khóa tài khoản vĩnh viễn',
-      label: 'Khóa tài khoản vĩnh viễn',
-      desc: 'Chuyển trạng thái tài khoản sang "Bị khóa", thu hồi quyền đăng nhập ngay lập tức.',
-      recommended: true,
-    },
-    {
-      id: 'Tạm khóa tài khoản 7 ngày',
-      label: 'Tạm khóa tài khoản 7 ngày',
-      desc: 'Đình chỉ hoạt động tài khoản trong 7 ngày để rà soát hành vi vi phạm.',
-      recommended: false,
-    },
-    {
-      id: 'Cảnh cáo người dùng',
-      label: 'Cảnh cáo người dùng',
-      desc: 'Chuyển tài khoản sang "Bị gắn cờ" để theo dõi, gửi thông báo nhắc nhở vi phạm.',
-      recommended: false,
-    },
-    {
-      id: 'Xóa tài khoản khỏi nền tảng',
-      label: 'Xóa tài khoản khỏi nền tảng',
-      desc: 'Xóa vĩnh viễn hồ sơ người dùng khỏi nền tảng Occupify.',
-      recommended: false,
-    },
-  ]
-
-  const PROJECT_ACTIONS = [
-    {
-      id: 'Gỡ bỏ dự án vi phạm',
-      label: 'Gỡ bỏ dự án vi phạm',
-      desc: 'Hủy đăng và gỡ bỏ dự án khỏi hệ thống, hoàn trả phí đặt cọc/ký quỹ nếu có.',
-      recommended: true,
-    },
-    {
-      id: 'Yêu cầu chỉnh sửa nội dung',
-      label: 'Yêu cầu chỉnh sửa nội dung',
-      desc: 'Tạm ẩn dự án trên sàn tìm kiếm và yêu cầu chủ dự án cập nhật lại thông tin trong 24 giờ.',
-      recommended: false,
-    },
-    {
-      id: 'Gỡ dự án và khóa chủ sở hữu',
-      label: 'Gỡ dự án và khóa chủ sở hữu',
-      desc: 'Gỡ dự án vi phạm đồng thời khóa tài khoản chủ sở hữu để ngăn chặn tái phạm.',
-      recommended: false,
-    },
-  ]
-
   const options = isAccount ? ACCOUNT_ACTIONS : PROJECT_ACTIONS
   const isReasonValid = reason.trim().length > 0
 
@@ -87,7 +56,7 @@ export function ViolationActionModal({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4"
       onClick={(e) => {
-        if (e.target === e.currentTarget) onClose()
+        if (e.target === e.currentTarget && !isSubmitting) onClose()
       }}
     >
       <div className="flex max-h-[92vh] w-full max-w-[540px] flex-col overflow-hidden rounded-xl bg-white shadow-2xl">
@@ -104,8 +73,9 @@ export function ViolationActionModal({
           </div>
           <button
             type="button"
+            disabled={isSubmitting}
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-black/45 transition-colors hover:bg-black/5 hover:text-black/80"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-black/45 transition-colors hover:bg-black/5 hover:text-black/80 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <XIcon size={18} weight="bold" />
           </button>
@@ -149,6 +119,7 @@ export function ViolationActionModal({
                       name="violation-sanction"
                       value={opt.id}
                       checked={isSelected}
+                      disabled={isSubmitting}
                       onChange={() => onActionChange(opt.id)}
                       className="mt-0.5 text-[#C03A2B] focus:ring-[#C03A2B]"
                     />
@@ -177,32 +148,13 @@ export function ViolationActionModal({
             <textarea
               value={reason}
               onChange={(e) => onReasonChange(e.target.value)}
+              maxLength={1000}
+              disabled={isSubmitting}
               placeholder="Nhập lý do áp dụng chế tài, căn cứ điều khoản quy định của nền tảng..."
               rows={3}
-              className="w-full resize-none rounded-lg border border-black/15 bg-white p-2.5 text-xs text-black/90 outline-none transition-colors focus:border-[#C03A2B] focus:ring-1 focus:ring-[#C03A2B]"
+              className="w-full resize-none rounded-lg border border-black/15 bg-white p-2.5 text-xs text-black/90 outline-none transition-colors focus:border-[#C03A2B] focus:ring-1 focus:ring-[#C03A2B] disabled:bg-black/5"
             />
-          </div>
-
-          {/* Notifications Checkboxes */}
-          <div className="flex flex-col gap-2 rounded-lg border border-black/8 bg-[#FAFAF8] p-3 text-[11px]">
-            <label className="flex cursor-pointer items-center gap-2 font-medium text-black/75">
-              <input
-                type="checkbox"
-                checked={notifyTarget}
-                onChange={(e) => onNotifyTargetChange(e.target.checked)}
-                className="rounded border-black/20 text-[#0A66C2] focus:ring-[#0A66C2]"
-              />
-              Gửi email thông báo chế tài kỷ luật cho đối tượng vi phạm
-            </label>
-            <label className="flex cursor-pointer items-center gap-2 font-medium text-black/75">
-              <input
-                type="checkbox"
-                checked={notifyReporter}
-                onChange={(e) => onNotifyReporterChange(e.target.checked)}
-                className="rounded border-black/20 text-[#0A66C2] focus:ring-[#0A66C2]"
-              />
-              Gửi thông báo kết quả giải quyết cho người gửi báo cáo ({violation.reporter.name})
-            </label>
+            <div className="mt-1 text-right text-[10.5px] text-black/40">{reason.length}/1000</div>
           </div>
         </div>
 
@@ -210,18 +162,19 @@ export function ViolationActionModal({
         <div className="flex shrink-0 items-center justify-end gap-3 border-t border-black/8 px-6 py-4">
           <button
             type="button"
+            disabled={isSubmitting}
             onClick={onClose}
-            className="rounded-full border border-black/15 bg-white px-5 py-2 text-xs font-semibold text-black/75 transition-colors hover:bg-black/5"
+            className="rounded-full border border-black/15 bg-white px-5 py-2 text-xs font-semibold text-black/75 transition-colors hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-40"
           >
             Hủy bỏ
           </button>
           <button
             type="button"
-            disabled={!isReasonValid}
+            disabled={!isReasonValid || isSubmitting}
             onClick={onConfirm}
             className="rounded-full bg-[#C03A2B] px-5 py-2 text-xs font-bold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            Xác nhận áp dụng chế tài
+            {isSubmitting ? 'Đang xử lý...' : 'Xác nhận áp dụng chế tài'}
           </button>
         </div>
       </div>

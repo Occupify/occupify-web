@@ -6,6 +6,7 @@ interface ViolationDetailModalProps {
   onClose: () => void
   onReject: (id: string) => void
   onResolveClick: (violation: AdminViolation) => void
+  isSubmitting?: boolean
 }
 
 export function ViolationDetailModal({
@@ -13,6 +14,7 @@ export function ViolationDetailModal({
   onClose,
   onReject,
   onResolveClick,
+  isSubmitting = false,
 }: ViolationDetailModalProps) {
   if (!violation) return null
 
@@ -129,9 +131,39 @@ export function ViolationDetailModal({
           {/* Evidence Image Section */}
           <div className="rounded-lg border border-black/8 bg-[#FAFAF8] p-3.5">
             <span className="font-bold text-[11.5px] text-black/70 uppercase tracking-wide">
-              Bằng chứng đính kèm:
+              Bằng chứng đính kèm (
+              {violation.evidenceUrls?.length || (violation.evidenceImage ? 1 : 0)} tệp):
             </span>
-            {violation.evidenceImage ? (
+            {violation.evidenceUrls && violation.evidenceUrls.length > 0 ? (
+              <div className="mt-2.5 flex flex-col gap-2">
+                {violation.evidenceUrls.map((url, idx) => (
+                  <div
+                    key={idx}
+                    className="overflow-hidden rounded-lg border border-black/10 bg-white p-2 shadow-sm"
+                  >
+                    {url.match(/\.(jpeg|jpg|gif|png|webp)($|\?)/i) || !url.includes('.') ? (
+                      <img
+                        src={url}
+                        alt={`Bằng chứng #${idx + 1}`}
+                        className="max-h-60 w-full rounded bg-[#F4F4F2] object-contain"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <a
+                        href={url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-2 text-xs font-semibold text-[#0A66C2] hover:underline"
+                      >
+                        <span>
+                          Tệp đính kèm #{idx + 1}: {url.split('/').pop()}
+                        </span>
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : violation.evidenceImage ? (
               <div className="mt-2.5 overflow-hidden rounded-lg border border-black/10 bg-white shadow-sm">
                 <img
                   src={violation.evidenceImage}
@@ -154,15 +186,17 @@ export function ViolationDetailModal({
             <>
               <button
                 type="button"
+                disabled={isSubmitting}
                 onClick={() => onReject(violation.id)}
-                className="rounded-full border border-black/15 bg-white px-5 py-2 text-xs font-semibold text-black/75 transition-colors hover:bg-black/5"
+                className="rounded-full border border-black/15 bg-white px-5 py-2 text-xs font-semibold text-black/75 transition-colors hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Bác bỏ báo cáo
+                {isSubmitting ? 'Đang xử lý...' : 'Bác bỏ báo cáo'}
               </button>
               <button
                 type="button"
+                disabled={isSubmitting}
                 onClick={() => onResolveClick(violation)}
-                className="rounded-full bg-[#C03A2B] px-5 py-2 text-xs font-bold text-white transition-opacity hover:opacity-90"
+                className="rounded-full bg-[#C03A2B] px-5 py-2 text-xs font-bold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Xử lý vi phạm
               </button>

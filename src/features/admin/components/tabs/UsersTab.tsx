@@ -8,6 +8,7 @@ interface UsersTabProps {
   activeCount: number
   flaggedCount: number
   lockedCount: number
+  deletedCount: number
   userSearch: string
   onSearchChange: (val: string) => void
   userStatusFilter: string
@@ -25,6 +26,7 @@ export function UsersTab({
   activeCount,
   flaggedCount,
   lockedCount,
+  deletedCount,
   userSearch,
   onSearchChange,
   userStatusFilter,
@@ -44,6 +46,7 @@ export function UsersTab({
       alert: flaggedCount > 0,
     },
     { label: 'Bị khóa', count: lockedCount },
+    { label: 'Đã xóa', count: deletedCount },
   ]
 
   return (

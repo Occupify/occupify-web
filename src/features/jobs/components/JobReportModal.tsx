@@ -14,6 +14,7 @@ export function JobReportModal({ isOpen, onClose, job }: JobReportModalProps) {
   const [reportReason, setReportReason] = React.useState('Nội dung vi phạm / Lừa đảo')
   const [reportDetail, setReportDetail] = React.useState('')
   const [reportImage, setReportImage] = React.useState('')
+  const [reportFile, setReportFile] = React.useState<File | null>(null)
 
   const { mutate: reportMutation, isPending } = useReportJob()
 
@@ -26,17 +27,20 @@ export function JobReportModal({ isOpen, onClose, job }: JobReportModalProps) {
     reportMutation(
       {
         jobId: job.id,
+        projectId: String(job.id),
         clientName: job.clientName,
         jobTitle: job.title,
         reason: reportReason,
         detail: reportDetail.trim(),
         evidenceImage: reportImage || undefined,
+        evidenceFile: reportFile,
       },
       {
         onSuccess: () => {
           onClose()
           setReportDetail('')
           setReportImage('')
+          setReportFile(null)
           toast.success(
             'Đã gửi báo cáo vi phạm thành công! Ban quản trị Occupify sẽ kiểm tra và phản hồi trong 24h.',
           )
@@ -231,7 +235,11 @@ export function JobReportModal({ isOpen, onClose, job }: JobReportModalProps) {
               id="report-evidence"
               type="file"
               accept="image/*"
-              onChange={(e) => setReportImage(e.target.files?.[0]?.name ?? '')}
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null
+                setReportFile(file)
+                setReportImage(file ? file.name : '')
+              }}
               style={{ fontSize: 13 }}
             />
             {reportImage && (

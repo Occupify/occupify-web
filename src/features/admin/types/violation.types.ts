@@ -17,12 +17,15 @@ export interface AdminViolation {
     color: string
   }
   target: string
+  targetUserId?: string | null
+  targetProjectId?: string | null
   category: ViolationCategory
   time: string
   status: ViolationStatus
   reason: string
   evidence: string
   evidenceImage?: string
+  evidenceUrls?: string[]
   actionTaken?: string
   resolveNote?: string
   resolvedAt?: string

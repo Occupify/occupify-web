@@ -5,7 +5,7 @@ export interface ReportProfileModalProps {
   isOpen: boolean
   reportedUserName: string
   onClose: () => void
-  onSubmit: (reason: string, imageFileName?: string) => void
+  onSubmit: (reason: string, imageFileName?: string, evidenceFile?: File | null) => void
   isSubmitting?: boolean
 }
 
@@ -18,15 +18,17 @@ export function ReportProfileModal({
 }: ReportProfileModalProps) {
   const [reason, setReason] = React.useState('')
   const [imageFileName, setImageFileName] = React.useState('')
+  const [evidenceFile, setEvidenceFile] = React.useState<File | null>(null)
 
   if (!isOpen) return null
 
   const handleSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault()
     if (!reason.trim()) return
-    onSubmit(reason.trim(), imageFileName || undefined)
+    onSubmit(reason.trim(), imageFileName || undefined, evidenceFile)
     setReason('')
     setImageFileName('')
+    setEvidenceFile(null)
   }
 
   return (
@@ -178,7 +180,11 @@ export function ReportProfileModal({
               id="report-image"
               type="file"
               accept="image/*"
-              onChange={(e) => setImageFileName(e.target.files?.[0]?.name ?? '')}
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null
+                setEvidenceFile(file)
+                setImageFileName(file ? file.name : '')
+              }}
               style={{
                 fontSize: 13,
                 color: '#475569',

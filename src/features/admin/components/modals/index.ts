@@ -1,4 +1,5 @@
 export * from './UserDetailModal'
+export * from './UserLockModal'
 export * from './UserDeleteModal'
 export * from './ProjectDetailModal'
 export * from './ProjectDeleteModal'
