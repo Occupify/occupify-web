@@ -1,4 +1,10 @@
-import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+  keepPreviousData,
+  useQuery,
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { getJobs, getJobById, getJobsPage } from '../api/get-jobs'
 import { createJob, type CreateJobPayload } from '../api/create-job'
 import { closeJob, deleteJob, updateJob, type UpdateJobPayload } from '../api/manage-job'
@@ -7,6 +13,7 @@ import type { GetJobsParams } from '../types'
 export const JOB_QUERY_KEYS = {
   all: ['jobs'] as const,
   list: (params?: GetJobsParams) => ['jobs', 'list', params] as const,
+  page: (params?: GetJobsParams) => ['jobs', 'page', params] as const,
   infinite: (params?: GetJobsParams) => ['jobs', 'infinite', params] as const,
   detail: (id?: string | number | null) => ['jobs', 'detail', id] as const,
   filters: ['jobs', 'filters'] as const,
@@ -16,6 +23,17 @@ export function useJobs(params?: GetJobsParams) {
   return useQuery({
     queryKey: JOB_QUERY_KEYS.list(params),
     queryFn: () => getJobs(params),
+    staleTime: 1000 * 60 * 2,
+  })
+}
+
+export function useJobsPage(params?: GetJobsParams) {
+  const pageSize = params?.size ?? 10
+
+  return useQuery({
+    queryKey: JOB_QUERY_KEYS.page({ ...params, size: pageSize }),
+    queryFn: () => getJobsPage({ ...params, size: pageSize }),
+    placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 2,
   })
 }
